@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Menu, X } from "lucide-react";
+import { Menu, X, LogOut, Shield } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
 import logo from "@/assets/opulence-logo.png";
 
 const navLinks = [
@@ -13,6 +14,7 @@ const navLinks = [
 const Navbar = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const location = useLocation();
+  const { user, profile, hasRole, signOut } = useAuth();
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md border-b border-border/50">
@@ -35,12 +37,34 @@ const Navbar = () => {
             </Link>
           ))}
           <div className="flex items-center gap-3 ml-4">
-            <Button variant="ghost" size="sm" asChild>
-              <Link to="/login">Sign In</Link>
-            </Button>
-            <Button variant="gold" size="sm" asChild>
-              <Link to="/login">Apply Now</Link>
-            </Button>
+            {user ? (
+              <>
+                {hasRole("admin") && (
+                  <Button variant="ghost" size="sm" asChild>
+                    <Link to="/admin" className="gap-1">
+                      <Shield size={14} />
+                      Admin
+                    </Link>
+                  </Button>
+                )}
+                <span className="font-body text-sm text-muted-foreground">
+                  {profile?.first_name || user.email}
+                </span>
+                <Button variant="ghost" size="sm" onClick={signOut} className="gap-1">
+                  <LogOut size={14} />
+                  Sign Out
+                </Button>
+              </>
+            ) : (
+              <>
+                <Button variant="ghost" size="sm" asChild>
+                  <Link to="/login">Sign In</Link>
+                </Button>
+                <Button variant="gold" size="sm" asChild>
+                  <Link to="/login">Apply Now</Link>
+                </Button>
+              </>
+            )}
           </div>
         </div>
 
@@ -68,12 +92,31 @@ const Navbar = () => {
               </Link>
             ))}
             <div className="flex flex-col gap-2 pt-4 border-t border-border">
-              <Button variant="ghost" size="sm" asChild>
-                <Link to="/login">Sign In</Link>
-              </Button>
-              <Button variant="gold" size="sm" asChild>
-                <Link to="/login">Apply Now</Link>
-              </Button>
+              {user ? (
+                <>
+                  {hasRole("admin") && (
+                    <Button variant="ghost" size="sm" asChild>
+                      <Link to="/admin" onClick={() => setMobileOpen(false)}>
+                        <Shield size={14} className="mr-1" />
+                        Admin Dashboard
+                      </Link>
+                    </Button>
+                  )}
+                  <Button variant="ghost" size="sm" onClick={() => { signOut(); setMobileOpen(false); }}>
+                    <LogOut size={14} className="mr-1" />
+                    Sign Out
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <Button variant="ghost" size="sm" asChild>
+                    <Link to="/login" onClick={() => setMobileOpen(false)}>Sign In</Link>
+                  </Button>
+                  <Button variant="gold" size="sm" asChild>
+                    <Link to="/login" onClick={() => setMobileOpen(false)}>Apply Now</Link>
+                  </Button>
+                </>
+              )}
             </div>
           </div>
         </div>
