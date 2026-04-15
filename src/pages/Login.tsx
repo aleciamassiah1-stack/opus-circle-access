@@ -4,20 +4,55 @@ import { Input } from "@/components/ui/input";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { Eye, EyeOff } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
+import { useNavigate } from "react-router-dom";
 
 type AuthView = "login" | "signup-candidate" | "signup-employer";
 
 const Login = () => {
   const [view, setView] = useState<AuthView>("login");
   const [showPassword, setShowPassword] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [submitting, setSubmitting] = useState(false);
   const { toast } = useToast();
+  const { signIn, signUp, user } = useAuth();
+  const navigate = useNavigate();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  // Redirect if already logged in
+  if (user) {
+    navigate("/", { replace: true });
+    return null;
+  }
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    toast({
-      title: "Backend required",
-      description: "Connect Lovable Cloud to enable authentication.",
-    });
+    setSubmitting(true);
+
+    if (view === "login") {
+      const { error } = await signIn(email, password);
+      if (error) {
+        toast({ title: "Sign in failed", description: error.message, variant: "destructive" });
+      } else {
+        toast({ title: "Welcome back!" });
+        navigate("/");
+      }
+    } else {
+      const role = view === "signup-candidate" ? "candidate" : "employer";
+      const { error } = await signUp(email, password, { first_name: firstName, last_name: lastName, role });
+      if (error) {
+        toast({ title: "Sign up failed", description: error.message, variant: "destructive" });
+      } else {
+        toast({
+          title: "Account created!",
+          description: "Please check your email to verify your account.",
+        });
+      }
+    }
+
+    setSubmitting(false);
   };
 
   return (
@@ -29,8 +64,8 @@ const Login = () => {
               {view === "login" ? "Welcome Back" : view === "signup-candidate" ? "Apply as Talent" : "Employer Access"}
             </h1>
             <p className="font-body text-sm text-muted-foreground">
-              {view === "login" 
-                ? "Sign in to your account" 
+              {view === "login"
+                ? "Sign in to your account"
                 : "Create your account to get started"}
             </p>
           </div>
@@ -40,22 +75,22 @@ const Login = () => {
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="font-body text-xs font-medium text-foreground mb-1.5 block">First Name</label>
-                  <Input required placeholder="Jane" />
+                  <Input required placeholder="Jane" value={firstName} onChange={(e) => setFirstName(e.target.value)} />
                 </div>
                 <div>
                   <label className="font-body text-xs font-medium text-foreground mb-1.5 block">Last Name</label>
-                  <Input required placeholder="Doe" />
+                  <Input required placeholder="Doe" value={lastName} onChange={(e) => setLastName(e.target.value)} />
                 </div>
               </div>
             )}
             <div>
               <label className="font-body text-xs font-medium text-foreground mb-1.5 block">Email</label>
-              <Input required type="email" placeholder="you@example.com" />
+              <Input required type="email" placeholder="you@example.com" value={email} onChange={(e) => setEmail(e.target.value)} />
             </div>
             <div>
               <label className="font-body text-xs font-medium text-foreground mb-1.5 block">Password</label>
               <div className="relative">
-                <Input required type={showPassword ? "text" : "password"} placeholder="••••••••" />
+                <Input required type={showPassword ? "text" : "password"} placeholder="••••••••" value={password} onChange={(e) => setPassword(e.target.value)} minLength={6} />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
@@ -65,8 +100,8 @@ const Login = () => {
                 </button>
               </div>
             </div>
-            <Button variant="gold" size="lg" className="w-full">
-              {view === "login" ? "Sign In" : "Create Account"}
+            <Button variant="gold" size="lg" className="w-full" disabled={submitting}>
+              {submitting ? "Please wait..." : view === "login" ? "Sign In" : "Create Account"}
             </Button>
           </form>
 
