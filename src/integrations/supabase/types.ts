@@ -14,9 +14,248 @@ export type Database = {
   }
   public: {
     Tables: {
+      candidate_job_titles: {
+        Row: {
+          id: string
+          job_title_id: string
+          profile_id: string
+        }
+        Insert: {
+          id?: string
+          job_title_id: string
+          profile_id: string
+        }
+        Update: {
+          id?: string
+          job_title_id?: string
+          profile_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "candidate_job_titles_job_title_id_fkey"
+            columns: ["job_title_id"]
+            isOneToOne: false
+            referencedRelation: "job_titles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "candidate_job_titles_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      candidate_specialty_tags: {
+        Row: {
+          id: string
+          profile_id: string
+          tag_id: string
+        }
+        Insert: {
+          id?: string
+          profile_id: string
+          tag_id: string
+        }
+        Update: {
+          id?: string
+          profile_id?: string
+          tag_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "candidate_specialty_tags_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "candidate_specialty_tags_tag_id_fkey"
+            columns: ["tag_id"]
+            isOneToOne: false
+            referencedRelation: "specialty_tags"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      conversations: {
+        Row: {
+          candidate_user_id: string
+          created_at: string
+          employer_user_id: string
+          id: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          candidate_user_id: string
+          created_at?: string
+          employer_user_id: string
+          id?: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          candidate_user_id?: string
+          created_at?: string
+          employer_user_id?: string
+          id?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      favorites: {
+        Row: {
+          candidate_profile_id: string
+          created_at: string
+          employer_user_id: string
+          id: string
+        }
+        Insert: {
+          candidate_profile_id: string
+          created_at?: string
+          employer_user_id: string
+          id?: string
+        }
+        Update: {
+          candidate_profile_id?: string
+          created_at?: string
+          employer_user_id?: string
+          id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "favorites_candidate_profile_id_fkey"
+            columns: ["candidate_profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      interview_requests: {
+        Row: {
+          candidate_user_id: string
+          created_at: string
+          employer_user_id: string
+          id: string
+          note: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          candidate_user_id: string
+          created_at?: string
+          employer_user_id: string
+          id?: string
+          note?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          candidate_user_id?: string
+          created_at?: string
+          employer_user_id?: string
+          id?: string
+          note?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      job_titles: {
+        Row: {
+          id: string
+          name: string
+          sort_order: number | null
+        }
+        Insert: {
+          id?: string
+          name: string
+          sort_order?: number | null
+        }
+        Update: {
+          id?: string
+          name?: string
+          sort_order?: number | null
+        }
+        Relationships: []
+      }
+      messages: {
+        Row: {
+          body: string
+          conversation_id: string
+          id: string
+          read_at: string | null
+          sender_id: string
+          sent_at: string
+        }
+        Insert: {
+          body: string
+          conversation_id: string
+          id?: string
+          read_at?: string | null
+          sender_id: string
+          sent_at?: string
+        }
+        Update: {
+          body?: string
+          conversation_id?: string
+          id?: string
+          read_at?: string | null
+          sender_id?: string
+          sent_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "messages_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "conversations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      notifications: {
+        Row: {
+          body: string | null
+          created_at: string
+          id: string
+          metadata: Json | null
+          read: boolean
+          title: string
+          type: string
+          user_id: string
+        }
+        Insert: {
+          body?: string | null
+          created_at?: string
+          id?: string
+          metadata?: Json | null
+          read?: boolean
+          title: string
+          type: string
+          user_id: string
+        }
+        Update: {
+          body?: string | null
+          created_at?: string
+          id?: string
+          metadata?: Json | null
+          read?: boolean
+          title?: string
+          type?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           approval_status: Database["public"]["Enums"]["approval_status"]
+          availability_status: string | null
           avatar_url: string | null
           bio: string | null
           created_at: string
@@ -27,12 +266,19 @@ export type Database = {
           last_name: string | null
           location: string | null
           phone: string | null
+          profile_completion: number | null
+          resume_url: string | null
           subscription_active: boolean
+          title: string | null
           updated_at: string
           user_id: string
+          visibility_status: string | null
+          work_authorization: string | null
+          years_experience: number | null
         }
         Insert: {
           approval_status?: Database["public"]["Enums"]["approval_status"]
+          availability_status?: string | null
           avatar_url?: string | null
           bio?: string | null
           created_at?: string
@@ -43,12 +289,19 @@ export type Database = {
           last_name?: string | null
           location?: string | null
           phone?: string | null
+          profile_completion?: number | null
+          resume_url?: string | null
           subscription_active?: boolean
+          title?: string | null
           updated_at?: string
           user_id: string
+          visibility_status?: string | null
+          work_authorization?: string | null
+          years_experience?: number | null
         }
         Update: {
           approval_status?: Database["public"]["Enums"]["approval_status"]
+          availability_status?: string | null
           avatar_url?: string | null
           bio?: string | null
           created_at?: string
@@ -59,9 +312,33 @@ export type Database = {
           last_name?: string | null
           location?: string | null
           phone?: string | null
+          profile_completion?: number | null
+          resume_url?: string | null
           subscription_active?: boolean
+          title?: string | null
           updated_at?: string
           user_id?: string
+          visibility_status?: string | null
+          work_authorization?: string | null
+          years_experience?: number | null
+        }
+        Relationships: []
+      }
+      specialty_tags: {
+        Row: {
+          id: string
+          name: string
+          sort_order: number | null
+        }
+        Insert: {
+          id?: string
+          name: string
+          sort_order?: number | null
+        }
+        Update: {
+          id?: string
+          name?: string
+          sort_order?: number | null
         }
         Relationships: []
       }
