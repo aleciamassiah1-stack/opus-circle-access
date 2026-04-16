@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Menu, X, LogOut, Shield } from "lucide-react";
+import { Menu, X, LogOut, Shield, LayoutDashboard } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import logo from "@/assets/opulence-logo.png";
 
@@ -39,6 +39,14 @@ const Navbar = () => {
           <div className="flex items-center gap-3 ml-4">
             {user ? (
               <>
+                {hasRole("candidate") && (
+                  <Button variant="ghost" size="sm" asChild>
+                    <Link to="/dashboard" className="gap-1">
+                      <LayoutDashboard size={14} />
+                      Dashboard
+                    </Link>
+                  </Button>
+                )}
                 {hasRole("admin") && (
                   <Button variant="ghost" size="sm" asChild>
                     <Link to="/admin" className="gap-1">
@@ -94,6 +102,14 @@ const Navbar = () => {
             <div className="flex flex-col gap-2 pt-4 border-t border-border">
               {user ? (
                 <>
+                  {hasRole("candidate") && (
+                    <Button variant="ghost" size="sm" asChild>
+                      <Link to="/dashboard" onClick={() => setMobileOpen(false)}>
+                        <LayoutDashboard size={14} className="mr-1" />
+                        Dashboard
+                      </Link>
+                    </Button>
+                  )}
                   {hasRole("admin") && (
                     <Button variant="ghost" size="sm" asChild>
                       <Link to="/admin" onClick={() => setMobileOpen(false)}>

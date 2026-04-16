@@ -1,0 +1,147 @@
+import { useEffect, useState } from "react";
+import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "@/hooks/use-toast";
+import { CalendarClock, Check, X, Loader2 } from "lucide-react";
+import { formatDistanceToNow } from "date-fns";
+
+type Request = {
+  id: string;
+  employer_user_id: string;
+  status: string;
+  note: string | null;
+  created_at: string;
+  employer_name?: string;
+};
+
+const statusColor: Record<string, string> = {
+  pending: "text-amber-700 bg-amber-50 border-amber-200",
+  accepted: "text-green-700 bg-green-50 border-green-200",
+  declined: "text-destructive bg-red-50 border-red-200",
+  withdrawn: "text-muted-foreground bg-muted border-border",
+};
+
+const InterviewRequests = () => {
+  const { user } = useAuth();
+  const [requests, setRequests] = useState<Request[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [acting, setActing] = useState<string | null>(null);
+
+  const load = async () => {
+    if (!user) return;
+    const { data } = await supabase
+      .from("interview_requests")
+      .select("*")
+      .eq("candidate_user_id", user.id)
+      .order("created_at", { ascending: false });
+
+    if (!data) {
+      setLoading(false);
+      return;
+    }
+    const enriched = await Promise.all(
+      data.map(async (r) => {
+        const { data: emp } = await supabase
+          .from("profiles")
+          .select("first_name, last_name")
+          .eq("user_id", r.employer_user_id)
+          .maybeSingle();
+        return {
+          ...r,
+          employer_name: emp ? `${emp.first_name ?? ""} ${emp.last_name ?? ""}`.trim() || "Employer" : "Employer",
+        };
+      })
+    );
+    setRequests(enriched);
+    setLoading(false);
+  };
+
+  useEffect(() => {
+    load();
+  }, [user]);
+
+  const respond = async (id: string, status: "accepted" | "declined") => {
+    setActing(id);
+    const { error } = await supabase
+      .from("interview_requests")
+      .update({ status, updated_at: new Date().toISOString() })
+      .eq("id", id);
+    setActing(null);
+    if (error) {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+    } else {
+      toast({ title: `Request ${status}` });
+      load();
+    }
+  };
+
+  if (loading) {
+    return (
+      <Card className="p-12 text-center shadow-card">
+        <Loader2 className="animate-spin mx-auto text-muted-foreground" />
+      </Card>
+    );
+  }
+
+  if (requests.length === 0) {
+    return (
+      <Card className="p-12 text-center shadow-card">
+        <CalendarClock size={40} className="mx-auto text-muted-foreground mb-4" />
+        <h3 className="font-heading text-2xl mb-2">No interview requests</h3>
+        <p className="text-muted-foreground font-body text-sm">
+          When employers request interviews, they'll appear here.
+        </p>
+      </Card>
+    );
+  }
+
+  return (
+    <div className="space-y-4 animate-fade-in">
+      {requests.map((r) => (
+        <Card key={r.id} className="p-6 shadow-card">
+          <div className="flex justify-between items-start mb-3 flex-wrap gap-3">
+            <div>
+              <p className="font-heading text-xl text-foreground">{r.employer_name}</p>
+              <p className="text-xs text-muted-foreground font-body mt-1">
+                {formatDistanceToNow(new Date(r.created_at), { addSuffix: true })}
+              </p>
+            </div>
+            <Badge variant="outline" className={`${statusColor[r.status]} font-body capitalize`}>
+              {r.status}
+            </Badge>
+          </div>
+          {r.note && (
+            <p className="text-sm text-foreground font-body bg-muted/50 p-3 rounded-md mb-4 italic">
+              "{r.note}"
+            </p>
+          )}
+          {r.status === "pending" && (
+            <div className="flex gap-2">
+              <Button
+                variant="gold"
+                size="sm"
+                onClick={() => respond(r.id, "accepted")}
+                disabled={acting === r.id}
+              >
+                <Check size={14} className="mr-1" /> Accept
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => respond(r.id, "declined")}
+                disabled={acting === r.id}
+              >
+                <X size={14} className="mr-1" /> Decline
+              </Button>
+            </div>
+          )}
+        </Card>
+      ))}
+    </div>
+  );
+};
+
+export default InterviewRequests;

@@ -11,6 +11,7 @@ import Contact from "./pages/Contact";
 import Login from "./pages/Login";
 import PendingApproval from "./pages/PendingApproval";
 import AdminDashboard from "./pages/AdminDashboard";
+import CandidateDashboard from "./pages/CandidateDashboard";
 import ProtectedRoute from "./components/ProtectedRoute";
 import NotFound from "./pages/NotFound";
 
@@ -30,6 +31,14 @@ const App = () => (
             <Route path="/contact" element={<Contact />} />
             <Route path="/login" element={<Login />} />
             <Route path="/pending-approval" element={<PendingApproval />} />
+            <Route
+              path="/dashboard"
+              element={
+                <ProtectedRoute requiredRole="candidate">
+                  <CandidateDashboard />
+                </ProtectedRoute>
+              }
+            />
             <Route
               path="/admin"
               element={
