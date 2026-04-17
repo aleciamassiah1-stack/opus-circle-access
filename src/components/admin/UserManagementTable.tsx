@@ -149,6 +149,7 @@ const UserManagementTable = ({ onChange }: Props) => {
                 <TableHead>Role</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead>Sub</TableHead>
+                <TableHead>Verified</TableHead>
                 <TableHead>Visibility</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
               </TableRow>
@@ -156,7 +157,12 @@ const UserManagementTable = ({ onChange }: Props) => {
             <TableBody>
               {filtered.map((u) => (
                 <TableRow key={u.id}>
-                  <TableCell className="font-medium">{u.first_name} {u.last_name}</TableCell>
+                  <TableCell className="font-medium">
+                    <span className="inline-flex items-center gap-1.5">
+                      {u.first_name} {u.last_name}
+                      {u.verified && <BadgeCheck size={14} className="text-gold" />}
+                    </span>
+                  </TableCell>
                   <TableCell className="text-muted-foreground text-sm">{u.email}</TableCell>
                   <TableCell>{roleBadge(u.role)}</TableCell>
                   <TableCell>{statusBadge(u.approval_status)}</TableCell>
@@ -167,13 +173,20 @@ const UserManagementTable = ({ onChange }: Props) => {
                       <Badge variant="outline" className="text-[10px]">Inactive</Badge>
                     )}
                   </TableCell>
+                  <TableCell>
+                    {u.verified ? (
+                      <Badge className="text-[10px] bg-gold text-primary-foreground hover:bg-gold/90">Verified</Badge>
+                    ) : (
+                      <Badge variant="outline" className="text-[10px]">—</Badge>
+                    )}
+                  </TableCell>
                   <TableCell className="capitalize text-sm text-muted-foreground">
                     {u.visibility_status ?? "hidden"}
                   </TableCell>
                   <TableCell className="text-right">
                     <div className="flex gap-1.5 justify-end flex-wrap">
                       {u.approval_status !== "approved" && (
-                        <Button size="sm" variant="outline" onClick={() => updateApproval(u.user_id, "approved")}>
+                        <Button size="sm" variant="outline" onClick={() => updateApproval(u.user_id, "approved")} title="Approve">
                           <CheckCircle size={12} />
                         </Button>
                       )}
@@ -183,13 +196,35 @@ const UserManagementTable = ({ onChange }: Props) => {
                           variant="outline"
                           onClick={() => updateApproval(u.user_id, "rejected")}
                           className="text-destructive border-destructive/20"
+                          title="Reject"
                         >
                           <XCircle size={12} />
                         </Button>
                       )}
                       {u.role === "candidate" && (
-                        <Button size="sm" variant="ghost" onClick={() => toggleVisibility(u.user_id, u.visibility_status)}>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => toggleVerified(u.user_id, !!u.verified)}
+                          title={u.verified ? "Remove verification" : "Mark verified"}
+                          className={u.verified ? "text-gold" : ""}
+                        >
+                          <BadgeCheck size={12} />
+                        </Button>
+                      )}
+                      {u.role === "candidate" && (
+                        <Button size="sm" variant="ghost" onClick={() => toggleVisibility(u.user_id, u.visibility_status)} title="Toggle visibility">
                           {u.visibility_status === "visible" ? <EyeOff size={12} /> : <Eye size={12} />}
+                        </Button>
+                      )}
+                      {u.role !== "admin" && (
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => promoteToAdmin(u.user_id)}
+                          title="Promote to admin"
+                        >
+                          <Shield size={12} />
                         </Button>
                       )}
                     </div>
