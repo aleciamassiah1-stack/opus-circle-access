@@ -85,6 +85,13 @@ const CandidateDashboard = () => {
                 </span>
               )}
             </TabsTrigger>
+            <TabsTrigger value="resume-requests" className="font-body data-[state=active]:bg-background">
+              Resume Requests {pendingResumeRequests > 0 && (
+                <span className="ml-2 bg-gold text-primary-foreground text-xs px-2 py-0.5 rounded-full">
+                  {pendingResumeRequests}
+                </span>
+              )}
+            </TabsTrigger>
             <TabsTrigger value="billing" className="font-body data-[state=active]:bg-background">
               Billing
             </TabsTrigger>
@@ -98,6 +105,9 @@ const CandidateDashboard = () => {
           </TabsContent>
           <TabsContent value="interviews">
             <InterviewRequests />
+          </TabsContent>
+          <TabsContent value="resume-requests">
+            <ResumeAccessRequests />
           </TabsContent>
           <TabsContent value="billing">
             <BillingPanel plan="candidate" />
