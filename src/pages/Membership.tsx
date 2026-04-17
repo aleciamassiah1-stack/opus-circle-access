@@ -60,7 +60,7 @@ const Membership = () => {
               ))}
             </ul>
             <Button variant="gold" size="lg" asChild>
-              <Link to="/login">Apply as Talent</Link>
+              <Link to="/checkout?plan=candidate">Apply as Talent</Link>
             </Button>
           </div>
 
@@ -79,7 +79,7 @@ const Membership = () => {
               </div>
             </div>
             <div className="mb-8">
-              <span className="font-heading text-5xl text-background">$29.99</span>
+              <span className="font-heading text-5xl text-background">$49.99</span>
               <span className="font-body text-background/50 text-sm">/month</span>
             </div>
             <ul className="space-y-3 mb-8 flex-1">
@@ -91,7 +91,7 @@ const Membership = () => {
               ))}
             </ul>
             <Button variant="gold" size="lg" asChild>
-              <Link to="/login">Request Access</Link>
+              <Link to="/checkout?plan=employer">Request Access</Link>
             </Button>
           </div>
         </div>

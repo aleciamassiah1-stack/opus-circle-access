@@ -15,12 +15,12 @@ const Paywall = () => (
       coordination.
     </p>
     <Button variant="gold" size="lg" asChild>
-      <Link to="/membership">
+      <Link to="/checkout?plan=employer">
         <Sparkles size={16} />
         Activate Membership
       </Link>
     </Button>
-    <p className="font-body text-xs text-muted-foreground mt-4">$29.99/mo · cancel anytime</p>
+    <p className="font-body text-xs text-muted-foreground mt-4">$49.99/mo · cancel anytime</p>
   </Card>
 );
 

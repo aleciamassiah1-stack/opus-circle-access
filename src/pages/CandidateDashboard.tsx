@@ -5,6 +5,7 @@ import StatusPanel from "@/components/candidate/StatusPanel";
 import ProfileEditor from "@/components/candidate/ProfileEditor";
 import MessagingInbox from "@/components/candidate/MessagingInbox";
 import InterviewRequests from "@/components/candidate/InterviewRequests";
+import BillingPanel from "@/components/BillingPanel";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -76,6 +77,9 @@ const CandidateDashboard = () => {
                 </span>
               )}
             </TabsTrigger>
+            <TabsTrigger value="billing" className="font-body data-[state=active]:bg-background">
+              Billing
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="profile">
@@ -86,6 +90,9 @@ const CandidateDashboard = () => {
           </TabsContent>
           <TabsContent value="interviews">
             <InterviewRequests />
+          </TabsContent>
+          <TabsContent value="billing">
+            <BillingPanel plan="candidate" />
           </TabsContent>
         </Tabs>
       </div>
