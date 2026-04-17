@@ -11,12 +11,13 @@ import {
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
-import { CheckCircle, XCircle, Eye, EyeOff, Search, Loader2, BadgeCheck, Shield, Trash2 } from "lucide-react";
+import { CheckCircle, XCircle, Eye, EyeOff, Search, Loader2, BadgeCheck, Shield, Trash2, UserMinus } from "lucide-react";
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { useAuth } from "@/contexts/AuthContext";
+import { logAdminAction } from "@/lib/auditLog";
 import type { Database } from "@/integrations/supabase/types";
 
 type Profile = Database["public"]["Tables"]["profiles"]["Row"];
@@ -37,20 +38,37 @@ const UserManagementTable = ({ onChange }: Props) => {
   const [search, setSearch] = useState("");
   const [roleFilter, setRoleFilter] = useState<"all" | AppRole>("all");
   const [statusFilter, setStatusFilter] = useState<"all" | ApprovalStatus>("all");
-  const [confirmDelete, setConfirmDelete] = useState<UserRow | null>(null);
+  const [confirmSoftDelete, setConfirmSoftDelete] = useState<UserRow | null>(null);
+  const [confirmHardDelete, setConfirmHardDelete] = useState<UserRow | null>(null);
   const [deleting, setDeleting] = useState(false);
 
-  const deleteUser = async (userId: string) => {
+  const softDeleteUser = async (userId: string) => {
     setDeleting(true);
     const { error } = await supabase.functions.invoke("admin-delete-user", {
-      body: { user_id: userId },
+      body: { user_id: userId, mode: "soft" },
     });
     setDeleting(false);
-    setConfirmDelete(null);
+    setConfirmSoftDelete(null);
+    if (error) {
+      toast({ title: "Deactivation failed", description: error.message, variant: "destructive" });
+    } else {
+      toast({ title: "Account deactivated", description: "Recoverable for 30 days." });
+      load();
+      onChange?.();
+    }
+  };
+
+  const hardDeleteUser = async (userId: string) => {
+    setDeleting(true);
+    const { error } = await supabase.functions.invoke("admin-delete-user", {
+      body: { user_id: userId, mode: "hard" },
+    });
+    setDeleting(false);
+    setConfirmHardDelete(null);
     if (error) {
       toast({ title: "Delete failed", description: error.message, variant: "destructive" });
     } else {
-      toast({ title: "Account deleted" });
+      toast({ title: "Account permanently deleted" });
       load();
       onChange?.();
     }
@@ -59,7 +77,7 @@ const UserManagementTable = ({ onChange }: Props) => {
   const load = async () => {
     setLoading(true);
     const [{ data: profiles }, { data: roles }] = await Promise.all([
-      supabase.from("profiles").select("*").order("created_at", { ascending: false }),
+      supabase.from("profiles").select("*").is("deactivated_at", null).order("created_at", { ascending: false }),
       supabase.from("user_roles").select("user_id, role"),
     ]);
     const map = new Map((roles ?? []).map((r: any) => [r.user_id, r.role]));
@@ -76,6 +94,7 @@ const UserManagementTable = ({ onChange }: Props) => {
     const { error } = await supabase.from("profiles").update(update).eq("user_id", userId);
     if (error) toast({ title: "Update failed", description: error.message, variant: "destructive" });
     else {
+      await logAdminAction(status === "approved" ? "approve" : "reject", userId);
       toast({ title: `User ${status}` });
       load();
       onChange?.();
@@ -86,19 +105,28 @@ const UserManagementTable = ({ onChange }: Props) => {
     const next = current === "visible" ? "hidden" : "visible";
     const { error } = await supabase.from("profiles").update({ visibility_status: next }).eq("user_id", userId);
     if (error) toast({ title: "Update failed", description: error.message, variant: "destructive" });
-    else { toast({ title: `Profile ${next}` }); load(); onChange?.(); }
+    else {
+      await logAdminAction(next === "visible" ? "visibility_show" : "visibility_hide", userId);
+      toast({ title: `Profile ${next}` }); load(); onChange?.();
+    }
   };
 
   const toggleVerified = async (userId: string, current: boolean) => {
     const { error } = await supabase.from("profiles").update({ verified: !current }).eq("user_id", userId);
     if (error) toast({ title: "Update failed", description: error.message, variant: "destructive" });
-    else { toast({ title: !current ? "Marked verified" : "Verification removed" }); load(); onChange?.(); }
+    else {
+      await logAdminAction(!current ? "verify" : "unverify", userId);
+      toast({ title: !current ? "Marked verified" : "Verification removed" }); load(); onChange?.();
+    }
   };
 
   const promoteToAdmin = async (userId: string) => {
     const { error } = await supabase.from("user_roles").insert({ user_id: userId, role: "admin" });
     if (error) toast({ title: "Could not grant admin", description: error.message, variant: "destructive" });
-    else { toast({ title: "Admin role granted" }); load(); onChange?.(); }
+    else {
+      await logAdminAction("promote_admin", userId);
+      toast({ title: "Admin role granted" }); load(); onChange?.();
+    }
   };
 
   const filtered = users.filter((u) => {
@@ -252,15 +280,26 @@ const UserManagementTable = ({ onChange }: Props) => {
                         </Button>
                       )}
                       {u.user_id !== currentUser?.id && (
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          onClick={() => setConfirmDelete(u)}
-                          title="Delete account"
-                          className="text-destructive hover:text-destructive hover:bg-destructive/10"
-                        >
-                          <Trash2 size={12} />
-                        </Button>
+                        <>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => setConfirmSoftDelete(u)}
+                            title="Deactivate (recoverable for 30 days)"
+                            className="text-amber-600 hover:bg-muted"
+                          >
+                            <UserMinus size={12} />
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => setConfirmHardDelete(u)}
+                            title="Delete permanently"
+                            className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                          >
+                            <Trash2 size={12} />
+                          </Button>
+                        </>
                       )}
                     </div>
                   </TableCell>
@@ -271,24 +310,44 @@ const UserManagementTable = ({ onChange }: Props) => {
         )}
       </Card>
 
-      <AlertDialog open={!!confirmDelete} onOpenChange={(open) => !open && setConfirmDelete(null)}>
+      <AlertDialog open={!!confirmSoftDelete} onOpenChange={(open) => !open && setConfirmSoftDelete(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete this account?</AlertDialogTitle>
+            <AlertDialogTitle>Deactivate this account?</AlertDialogTitle>
             <AlertDialogDescription>
-              This permanently removes <strong>{confirmDelete?.first_name} {confirmDelete?.last_name}</strong> ({confirmDelete?.email}),
-              including their profile, messages, requests, favorites, subscription record, and uploaded files. This cannot be undone.
+              <strong>{confirmSoftDelete?.first_name} {confirmSoftDelete?.last_name}</strong> ({confirmSoftDelete?.email}) will be hidden from the platform and unable to sign in. You can restore them within <strong>30 days</strong> from the Deactivated tab — after that the account is purged automatically.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel disabled={deleting}>Cancel</AlertDialogCancel>
             <AlertDialogAction
-              onClick={(e) => { e.preventDefault(); if (confirmDelete) deleteUser(confirmDelete.user_id); }}
+              onClick={(e) => { e.preventDefault(); if (confirmSoftDelete) softDeleteUser(confirmSoftDelete.user_id); }}
+              disabled={deleting}
+            >
+              {deleting ? <Loader2 size={14} className="animate-spin" /> : <UserMinus size={14} />}
+              Deactivate
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <AlertDialog open={!!confirmHardDelete} onOpenChange={(open) => !open && setConfirmHardDelete(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Permanently delete this account?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This skips the 30-day recovery window and immediately removes <strong>{confirmHardDelete?.first_name} {confirmHardDelete?.last_name}</strong> ({confirmHardDelete?.email}), including profile, messages, requests, favorites, subscription record, and uploaded files. This cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={deleting}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={(e) => { e.preventDefault(); if (confirmHardDelete) hardDeleteUser(confirmHardDelete.user_id); }}
               disabled={deleting}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
               {deleting ? <Loader2 size={14} className="animate-spin" /> : <Trash2 size={14} />}
-              Delete account
+              Delete forever
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
