@@ -7,6 +7,7 @@ import EmployerMessaging from "@/components/employer/EmployerMessaging";
 import EmployerInterviewRequests from "@/components/employer/EmployerInterviewRequests";
 import EmployerFavorites from "@/components/employer/EmployerFavorites";
 import Paywall from "@/components/employer/Paywall";
+import EmployerProfileEditor from "@/components/employer/EmployerProfileEditor";
 import BillingPanel from "@/components/BillingPanel";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -85,6 +86,9 @@ const EmployerDashboard = () => {
                 <span className="ml-2 bg-gold text-primary-foreground text-xs px-2 py-0.5 rounded-full">{pendingResponses}</span>
               )}
             </TabsTrigger>
+            <TabsTrigger value="profile" className="font-body data-[state=active]:bg-background">
+              Company Profile
+            </TabsTrigger>
             <TabsTrigger value="billing" className="font-body data-[state=active]:bg-background">
               Billing
             </TabsTrigger>
@@ -108,6 +112,9 @@ const EmployerDashboard = () => {
           </TabsContent>
           <TabsContent value="interviews">
             {isPaid ? <EmployerInterviewRequests /> : <Paywall />}
+          </TabsContent>
+          <TabsContent value="profile">
+            <EmployerProfileEditor />
           </TabsContent>
           <TabsContent value="billing">
             <BillingPanel plan="employer" />
