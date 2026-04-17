@@ -2,10 +2,11 @@ import { useEffect, useState, useRef } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
-import { Send, MessageSquare, Loader2 } from "lucide-react";
+import { Send, MessageSquare, Loader2, Building2 } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 
 type Conversation = {
@@ -14,6 +15,8 @@ type Conversation = {
   candidate_user_id: string;
   updated_at: string;
   employer_name?: string;
+  company_name?: string | null;
+  company_logo_url?: string | null;
   last_message?: string;
   unread?: number;
 };
@@ -53,7 +56,7 @@ const MessagingInbox = () => {
       convos.map(async (c) => {
         const { data: emp } = await supabase
           .from("profiles")
-          .select("first_name, last_name")
+          .select("first_name, last_name, company_name, company_logo_url")
           .eq("user_id", c.employer_user_id)
           .maybeSingle();
         const { data: lastMsg } = await supabase
@@ -72,6 +75,8 @@ const MessagingInbox = () => {
         return {
           ...c,
           employer_name: emp ? `${emp.first_name ?? ""} ${emp.last_name ?? ""}`.trim() || "Employer" : "Employer",
+          company_name: (emp as any)?.company_name ?? null,
+          company_logo_url: (emp as any)?.company_logo_url ?? null,
           last_message: lastMsg?.body ?? "",
           unread: unread ?? 0,
         };
