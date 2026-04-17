@@ -1,4 +1,3 @@
-import { useEffect } from "react";
 import { Navigate, useSearchParams } from "react-router-dom";
 import PageLayout from "@/components/layout/PageLayout";
 import { StripeEmbeddedCheckout } from "@/components/StripeEmbeddedCheckout";
