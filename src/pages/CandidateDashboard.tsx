@@ -14,6 +14,7 @@ const CandidateDashboard = () => {
   const { user, profile } = useAuth();
   const [unreadCount, setUnreadCount] = useState(0);
   const [pendingRequests, setPendingRequests] = useState(0);
+  const [pendingResumeRequests, setPendingResumeRequests] = useState(0);
 
   useEffect(() => {
     if (!user) return;
@@ -38,6 +39,12 @@ const CandidateDashboard = () => {
         .eq("candidate_user_id", user.id)
         .eq("status", "pending");
       setPendingRequests(rc ?? 0);
+      const { count: rrc } = await supabase
+        .from("resume_access_requests" as any)
+        .select("*", { count: "exact", head: true })
+        .eq("candidate_user_id", user.id)
+        .eq("status", "pending");
+      setPendingResumeRequests(rrc ?? 0);
     };
     loadCounts();
   }, [user]);
