@@ -357,5 +357,3 @@ const UserManagementTable = ({ onChange }: Props) => {
 };
 
 export default UserManagementTable;
-
-export default UserManagementTable;
