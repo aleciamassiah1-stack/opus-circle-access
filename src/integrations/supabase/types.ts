@@ -14,6 +14,33 @@ export type Database = {
   }
   public: {
     Tables: {
+      admin_audit_log: {
+        Row: {
+          action: string
+          admin_user_id: string
+          created_at: string
+          details: Json | null
+          id: string
+          target_user_id: string | null
+        }
+        Insert: {
+          action: string
+          admin_user_id: string
+          created_at?: string
+          details?: Json | null
+          id?: string
+          target_user_id?: string | null
+        }
+        Update: {
+          action?: string
+          admin_user_id?: string
+          created_at?: string
+          details?: Json | null
+          id?: string
+          target_user_id?: string | null
+        }
+        Relationships: []
+      }
       candidate_job_titles: {
         Row: {
           id: string
@@ -265,6 +292,8 @@ export type Database = {
           company_size: string | null
           company_website: string | null
           created_at: string
+          deactivated_at: string | null
+          deactivated_by: string | null
           email: string | null
           first_name: string | null
           headline: string | null
@@ -275,6 +304,7 @@ export type Database = {
           profile_completion: number | null
           resume_summary: string | null
           resume_url: string | null
+          scheduled_purge_at: string | null
           subscription_active: boolean
           title: string | null
           updated_at: string
@@ -296,6 +326,8 @@ export type Database = {
           company_size?: string | null
           company_website?: string | null
           created_at?: string
+          deactivated_at?: string | null
+          deactivated_by?: string | null
           email?: string | null
           first_name?: string | null
           headline?: string | null
@@ -306,6 +338,7 @@ export type Database = {
           profile_completion?: number | null
           resume_summary?: string | null
           resume_url?: string | null
+          scheduled_purge_at?: string | null
           subscription_active?: boolean
           title?: string | null
           updated_at?: string
@@ -327,6 +360,8 @@ export type Database = {
           company_size?: string | null
           company_website?: string | null
           created_at?: string
+          deactivated_at?: string | null
+          deactivated_by?: string | null
           email?: string | null
           first_name?: string | null
           headline?: string | null
@@ -337,6 +372,7 @@ export type Database = {
           profile_completion?: number | null
           resume_summary?: string | null
           resume_url?: string | null
+          scheduled_purge_at?: string | null
           subscription_active?: boolean
           title?: string | null
           updated_at?: string
@@ -484,6 +520,10 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
+      }
+      log_admin_action: {
+        Args: { _action: string; _details?: Json; _target_user_id: string }
+        Returns: string
       }
     }
     Enums: {
