@@ -11,7 +11,7 @@ import {
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
-import { CheckCircle, XCircle, Eye, EyeOff, Search, Loader2 } from "lucide-react";
+import { CheckCircle, XCircle, Eye, EyeOff, Search, Loader2, BadgeCheck, Shield } from "lucide-react";
 import type { Database } from "@/integrations/supabase/types";
 
 type Profile = Database["public"]["Tables"]["profiles"]["Row"];
@@ -63,6 +63,18 @@ const UserManagementTable = ({ onChange }: Props) => {
     const { error } = await supabase.from("profiles").update({ visibility_status: next }).eq("user_id", userId);
     if (error) toast({ title: "Update failed", description: error.message, variant: "destructive" });
     else { toast({ title: `Profile ${next}` }); load(); onChange?.(); }
+  };
+
+  const toggleVerified = async (userId: string, current: boolean) => {
+    const { error } = await supabase.from("profiles").update({ verified: !current }).eq("user_id", userId);
+    if (error) toast({ title: "Update failed", description: error.message, variant: "destructive" });
+    else { toast({ title: !current ? "Marked verified" : "Verification removed" }); load(); onChange?.(); }
+  };
+
+  const promoteToAdmin = async (userId: string) => {
+    const { error } = await supabase.from("user_roles").insert({ user_id: userId, role: "admin" });
+    if (error) toast({ title: "Could not grant admin", description: error.message, variant: "destructive" });
+    else { toast({ title: "Admin role granted" }); load(); onChange?.(); }
   };
 
   const filtered = users.filter((u) => {
