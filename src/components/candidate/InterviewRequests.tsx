@@ -108,11 +108,22 @@ const InterviewRequests = () => {
       {requests.map((r) => (
         <Card key={r.id} className="p-6 shadow-card">
           <div className="flex justify-between items-start mb-3 flex-wrap gap-3">
-            <div>
-              <p className="font-heading text-xl text-foreground">{r.employer_name}</p>
-              <p className="text-xs text-muted-foreground font-body mt-1">
-                {formatDistanceToNow(new Date(r.created_at), { addSuffix: true })}
-              </p>
+            <div className="flex items-start gap-3">
+              <Avatar className="h-12 w-12 border border-border">
+                <AvatarImage src={r.company_logo_url ?? undefined} />
+                <AvatarFallback className="bg-secondary"><Building2 size={18} /></AvatarFallback>
+              </Avatar>
+              <div>
+                <p className="font-heading text-xl text-foreground leading-tight">
+                  {r.company_name || r.employer_name}
+                </p>
+                {r.company_name && (
+                  <p className="text-xs text-muted-foreground font-body">from {r.employer_name}</p>
+                )}
+                <p className="text-xs text-muted-foreground font-body mt-1">
+                  {formatDistanceToNow(new Date(r.created_at), { addSuffix: true })}
+                </p>
+              </div>
             </div>
             <Badge variant="outline" className={`${statusColor[r.status]} font-body capitalize`}>
               {r.status}
