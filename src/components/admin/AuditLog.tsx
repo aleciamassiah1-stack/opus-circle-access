@@ -54,7 +54,7 @@ const AuditLog = () => {
       setRows((data ?? []) as Row[]);
 
       const ids = new Set<string>();
-      (data ?? []).forEach((r: Row) => {
+      (data ?? []).forEach((r) => {
         ids.add(r.admin_user_id);
         if (r.target_user_id) ids.add(r.target_user_id);
       });
