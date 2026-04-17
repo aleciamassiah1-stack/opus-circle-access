@@ -1,0 +1,1 @@
+DELETE FROM subscriptions WHERE stripe_subscription_id = 'sub_test_jane_001';
