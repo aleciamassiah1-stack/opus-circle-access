@@ -258,6 +258,12 @@ export type Database = {
           availability_status: string | null
           avatar_url: string | null
           bio: string | null
+          company_description: string | null
+          company_industry: string | null
+          company_logo_url: string | null
+          company_name: string | null
+          company_size: string | null
+          company_website: string | null
           created_at: string
           email: string | null
           first_name: string | null
@@ -267,6 +273,7 @@ export type Database = {
           location: string | null
           phone: string | null
           profile_completion: number | null
+          resume_summary: string | null
           resume_url: string | null
           subscription_active: boolean
           title: string | null
@@ -282,6 +289,12 @@ export type Database = {
           availability_status?: string | null
           avatar_url?: string | null
           bio?: string | null
+          company_description?: string | null
+          company_industry?: string | null
+          company_logo_url?: string | null
+          company_name?: string | null
+          company_size?: string | null
+          company_website?: string | null
           created_at?: string
           email?: string | null
           first_name?: string | null
@@ -291,6 +304,7 @@ export type Database = {
           location?: string | null
           phone?: string | null
           profile_completion?: number | null
+          resume_summary?: string | null
           resume_url?: string | null
           subscription_active?: boolean
           title?: string | null
@@ -306,6 +320,12 @@ export type Database = {
           availability_status?: string | null
           avatar_url?: string | null
           bio?: string | null
+          company_description?: string | null
+          company_industry?: string | null
+          company_logo_url?: string | null
+          company_name?: string | null
+          company_size?: string | null
+          company_website?: string | null
           created_at?: string
           email?: string | null
           first_name?: string | null
@@ -315,6 +335,7 @@ export type Database = {
           location?: string | null
           phone?: string | null
           profile_completion?: number | null
+          resume_summary?: string | null
           resume_url?: string | null
           subscription_active?: boolean
           title?: string | null
@@ -324,6 +345,42 @@ export type Database = {
           visibility_status?: string | null
           work_authorization?: string | null
           years_experience?: number | null
+        }
+        Relationships: []
+      }
+      resume_access_requests: {
+        Row: {
+          candidate_profile_id: string
+          candidate_user_id: string
+          created_at: string
+          employer_user_id: string
+          id: string
+          message: string | null
+          responded_at: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          candidate_profile_id: string
+          candidate_user_id: string
+          created_at?: string
+          employer_user_id: string
+          id?: string
+          message?: string | null
+          responded_at?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          candidate_profile_id?: string
+          candidate_user_id?: string
+          created_at?: string
+          employer_user_id?: string
+          id?: string
+          message?: string | null
+          responded_at?: string | null
+          status?: string
+          updated_at?: string
         }
         Relationships: []
       }
