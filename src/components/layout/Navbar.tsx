@@ -5,9 +5,13 @@ import { Menu, X, LogOut, Shield, LayoutDashboard, Building2 } from "lucide-reac
 import { useAuth } from "@/contexts/AuthContext";
 import logo from "@/assets/opulence-logo.png";
 
-const navLinks = [
+const publicLinks = [
   { label: "How It Works", href: "/how-it-works" },
   { label: "Membership", href: "/membership" },
+  { label: "Contact", href: "/contact" },
+];
+
+const memberLinks = [
   { label: "Contact", href: "/contact" },
 ];
 
@@ -15,6 +19,10 @@ const Navbar = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const location = useLocation();
   const { user, profile, hasRole, signOut } = useAuth();
+
+  // Hide marketing links once a member is signed in with an active subscription, or for admins.
+  const isActiveMember = !!user && (hasRole("admin") || profile?.subscription_active === true);
+  const navLinks = isActiveMember ? memberLinks : publicLinks;
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md border-b border-border/50">
