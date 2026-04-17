@@ -15,6 +15,8 @@ type Request = {
   note: string | null;
   created_at: string;
   employer_name?: string;
+  company_name?: string | null;
+  company_logo_url?: string | null;
 };
 
 const statusColor: Record<string, string> = {
@@ -46,12 +48,14 @@ const InterviewRequests = () => {
       data.map(async (r) => {
         const { data: emp } = await supabase
           .from("profiles")
-          .select("first_name, last_name")
+          .select("first_name, last_name, company_name, company_logo_url")
           .eq("user_id", r.employer_user_id)
           .maybeSingle();
         return {
           ...r,
           employer_name: emp ? `${emp.first_name ?? ""} ${emp.last_name ?? ""}`.trim() || "Employer" : "Employer",
+          company_name: (emp as any)?.company_name ?? null,
+          company_logo_url: (emp as any)?.company_logo_url ?? null,
         };
       })
     );

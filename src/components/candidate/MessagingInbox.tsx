@@ -189,18 +189,31 @@ const MessagingInbox = () => {
                   activeId === c.id ? "bg-background" : ""
                 }`}
               >
-                <div className="flex justify-between items-start mb-1">
-                  <p className="font-body font-medium text-sm text-foreground">{c.employer_name}</p>
-                  {c.unread! > 0 && (
-                    <span className="bg-gold text-primary-foreground text-xs px-2 py-0.5 rounded-full">
-                      {c.unread}
-                    </span>
-                  )}
+                <div className="flex items-start gap-3 mb-1">
+                  <Avatar className="h-9 w-9 border border-border flex-shrink-0">
+                    <AvatarImage src={c.company_logo_url ?? undefined} />
+                    <AvatarFallback className="bg-secondary"><Building2 size={14} /></AvatarFallback>
+                  </Avatar>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex justify-between items-start gap-2">
+                      <p className="font-body font-medium text-sm text-foreground truncate">
+                        {c.company_name || c.employer_name}
+                      </p>
+                      {c.unread! > 0 && (
+                        <span className="bg-gold text-primary-foreground text-xs px-2 py-0.5 rounded-full flex-shrink-0">
+                          {c.unread}
+                        </span>
+                      )}
+                    </div>
+                    {c.company_name && (
+                      <p className="text-xs text-muted-foreground font-body truncate">{c.employer_name}</p>
+                    )}
+                    <p className="text-xs text-muted-foreground font-body truncate mt-0.5">{c.last_message || "—"}</p>
+                    <p className="text-xs text-muted-foreground font-body mt-1">
+                      {formatDistanceToNow(new Date(c.updated_at), { addSuffix: true })}
+                    </p>
+                  </div>
                 </div>
-                <p className="text-xs text-muted-foreground font-body truncate">{c.last_message || "—"}</p>
-                <p className="text-xs text-muted-foreground font-body mt-1">
-                  {formatDistanceToNow(new Date(c.updated_at), { addSuffix: true })}
-                </p>
               </button>
             ))}
           </div>
@@ -209,8 +222,17 @@ const MessagingInbox = () => {
         <div className="md:col-span-2 flex flex-col">
           {active ? (
             <>
-              <div className="p-4 border-b border-border">
-                <p className="font-heading text-lg">{active.employer_name}</p>
+              <div className="p-4 border-b border-border flex items-center gap-3">
+                <Avatar className="h-10 w-10 border border-border">
+                  <AvatarImage src={active.company_logo_url ?? undefined} />
+                  <AvatarFallback className="bg-secondary"><Building2 size={16} /></AvatarFallback>
+                </Avatar>
+                <div>
+                  <p className="font-heading text-lg leading-tight">{active.company_name || active.employer_name}</p>
+                  {active.company_name && (
+                    <p className="text-xs text-muted-foreground font-body">{active.employer_name}</p>
+                  )}
+                </div>
               </div>
               <div className="flex-1 p-4 overflow-y-auto max-h-[400px] space-y-3">
                 {messages.map((m) => {
