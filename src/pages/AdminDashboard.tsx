@@ -5,6 +5,8 @@ import AdminMetrics from "@/components/admin/AdminMetrics";
 import ApprovalQueue from "@/components/admin/ApprovalQueue";
 import UserManagementTable from "@/components/admin/UserManagementTable";
 import AdminRoleGrant from "@/components/admin/AdminRoleGrant";
+import AuditLog from "@/components/admin/AuditLog";
+import DeactivatedAccounts from "@/components/admin/DeactivatedAccounts";
 import { supabase } from "@/integrations/supabase/client";
 import { UserCheck, Clock, Eye, CreditCard, MessageSquare, Briefcase, Building2 } from "lucide-react";
 
@@ -18,23 +20,26 @@ const AdminDashboard = () => {
     activeEmployerSubs: 0,
     totalConversations: 0,
     totalInterviews: 0,
+    deactivatedCount: 0,
   });
 
   const loadMetrics = useCallback(async () => {
     const results = await Promise.all([
       supabase.from("user_roles").select("user_id", { count: "exact", head: true }).eq("role", "candidate"),
       supabase.from("user_roles").select("user_id", { count: "exact", head: true }).eq("role", "employer"),
-      supabase.from("profiles").select("id", { count: "exact", head: true }).eq("approval_status", "pending"),
+      supabase.from("profiles").select("id", { count: "exact", head: true }).eq("approval_status", "pending").is("deactivated_at", null),
       supabase
         .from("profiles")
         .select("id", { count: "exact", head: true })
         .eq("approval_status", "approved")
         .eq("subscription_active", true)
-        .eq("visibility_status", "visible"),
+        .eq("visibility_status", "visible")
+        .is("deactivated_at", null),
       supabase.from("conversations").select("id", { count: "exact", head: true }),
       supabase.from("interview_requests").select("id", { count: "exact", head: true }),
+      supabase.from("profiles").select("id", { count: "exact", head: true }).not("deactivated_at", "is", null),
     ]);
-    const [candidatesRoles, employersRoles, pending, visible, convos, interviews] = results;
+    const [candidatesRoles, employersRoles, pending, visible, convos, interviews, deactivated] = results;
 
     // Refine active subscription split by role
     const { data: activeSubs } = await supabase
@@ -62,6 +67,7 @@ const AdminDashboard = () => {
       activeEmployerSubs: activeEmp,
       totalConversations: convos.count ?? 0,
       totalInterviews: interviews.count ?? 0,
+      deactivatedCount: deactivated.count ?? 0,
     });
   }, []);
 
@@ -92,7 +98,7 @@ const AdminDashboard = () => {
         />
 
         <Tabs defaultValue="queue" className="mt-10">
-          <TabsList className="bg-card border border-border h-auto p-1 mb-6">
+          <TabsList className="bg-card border border-border h-auto p-1 mb-6 flex-wrap">
             <TabsTrigger value="queue" className="font-body data-[state=active]:bg-background">
               Approval Queue
               {metrics.pendingApprovals > 0 && (
@@ -104,6 +110,17 @@ const AdminDashboard = () => {
             <TabsTrigger value="users" className="font-body data-[state=active]:bg-background">
               All Users
             </TabsTrigger>
+            <TabsTrigger value="deactivated" className="font-body data-[state=active]:bg-background">
+              Deactivated
+              {metrics.deactivatedCount > 0 && (
+                <span className="ml-2 bg-muted text-foreground text-xs px-2 py-0.5 rounded-full">
+                  {metrics.deactivatedCount}
+                </span>
+              )}
+            </TabsTrigger>
+            <TabsTrigger value="audit" className="font-body data-[state=active]:bg-background">
+              Audit Log
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="queue">
@@ -112,6 +129,12 @@ const AdminDashboard = () => {
           <TabsContent value="users">
             <AdminRoleGrant onGranted={loadMetrics} />
             <UserManagementTable onChange={loadMetrics} />
+          </TabsContent>
+          <TabsContent value="deactivated">
+            <DeactivatedAccounts onChange={loadMetrics} />
+          </TabsContent>
+          <TabsContent value="audit">
+            <AuditLog />
           </TabsContent>
         </Tabs>
       </div>
