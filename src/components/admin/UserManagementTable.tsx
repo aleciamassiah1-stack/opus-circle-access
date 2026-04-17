@@ -286,7 +286,7 @@ const UserManagementTable = ({ onChange }: Props) => {
                             variant="ghost"
                             onClick={() => setConfirmSoftDelete(u)}
                             title="Deactivate (recoverable for 30 days)"
-                            className="text-amber-600 hover:text-amber-600 hover:bg-amber-500/10"
+                            className="text-amber-600 hover:bg-muted"
                           >
                             <UserMinus size={12} />
                           </Button>
@@ -357,11 +357,5 @@ const UserManagementTable = ({ onChange }: Props) => {
 };
 
 export default UserManagementTable;
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-    </div>
-  );
-};
 
 export default UserManagementTable;
