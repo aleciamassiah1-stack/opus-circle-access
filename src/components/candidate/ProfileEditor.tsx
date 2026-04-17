@@ -187,9 +187,19 @@ const ProfileEditor = () => {
       setUploadingResume(false);
       return;
     }
-    await supabase.from("profiles").update({ resume_url: path }).eq("user_id", user.id);
+    await supabase.from("profiles").update({ resume_url: path, resume_summary: null }).eq("user_id", user.id);
+    toast({ title: "Resume uploaded", description: "Generating private summary for employers..." });
+
+    // Trigger AI summary generation in the background
+    supabase.functions.invoke("summarize-resume").then(({ error }) => {
+      if (error) {
+        toast({ title: "Summary generation failed", description: error.message, variant: "destructive" });
+      } else {
+        toast({ title: "Resume summary ready", description: "Employers will see an anonymized AI summary." });
+      }
+    });
+
     setUploadingResume(false);
-    toast({ title: "Resume uploaded" });
     window.location.reload();
   };
 

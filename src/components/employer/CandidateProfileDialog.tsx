@@ -2,8 +2,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
-import { Heart, MapPin, Briefcase, MessageSquare, CalendarCheck, Loader2, FileText, BadgeCheck } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Heart, MapPin, Briefcase, MessageSquare, CalendarCheck, Loader2, FileText, BadgeCheck, Sparkles, Lock, CheckCircle2, Clock } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
@@ -35,13 +35,60 @@ type Props = {
   onToggleFavorite: () => void;
 };
 
+const renderMarkdown = (text: string) => {
+  // Simple markdown rendering for headings + bullets
+  return text.split("\n").map((line, i) => {
+    const trimmed = line.trim();
+    if (trimmed.startsWith("## ")) {
+      return <h3 key={i} className="font-heading text-base text-foreground mt-4 mb-2 first:mt-0">{trimmed.slice(3)}</h3>;
+    }
+    if (trimmed.startsWith("- ") || trimmed.startsWith("* ")) {
+      return <li key={i} className="font-body text-sm text-foreground ml-5 list-disc">{trimmed.slice(2)}</li>;
+    }
+    if (!trimmed) return <div key={i} className="h-2" />;
+    return <p key={i} className="font-body text-sm text-foreground mb-2">{trimmed}</p>;
+  });
+};
+
 const CandidateProfileDialog = ({ candidate, open, onClose, onMessage, isFavorite, onToggleFavorite }: Props) => {
   const { user } = useAuth();
   const [interviewNote, setInterviewNote] = useState("");
+  const [requestMessage, setRequestMessage] = useState("");
   const [sending, setSending] = useState(false);
-  const [resumeUrl, setResumeUrl] = useState<string | null>(null);
+  const [requestingAccess, setRequestingAccess] = useState(false);
+  const [resumeSummary, setResumeSummary] = useState<string | null>(null);
+  const [hasResume, setHasResume] = useState(false);
+  const [resumePath, setResumePath] = useState<string | null>(null);
+  const [accessStatus, setAccessStatus] = useState<"none" | "pending" | "approved" | "denied">("none");
+  const [loadingResume, setLoadingResume] = useState(true);
 
   const initials = `${candidate.first_name?.[0] ?? ""}${candidate.last_name?.[0] ?? ""}`.toUpperCase() || "?";
+
+  useEffect(() => {
+    if (!open || !user) return;
+    const loadResumeData = async () => {
+      setLoadingResume(true);
+      const { data: prof } = await supabase
+        .from("profiles")
+        .select("resume_url, resume_summary")
+        .eq("id", candidate.id)
+        .maybeSingle();
+      setResumeSummary((prof as any)?.resume_summary ?? null);
+      setHasResume(!!prof?.resume_url);
+      setResumePath(prof?.resume_url ?? null);
+
+      const { data: req } = await supabase
+        .from("resume_access_requests" as any)
+        .select("status")
+        .eq("employer_user_id", user.id)
+        .eq("candidate_profile_id", candidate.id)
+        .maybeSingle();
+      if (req) setAccessStatus((req as any).status);
+      else setAccessStatus("none");
+      setLoadingResume(false);
+    };
+    loadResumeData();
+  }, [open, user, candidate.id]);
 
   const sendInterviewRequest = async () => {
     if (!user) return;
@@ -61,25 +108,36 @@ const CandidateProfileDialog = ({ candidate, open, onClose, onMessage, isFavorit
     setSending(false);
   };
 
-  const fetchResume = async () => {
-    const { data: prof } = await supabase
-      .from("profiles")
-      .select("resume_url")
-      .eq("id", candidate.id)
-      .maybeSingle();
-    if (!prof?.resume_url) {
-      toast({ title: "No resume uploaded" });
+  const requestResumeAccess = async () => {
+    if (!user) return;
+    setRequestingAccess(true);
+    const { error } = await supabase.from("resume_access_requests" as any).insert({
+      employer_user_id: user.id,
+      candidate_user_id: candidate.user_id,
+      candidate_profile_id: candidate.id,
+      message: requestMessage.trim() || null,
+      status: "pending",
+    });
+    if (error) {
+      toast({ title: "Could not send request", description: error.message, variant: "destructive" });
+    } else {
+      toast({ title: "Resume request sent", description: "The candidate will be notified." });
+      setAccessStatus("pending");
+      setRequestMessage("");
+    }
+    setRequestingAccess(false);
+  };
+
+  const viewFullResume = async () => {
+    if (!resumePath) return;
+    const { data: signed, error } = await supabase.storage
+      .from("resumes")
+      .createSignedUrl(resumePath, 60 * 5);
+    if (error || !signed?.signedUrl) {
+      toast({ title: "Could not access resume", description: error?.message, variant: "destructive" });
       return;
     }
-    const { data: signed } = await supabase.storage
-      .from("resumes")
-      .createSignedUrl(prof.resume_url, 60 * 5);
-    if (signed?.signedUrl) {
-      setResumeUrl(signed.signedUrl);
-      window.open(signed.signedUrl, "_blank");
-    } else {
-      toast({ title: "Could not access resume", variant: "destructive" });
-    }
+    window.open(signed.signedUrl, "_blank");
   };
 
   return (
@@ -154,15 +212,72 @@ const CandidateProfileDialog = ({ candidate, open, onClose, onMessage, isFavorit
           </div>
         )}
 
+        {/* Resume section */}
+        <div className="border border-gold/30 bg-gold/5 rounded-md p-4 mb-5">
+          <div className="flex items-center gap-2 mb-3">
+            <Sparkles size={14} className="text-gold" />
+            <p className="text-xs uppercase tracking-wider text-foreground font-body font-semibold">
+              AI-Anonymized Resume Summary
+            </p>
+          </div>
+          {loadingResume ? (
+            <Loader2 size={16} className="animate-spin text-muted-foreground" />
+          ) : !hasResume ? (
+            <p className="font-body text-sm text-muted-foreground italic">This candidate hasn't uploaded a resume yet.</p>
+          ) : !resumeSummary ? (
+            <p className="font-body text-sm text-muted-foreground italic">
+              Summary is being generated. Check back shortly.
+            </p>
+          ) : (
+            <div className="space-y-1">{renderMarkdown(resumeSummary)}</div>
+          )}
+
+          {hasResume && (
+            <div className="mt-4 pt-4 border-t border-gold/20">
+              {accessStatus === "approved" ? (
+                <Button variant="gold" size="sm" onClick={viewFullResume}>
+                  <FileText size={14} />
+                  View Full Resume
+                </Button>
+              ) : accessStatus === "pending" ? (
+                <div className="flex items-center gap-2 text-sm font-body text-muted-foreground">
+                  <Clock size={14} />
+                  Resume access requested — awaiting candidate approval.
+                </div>
+              ) : accessStatus === "denied" ? (
+                <div className="flex items-center gap-2 text-sm font-body text-destructive">
+                  <Lock size={14} />
+                  Resume access was declined by the candidate.
+                </div>
+              ) : (
+                <div>
+                  <p className="text-xs font-body text-muted-foreground mb-2 flex items-center gap-1">
+                    <Lock size={12} />
+                    Want the full resume? Send a request — the candidate will review and respond.
+                  </p>
+                  <Textarea
+                    placeholder="Optional message to the candidate explaining the role..."
+                    value={requestMessage}
+                    onChange={(e) => setRequestMessage(e.target.value)}
+                    maxLength={500}
+                    rows={2}
+                    className="mb-2"
+                  />
+                  <Button variant="gold" size="sm" onClick={requestResumeAccess} disabled={requestingAccess}>
+                    {requestingAccess ? <Loader2 size={14} className="animate-spin" /> : <CheckCircle2 size={14} />}
+                    Request Full Resume
+                  </Button>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+
         <div className="border-t border-border pt-5 space-y-3">
           <div className="flex flex-wrap gap-2">
             <Button variant="outline" onClick={() => onMessage(candidate.user_id)}>
               <MessageSquare size={14} />
               Message
-            </Button>
-            <Button variant="outline" onClick={fetchResume}>
-              <FileText size={14} />
-              View Resume
             </Button>
           </div>
 
