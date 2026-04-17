@@ -4,6 +4,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import AdminMetrics from "@/components/admin/AdminMetrics";
 import ApprovalQueue from "@/components/admin/ApprovalQueue";
 import UserManagementTable from "@/components/admin/UserManagementTable";
+import AdminRoleGrant from "@/components/admin/AdminRoleGrant";
 import { supabase } from "@/integrations/supabase/client";
 import { UserCheck, Clock, Eye, CreditCard, MessageSquare, Briefcase, Building2 } from "lucide-react";
 
@@ -109,6 +110,7 @@ const AdminDashboard = () => {
             <ApprovalQueue onChange={loadMetrics} />
           </TabsContent>
           <TabsContent value="users">
+            <AdminRoleGrant onGranted={loadMetrics} />
             <UserManagementTable onChange={loadMetrics} />
           </TabsContent>
         </Tabs>
