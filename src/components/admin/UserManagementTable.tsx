@@ -280,15 +280,26 @@ const UserManagementTable = ({ onChange }: Props) => {
                         </Button>
                       )}
                       {u.user_id !== currentUser?.id && (
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          onClick={() => setConfirmDelete(u)}
-                          title="Delete account"
-                          className="text-destructive hover:text-destructive hover:bg-destructive/10"
-                        >
-                          <Trash2 size={12} />
-                        </Button>
+                        <>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => setConfirmSoftDelete(u)}
+                            title="Deactivate (recoverable for 30 days)"
+                            className="text-amber-600 hover:text-amber-600 hover:bg-amber-500/10"
+                          >
+                            <UserMinus size={12} />
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => setConfirmHardDelete(u)}
+                            title="Delete permanently"
+                            className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                          >
+                            <Trash2 size={12} />
+                          </Button>
+                        </>
                       )}
                     </div>
                   </TableCell>
@@ -299,25 +310,53 @@ const UserManagementTable = ({ onChange }: Props) => {
         )}
       </Card>
 
-      <AlertDialog open={!!confirmDelete} onOpenChange={(open) => !open && setConfirmDelete(null)}>
+      <AlertDialog open={!!confirmSoftDelete} onOpenChange={(open) => !open && setConfirmSoftDelete(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete this account?</AlertDialogTitle>
+            <AlertDialogTitle>Deactivate this account?</AlertDialogTitle>
             <AlertDialogDescription>
-              This permanently removes <strong>{confirmDelete?.first_name} {confirmDelete?.last_name}</strong> ({confirmDelete?.email}),
-              including their profile, messages, requests, favorites, subscription record, and uploaded files. This cannot be undone.
+              <strong>{confirmSoftDelete?.first_name} {confirmSoftDelete?.last_name}</strong> ({confirmSoftDelete?.email}) will be hidden from the platform and unable to sign in. You can restore them within <strong>30 days</strong> from the Deactivated tab — after that the account is purged automatically.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel disabled={deleting}>Cancel</AlertDialogCancel>
             <AlertDialogAction
-              onClick={(e) => { e.preventDefault(); if (confirmDelete) deleteUser(confirmDelete.user_id); }}
+              onClick={(e) => { e.preventDefault(); if (confirmSoftDelete) softDeleteUser(confirmSoftDelete.user_id); }}
+              disabled={deleting}
+            >
+              {deleting ? <Loader2 size={14} className="animate-spin" /> : <UserMinus size={14} />}
+              Deactivate
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <AlertDialog open={!!confirmHardDelete} onOpenChange={(open) => !open && setConfirmHardDelete(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Permanently delete this account?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This skips the 30-day recovery window and immediately removes <strong>{confirmHardDelete?.first_name} {confirmHardDelete?.last_name}</strong> ({confirmHardDelete?.email}), including profile, messages, requests, favorites, subscription record, and uploaded files. This cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={deleting}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={(e) => { e.preventDefault(); if (confirmHardDelete) hardDeleteUser(confirmHardDelete.user_id); }}
               disabled={deleting}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
               {deleting ? <Loader2 size={14} className="animate-spin" /> : <Trash2 size={14} />}
-              Delete account
+              Delete forever
             </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </div>
+  );
+};
+
+export default UserManagementTable;
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
