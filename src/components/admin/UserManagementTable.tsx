@@ -251,6 +251,17 @@ const UserManagementTable = ({ onChange }: Props) => {
                           <Shield size={12} />
                         </Button>
                       )}
+                      {u.user_id !== currentUser?.id && (
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => setConfirmDelete(u)}
+                          title="Delete account"
+                          className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                        >
+                          <Trash2 size={12} />
+                        </Button>
+                      )}
                     </div>
                   </TableCell>
                 </TableRow>
@@ -259,6 +270,29 @@ const UserManagementTable = ({ onChange }: Props) => {
           </Table>
         )}
       </Card>
+
+      <AlertDialog open={!!confirmDelete} onOpenChange={(open) => !open && setConfirmDelete(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete this account?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This permanently removes <strong>{confirmDelete?.first_name} {confirmDelete?.last_name}</strong> ({confirmDelete?.email}),
+              including their profile, messages, requests, favorites, subscription record, and uploaded files. This cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={deleting}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={(e) => { e.preventDefault(); if (confirmDelete) deleteUser(confirmDelete.user_id); }}
+              disabled={deleting}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {deleting ? <Loader2 size={14} className="animate-spin" /> : <Trash2 size={14} />}
+              Delete account
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
