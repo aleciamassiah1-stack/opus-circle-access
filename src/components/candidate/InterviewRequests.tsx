@@ -2,10 +2,11 @@ import { useEffect, useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
-import { CalendarClock, Check, X, Loader2 } from "lucide-react";
+import { CalendarClock, Check, X, Loader2, Building2 } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 
 type Request = {

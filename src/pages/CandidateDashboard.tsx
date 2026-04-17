@@ -5,6 +5,7 @@ import StatusPanel from "@/components/candidate/StatusPanel";
 import ProfileEditor from "@/components/candidate/ProfileEditor";
 import MessagingInbox from "@/components/candidate/MessagingInbox";
 import InterviewRequests from "@/components/candidate/InterviewRequests";
+import ResumeAccessRequests from "@/components/candidate/ResumeAccessRequests";
 import BillingPanel from "@/components/BillingPanel";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
