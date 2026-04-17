@@ -5,7 +5,7 @@ import AdminMetrics from "@/components/admin/AdminMetrics";
 import ApprovalQueue from "@/components/admin/ApprovalQueue";
 import UserManagementTable from "@/components/admin/UserManagementTable";
 import { supabase } from "@/integrations/supabase/client";
-import { Users, UserCheck, Clock, Eye, CreditCard, MessageSquare, Briefcase, Building2 } from "lucide-react";
+import { UserCheck, Clock, Eye, CreditCard, MessageSquare, Briefcase, Building2 } from "lucide-react";
 
 const AdminDashboard = () => {
   const [metrics, setMetrics] = useState({
@@ -20,16 +20,7 @@ const AdminDashboard = () => {
   });
 
   const loadMetrics = useCallback(async () => {
-    const [
-      candidatesRoles,
-      employersRoles,
-      pending,
-      visible,
-      activeCandSubs,
-      activeEmpSubs,
-      convos,
-      interviews,
-    ] = await Promise.all([
+    const results = await Promise.all([
       supabase.from("user_roles").select("user_id", { count: "exact", head: true }).eq("role", "candidate"),
       supabase.from("user_roles").select("user_id", { count: "exact", head: true }).eq("role", "employer"),
       supabase.from("profiles").select("id", { count: "exact", head: true }).eq("approval_status", "pending"),
@@ -39,12 +30,10 @@ const AdminDashboard = () => {
         .eq("approval_status", "approved")
         .eq("subscription_active", true)
         .eq("visibility_status", "visible"),
-      // Active candidate subs: profile.subscription_active true AND role candidate (approximated via join)
-      supabase.from("profiles").select("id, user_id", { count: "exact", head: true }).eq("subscription_active", true),
-      // We split below
       supabase.from("conversations").select("id", { count: "exact", head: true }),
       supabase.from("interview_requests").select("id", { count: "exact", head: true }),
     ]);
+    const [candidatesRoles, employersRoles, pending, visible, convos, interviews] = results;
 
     // Refine active subscription split by role
     const { data: activeSubs } = await supabase
