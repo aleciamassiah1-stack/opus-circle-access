@@ -11,7 +11,12 @@ import {
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
-import { CheckCircle, XCircle, Eye, EyeOff, Search, Loader2, BadgeCheck, Shield } from "lucide-react";
+import { CheckCircle, XCircle, Eye, EyeOff, Search, Loader2, BadgeCheck, Shield, Trash2 } from "lucide-react";
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { useAuth } from "@/contexts/AuthContext";
 import type { Database } from "@/integrations/supabase/types";
 
 type Profile = Database["public"]["Tables"]["profiles"]["Row"];
@@ -26,11 +31,30 @@ type Props = { onChange?: () => void };
 
 const UserManagementTable = ({ onChange }: Props) => {
   const { toast } = useToast();
+  const { user: currentUser } = useAuth();
   const [users, setUsers] = useState<UserRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [roleFilter, setRoleFilter] = useState<"all" | AppRole>("all");
   const [statusFilter, setStatusFilter] = useState<"all" | ApprovalStatus>("all");
+  const [confirmDelete, setConfirmDelete] = useState<UserRow | null>(null);
+  const [deleting, setDeleting] = useState(false);
+
+  const deleteUser = async (userId: string) => {
+    setDeleting(true);
+    const { error } = await supabase.functions.invoke("admin-delete-user", {
+      body: { user_id: userId },
+    });
+    setDeleting(false);
+    setConfirmDelete(null);
+    if (error) {
+      toast({ title: "Delete failed", description: error.message, variant: "destructive" });
+    } else {
+      toast({ title: "Account deleted" });
+      load();
+      onChange?.();
+    }
+  };
 
   const load = async () => {
     setLoading(true);
