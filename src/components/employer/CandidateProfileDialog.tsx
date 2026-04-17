@@ -3,7 +3,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
-import { Heart, MapPin, Briefcase, MessageSquare, CalendarCheck, Loader2, FileText } from "lucide-react";
+import { Heart, MapPin, Briefcase, MessageSquare, CalendarCheck, Loader2, FileText, BadgeCheck } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
@@ -21,6 +21,7 @@ type Candidate = {
   avatar_url: string | null;
   years_experience: number | null;
   availability_status: string | null;
+  verified?: boolean | null;
   job_titles: string[];
   tags: string[];
 };
@@ -94,8 +95,14 @@ const CandidateProfileDialog = ({ candidate, open, onClose, onMessage, isFavorit
             <AvatarFallback className="bg-secondary font-body">{initials}</AvatarFallback>
           </Avatar>
           <div className="flex-1">
-            <h2 className="font-heading text-2xl">
+            <h2 className="font-heading text-2xl flex items-center gap-2">
               {candidate.first_name} {candidate.last_name}
+              {candidate.verified && (
+                <span className="inline-flex items-center gap-1 text-xs font-body text-gold border border-gold/30 bg-gold/10 px-2 py-0.5 rounded-full">
+                  <BadgeCheck size={12} />
+                  Verified
+                </span>
+              )}
             </h2>
             <p className="font-body text-muted-foreground">{candidate.title ?? candidate.headline}</p>
             <div className="flex flex-wrap gap-3 mt-2 text-xs text-muted-foreground font-body">

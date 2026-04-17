@@ -14,7 +14,7 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "@/hooks/use-toast";
-import { Heart, MapPin, Briefcase, Search, Loader2, MessageSquare, CalendarCheck } from "lucide-react";
+import { Heart, MapPin, Briefcase, Search, Loader2, MessageSquare, BadgeCheck } from "lucide-react";
 import CandidateProfileDialog from "./CandidateProfileDialog";
 
 type DirectoryCandidate = {
@@ -29,6 +29,7 @@ type DirectoryCandidate = {
   avatar_url: string | null;
   years_experience: number | null;
   availability_status: string | null;
+  verified: boolean | null;
   job_titles: string[];
   tags: string[];
 };
@@ -53,7 +54,7 @@ const TalentDirectory = ({ onMessage }: Props) => {
     const [{ data: profiles }, { data: titles }, { data: tags }, { data: favs }] = await Promise.all([
       supabase
         .from("profiles")
-        .select("id, user_id, first_name, last_name, title, headline, location, bio, avatar_url, years_experience, availability_status")
+        .select("id, user_id, first_name, last_name, title, headline, location, bio, avatar_url, years_experience, availability_status, verified")
         .eq("approval_status", "approved")
         .eq("subscription_active", true)
         .eq("visibility_status", "visible"),
@@ -211,8 +212,11 @@ const TalentDirectory = ({ onMessage }: Props) => {
                     <AvatarFallback className="bg-secondary font-body text-sm">{initials}</AvatarFallback>
                   </Avatar>
                   <div className="flex-1 min-w-0">
-                    <p className="font-heading text-lg leading-tight truncate">
-                      {c.first_name} {c.last_name}
+                    <p className="font-heading text-lg leading-tight truncate flex items-center gap-1.5">
+                      <span className="truncate">{c.first_name} {c.last_name}</span>
+                      {c.verified && (
+                        <BadgeCheck size={16} className="text-gold shrink-0" aria-label="Verified" />
+                      )}
                     </p>
                     <p className="font-body text-sm text-muted-foreground truncate">{c.title ?? c.headline ?? "—"}</p>
                   </div>

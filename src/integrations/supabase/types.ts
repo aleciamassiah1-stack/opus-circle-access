@@ -272,6 +272,7 @@ export type Database = {
           title: string | null
           updated_at: string
           user_id: string
+          verified: boolean
           visibility_status: string | null
           work_authorization: string | null
           years_experience: number | null
@@ -295,6 +296,7 @@ export type Database = {
           title?: string | null
           updated_at?: string
           user_id: string
+          verified?: boolean
           visibility_status?: string | null
           work_authorization?: string | null
           years_experience?: number | null
@@ -318,6 +320,7 @@ export type Database = {
           title?: string | null
           updated_at?: string
           user_id?: string
+          verified?: boolean
           visibility_status?: string | null
           work_authorization?: string | null
           years_experience?: number | null
@@ -413,6 +416,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      find_user_id_by_email: { Args: { _email: string }; Returns: string }
       has_active_subscription: {
         Args: { check_env?: string; user_uuid: string }
         Returns: boolean
