@@ -2,10 +2,11 @@ import { useEffect, useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
-import { CalendarClock, Check, X, Loader2 } from "lucide-react";
+import { CalendarClock, Check, X, Loader2, Building2 } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 
 type Request = {
@@ -15,6 +16,8 @@ type Request = {
   note: string | null;
   created_at: string;
   employer_name?: string;
+  company_name?: string | null;
+  company_logo_url?: string | null;
 };
 
 const statusColor: Record<string, string> = {
@@ -46,12 +49,14 @@ const InterviewRequests = () => {
       data.map(async (r) => {
         const { data: emp } = await supabase
           .from("profiles")
-          .select("first_name, last_name")
+          .select("first_name, last_name, company_name, company_logo_url")
           .eq("user_id", r.employer_user_id)
           .maybeSingle();
         return {
           ...r,
           employer_name: emp ? `${emp.first_name ?? ""} ${emp.last_name ?? ""}`.trim() || "Employer" : "Employer",
+          company_name: (emp as any)?.company_name ?? null,
+          company_logo_url: (emp as any)?.company_logo_url ?? null,
         };
       })
     );
@@ -103,11 +108,22 @@ const InterviewRequests = () => {
       {requests.map((r) => (
         <Card key={r.id} className="p-6 shadow-card">
           <div className="flex justify-between items-start mb-3 flex-wrap gap-3">
-            <div>
-              <p className="font-heading text-xl text-foreground">{r.employer_name}</p>
-              <p className="text-xs text-muted-foreground font-body mt-1">
-                {formatDistanceToNow(new Date(r.created_at), { addSuffix: true })}
-              </p>
+            <div className="flex items-start gap-3">
+              <Avatar className="h-12 w-12 border border-border">
+                <AvatarImage src={r.company_logo_url ?? undefined} />
+                <AvatarFallback className="bg-secondary"><Building2 size={18} /></AvatarFallback>
+              </Avatar>
+              <div>
+                <p className="font-heading text-xl text-foreground leading-tight">
+                  {r.company_name || r.employer_name}
+                </p>
+                {r.company_name && (
+                  <p className="text-xs text-muted-foreground font-body">from {r.employer_name}</p>
+                )}
+                <p className="text-xs text-muted-foreground font-body mt-1">
+                  {formatDistanceToNow(new Date(r.created_at), { addSuffix: true })}
+                </p>
+              </div>
             </div>
             <Badge variant="outline" className={`${statusColor[r.status]} font-body capitalize`}>
               {r.status}

@@ -2,10 +2,11 @@ import { useEffect, useState, useRef } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
-import { Send, MessageSquare, Loader2 } from "lucide-react";
+import { Send, MessageSquare, Loader2, Building2 } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 
 type Conversation = {
@@ -14,6 +15,8 @@ type Conversation = {
   candidate_user_id: string;
   updated_at: string;
   employer_name?: string;
+  company_name?: string | null;
+  company_logo_url?: string | null;
   last_message?: string;
   unread?: number;
 };
@@ -53,7 +56,7 @@ const MessagingInbox = () => {
       convos.map(async (c) => {
         const { data: emp } = await supabase
           .from("profiles")
-          .select("first_name, last_name")
+          .select("first_name, last_name, company_name, company_logo_url")
           .eq("user_id", c.employer_user_id)
           .maybeSingle();
         const { data: lastMsg } = await supabase
@@ -72,6 +75,8 @@ const MessagingInbox = () => {
         return {
           ...c,
           employer_name: emp ? `${emp.first_name ?? ""} ${emp.last_name ?? ""}`.trim() || "Employer" : "Employer",
+          company_name: (emp as any)?.company_name ?? null,
+          company_logo_url: (emp as any)?.company_logo_url ?? null,
           last_message: lastMsg?.body ?? "",
           unread: unread ?? 0,
         };
@@ -184,18 +189,31 @@ const MessagingInbox = () => {
                   activeId === c.id ? "bg-background" : ""
                 }`}
               >
-                <div className="flex justify-between items-start mb-1">
-                  <p className="font-body font-medium text-sm text-foreground">{c.employer_name}</p>
-                  {c.unread! > 0 && (
-                    <span className="bg-gold text-primary-foreground text-xs px-2 py-0.5 rounded-full">
-                      {c.unread}
-                    </span>
-                  )}
+                <div className="flex items-start gap-3 mb-1">
+                  <Avatar className="h-9 w-9 border border-border flex-shrink-0">
+                    <AvatarImage src={c.company_logo_url ?? undefined} />
+                    <AvatarFallback className="bg-secondary"><Building2 size={14} /></AvatarFallback>
+                  </Avatar>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex justify-between items-start gap-2">
+                      <p className="font-body font-medium text-sm text-foreground truncate">
+                        {c.company_name || c.employer_name}
+                      </p>
+                      {c.unread! > 0 && (
+                        <span className="bg-gold text-primary-foreground text-xs px-2 py-0.5 rounded-full flex-shrink-0">
+                          {c.unread}
+                        </span>
+                      )}
+                    </div>
+                    {c.company_name && (
+                      <p className="text-xs text-muted-foreground font-body truncate">{c.employer_name}</p>
+                    )}
+                    <p className="text-xs text-muted-foreground font-body truncate mt-0.5">{c.last_message || "—"}</p>
+                    <p className="text-xs text-muted-foreground font-body mt-1">
+                      {formatDistanceToNow(new Date(c.updated_at), { addSuffix: true })}
+                    </p>
+                  </div>
                 </div>
-                <p className="text-xs text-muted-foreground font-body truncate">{c.last_message || "—"}</p>
-                <p className="text-xs text-muted-foreground font-body mt-1">
-                  {formatDistanceToNow(new Date(c.updated_at), { addSuffix: true })}
-                </p>
               </button>
             ))}
           </div>
@@ -204,8 +222,17 @@ const MessagingInbox = () => {
         <div className="md:col-span-2 flex flex-col">
           {active ? (
             <>
-              <div className="p-4 border-b border-border">
-                <p className="font-heading text-lg">{active.employer_name}</p>
+              <div className="p-4 border-b border-border flex items-center gap-3">
+                <Avatar className="h-10 w-10 border border-border">
+                  <AvatarImage src={active.company_logo_url ?? undefined} />
+                  <AvatarFallback className="bg-secondary"><Building2 size={16} /></AvatarFallback>
+                </Avatar>
+                <div>
+                  <p className="font-heading text-lg leading-tight">{active.company_name || active.employer_name}</p>
+                  {active.company_name && (
+                    <p className="text-xs text-muted-foreground font-body">{active.employer_name}</p>
+                  )}
+                </div>
               </div>
               <div className="flex-1 p-4 overflow-y-auto max-h-[400px] space-y-3">
                 {messages.map((m) => {

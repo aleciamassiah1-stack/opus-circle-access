@@ -5,6 +5,7 @@ import StatusPanel from "@/components/candidate/StatusPanel";
 import ProfileEditor from "@/components/candidate/ProfileEditor";
 import MessagingInbox from "@/components/candidate/MessagingInbox";
 import InterviewRequests from "@/components/candidate/InterviewRequests";
+import ResumeAccessRequests from "@/components/candidate/ResumeAccessRequests";
 import BillingPanel from "@/components/BillingPanel";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -13,6 +14,7 @@ const CandidateDashboard = () => {
   const { user, profile } = useAuth();
   const [unreadCount, setUnreadCount] = useState(0);
   const [pendingRequests, setPendingRequests] = useState(0);
+  const [pendingResumeRequests, setPendingResumeRequests] = useState(0);
 
   useEffect(() => {
     if (!user) return;
@@ -37,6 +39,12 @@ const CandidateDashboard = () => {
         .eq("candidate_user_id", user.id)
         .eq("status", "pending");
       setPendingRequests(rc ?? 0);
+      const { count: rrc } = await supabase
+        .from("resume_access_requests" as any)
+        .select("*", { count: "exact", head: true })
+        .eq("candidate_user_id", user.id)
+        .eq("status", "pending");
+      setPendingResumeRequests(rrc ?? 0);
     };
     loadCounts();
   }, [user]);
@@ -77,6 +85,13 @@ const CandidateDashboard = () => {
                 </span>
               )}
             </TabsTrigger>
+            <TabsTrigger value="resume-requests" className="font-body data-[state=active]:bg-background">
+              Resume Requests {pendingResumeRequests > 0 && (
+                <span className="ml-2 bg-gold text-primary-foreground text-xs px-2 py-0.5 rounded-full">
+                  {pendingResumeRequests}
+                </span>
+              )}
+            </TabsTrigger>
             <TabsTrigger value="billing" className="font-body data-[state=active]:bg-background">
               Billing
             </TabsTrigger>
@@ -90,6 +105,9 @@ const CandidateDashboard = () => {
           </TabsContent>
           <TabsContent value="interviews">
             <InterviewRequests />
+          </TabsContent>
+          <TabsContent value="resume-requests">
+            <ResumeAccessRequests />
           </TabsContent>
           <TabsContent value="billing">
             <BillingPanel plan="candidate" />
