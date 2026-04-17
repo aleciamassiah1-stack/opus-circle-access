@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Menu, X, LogOut, Shield, LayoutDashboard } from "lucide-react";
+import { Menu, X, LogOut, Shield, LayoutDashboard, Building2 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import logo from "@/assets/opulence-logo.png";
 
@@ -43,6 +43,14 @@ const Navbar = () => {
                   <Button variant="ghost" size="sm" asChild>
                     <Link to="/dashboard" className="gap-1">
                       <LayoutDashboard size={14} />
+                      Dashboard
+                    </Link>
+                  </Button>
+                )}
+                {hasRole("employer") && (
+                  <Button variant="ghost" size="sm" asChild>
+                    <Link to="/employer" className="gap-1">
+                      <Building2 size={14} />
                       Dashboard
                     </Link>
                   </Button>
@@ -107,6 +115,14 @@ const Navbar = () => {
                       <Link to="/dashboard" onClick={() => setMobileOpen(false)}>
                         <LayoutDashboard size={14} className="mr-1" />
                         Dashboard
+                      </Link>
+                    </Button>
+                  )}
+                  {hasRole("employer") && (
+                    <Button variant="ghost" size="sm" asChild>
+                      <Link to="/employer" onClick={() => setMobileOpen(false)}>
+                        <Building2 size={14} className="mr-1" />
+                        Employer Dashboard
                       </Link>
                     </Button>
                   )}
