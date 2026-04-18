@@ -235,13 +235,19 @@ const VerificationQueue = ({ onChange }: Props) => {
                     <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />
                   </div>
                 ) : /\.(pdf)$/i.test(active.file_path) ? (
-                  <div className="p-6 text-center">
-                    <p className="text-sm text-muted-foreground mb-3">PDF document</p>
-                    <Button variant="outline" asChild>
-                      <a href={previewUrl} target="_blank" rel="noreferrer">
-                        <ExternalLink className="w-4 h-4 mr-2" /> Open in new tab
-                      </a>
-                    </Button>
+                  <div className="space-y-2">
+                    <iframe
+                      src={previewUrl}
+                      title="Identity document"
+                      className="w-full h-[60vh] bg-background"
+                    />
+                    <div className="px-3 pb-3 text-right">
+                      <Button variant="outline" size="sm" asChild>
+                        <a href={previewUrl} target="_blank" rel="noreferrer">
+                          <ExternalLink className="w-4 h-4 mr-2" /> Open in new tab
+                        </a>
+                      </Button>
+                    </div>
                   </div>
                 ) : (
                   <img src={previewUrl} alt="Identity document" className="w-full max-h-[60vh] object-contain bg-background" />
