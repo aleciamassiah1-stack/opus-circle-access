@@ -15,6 +15,7 @@ import CandidateDashboard from "./pages/CandidateDashboard";
 import EmployerDashboard from "./pages/EmployerDashboard";
 import Checkout from "./pages/Checkout";
 import CheckoutReturn from "./pages/CheckoutReturn";
+import Profile from "./pages/Profile";
 import ProtectedRoute from "./components/ProtectedRoute";
 import { PaymentTestModeBanner } from "./components/PaymentTestModeBanner";
 import NotFound from "./pages/NotFound";
@@ -51,6 +52,14 @@ const App = () => (
               element={
                 <ProtectedRoute requiredRole="employer">
                   <EmployerDashboard />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/profile"
+              element={
+                <ProtectedRoute>
+                  <Profile />
                 </ProtectedRoute>
               }
             />
