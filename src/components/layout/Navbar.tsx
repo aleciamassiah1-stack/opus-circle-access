@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Menu, X, LogOut, Shield, LayoutDashboard, Building2 } from "lucide-react";
+import { Menu, X, LogOut, Shield, LayoutDashboard, Building2, UserCircle } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import logo from "@/assets/opulence-logo.png";
 
