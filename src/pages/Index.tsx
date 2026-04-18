@@ -20,6 +20,7 @@ const Index = () => {
       <section className="min-h-[calc(100vh-4rem)] grid grid-cols-1 lg:grid-cols-2">
         {/* Left Content */}
         <div className="flex flex-col justify-center px-8 lg:px-16 xl:px-24 py-20 animate-slide-in-left">
+          <p className="font-heading text-xl text-gold mb-4 tracking-wide">Opulence Talent Collective</p>
           <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-secondary text-secondary-foreground text-xs font-body font-medium tracking-widest uppercase mb-8 w-fit">
             <Crown size={14} className="text-gold" />
             Members-Only Network
