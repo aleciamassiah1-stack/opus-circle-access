@@ -57,7 +57,7 @@ const Navbar = () => {
                   <Button variant="ghost" size="sm" asChild>
                     <Link to="/employer" className="gap-1">
                       <Building2 size={14} />
-                      Dashboard
+                      Talent Directory
                     </Link>
                   </Button>
                 )}
@@ -128,7 +128,7 @@ const Navbar = () => {
                     <Button variant="ghost" size="sm" asChild>
                       <Link to="/employer" onClick={() => setMobileOpen(false)}>
                         <Building2 size={14} className="mr-1" />
-                        Employer Dashboard
+                        Talent Directory
                       </Link>
                     </Button>
                   )}
