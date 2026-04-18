@@ -57,9 +57,11 @@ const EmployerDashboard = () => {
     <PageLayout>
       <div className="container mx-auto px-6 py-12 max-w-6xl">
         <div className="mb-10 animate-fade-in">
-          <p className="text-xs uppercase tracking-[0.2em] text-gold mb-3 font-body">Employer Dashboard</p>
-          <h1 className="text-5xl md:text-6xl font-heading text-foreground mb-2">
+          <p className="text-xs uppercase tracking-[0.2em] text-gold mb-3 font-body">
             Welcome, {profile?.first_name || "Member"}
+          </p>
+          <h1 className="text-5xl md:text-6xl font-heading text-foreground mb-2">
+            Talent Directory
           </h1>
           <p className="text-muted-foreground font-body">
             Discover vetted talent and coordinate interviews privately.

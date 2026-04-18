@@ -11,9 +11,7 @@ const publicLinks = [
   { label: "Contact", href: "/contact" },
 ];
 
-const memberLinks = [
-  { label: "Contact", href: "/contact" },
-];
+const memberLinks: { label: string; href: string }[] = [];
 
 const Navbar = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
