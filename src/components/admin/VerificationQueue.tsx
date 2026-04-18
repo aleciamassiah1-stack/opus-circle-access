@@ -13,9 +13,10 @@ import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
 import {
-  ShieldCheck, Loader2, CheckCircle2, XCircle, Eye, ExternalLink,
+  ShieldCheck, Loader2, CheckCircle2, XCircle, Eye,
 } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
+import PdfPreview from "./PdfPreview";
 
 type Doc = {
   id: string;
