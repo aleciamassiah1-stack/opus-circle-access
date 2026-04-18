@@ -384,6 +384,59 @@ export type Database = {
         }
         Relationships: []
       }
+      reports: {
+        Row: {
+          admin_notes: string | null
+          category: Database["public"]["Enums"]["report_category"]
+          conversation_id: string | null
+          created_at: string
+          id: string
+          message: string
+          reported_user_id: string
+          reporter_user_id: string
+          resolved_at: string | null
+          resolved_by: string | null
+          status: Database["public"]["Enums"]["report_status"]
+          updated_at: string
+        }
+        Insert: {
+          admin_notes?: string | null
+          category: Database["public"]["Enums"]["report_category"]
+          conversation_id?: string | null
+          created_at?: string
+          id?: string
+          message: string
+          reported_user_id: string
+          reporter_user_id: string
+          resolved_at?: string | null
+          resolved_by?: string | null
+          status?: Database["public"]["Enums"]["report_status"]
+          updated_at?: string
+        }
+        Update: {
+          admin_notes?: string | null
+          category?: Database["public"]["Enums"]["report_category"]
+          conversation_id?: string | null
+          created_at?: string
+          id?: string
+          message?: string
+          reported_user_id?: string
+          reporter_user_id?: string
+          resolved_at?: string | null
+          resolved_by?: string | null
+          status?: Database["public"]["Enums"]["report_status"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reports_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "conversations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       resume_access_requests: {
         Row: {
           candidate_profile_id: string
@@ -529,6 +582,14 @@ export type Database = {
     Enums: {
       app_role: "candidate" | "employer" | "admin"
       approval_status: "pending" | "approved" | "rejected"
+      report_category:
+        | "harassment"
+        | "spam"
+        | "fake_profile"
+        | "inappropriate_content"
+        | "scam"
+        | "other"
+      report_status: "open" | "under_review" | "resolved" | "dismissed"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -658,6 +719,15 @@ export const Constants = {
     Enums: {
       app_role: ["candidate", "employer", "admin"],
       approval_status: ["pending", "approved", "rejected"],
+      report_category: [
+        "harassment",
+        "spam",
+        "fake_profile",
+        "inappropriate_content",
+        "scam",
+        "other",
+      ],
+      report_status: ["open", "under_review", "resolved", "dismissed"],
     },
   },
 } as const
