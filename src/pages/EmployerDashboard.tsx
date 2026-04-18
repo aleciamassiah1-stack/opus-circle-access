@@ -11,8 +11,9 @@ import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 
 const EmployerDashboard = () => {
-  const { user, profile } = useAuth();
-  const isPaid = profile?.subscription_active === true;
+  const { user, profile, hasRole } = useAuth();
+  const isAdmin = hasRole("admin");
+  const isPaid = isAdmin || profile?.subscription_active === true;
   const [tab, setTab] = useState("directory");
   const [unread, setUnread] = useState(0);
   const [pendingResponses, setPendingResponses] = useState(0);
