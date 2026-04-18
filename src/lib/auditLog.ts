@@ -10,7 +10,11 @@ export type AuditAction =
   | "visibility_hide"
   | "soft_delete"
   | "restore"
-  | "hard_delete";
+  | "hard_delete"
+  | "report_status_change"
+  | "report_dismiss"
+  | "report_resolve"
+  | "report_delete";
 
 export async function logAdminAction(
   action: AuditAction,
