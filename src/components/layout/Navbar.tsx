@@ -69,6 +69,14 @@ const Navbar = () => {
                     </Link>
                   </Button>
                 )}
+                {!hasRole("admin") && (
+                  <Button variant="ghost" size="sm" asChild>
+                    <Link to="/profile" className="gap-1">
+                      <UserCircle size={14} />
+                      My Profile
+                    </Link>
+                  </Button>
+                )}
                 <span className="font-body text-sm text-muted-foreground">
                   {profile?.first_name || user.email}
                 </span>
@@ -137,6 +145,14 @@ const Navbar = () => {
                       <Link to="/admin" onClick={() => setMobileOpen(false)}>
                         <Shield size={14} className="mr-1" />
                         Admin Dashboard
+                      </Link>
+                    </Button>
+                  )}
+                  {!hasRole("admin") && (
+                    <Button variant="ghost" size="sm" asChild>
+                      <Link to="/profile" onClick={() => setMobileOpen(false)}>
+                        <UserCircle size={14} className="mr-1" />
+                        My Profile
                       </Link>
                     </Button>
                   )}
