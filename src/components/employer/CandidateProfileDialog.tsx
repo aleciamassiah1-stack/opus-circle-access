@@ -51,7 +51,8 @@ const renderMarkdown = (text: string) => {
 };
 
 const CandidateProfileDialog = ({ candidate, open, onClose, onMessage, isFavorite, onToggleFavorite }: Props) => {
-  const { user } = useAuth();
+  const { user, hasRole } = useAuth();
+  const isAdmin = hasRole("admin");
   const [interviewNote, setInterviewNote] = useState("");
   const [requestMessage, setRequestMessage] = useState("");
   const [sending, setSending] = useState(false);
@@ -234,10 +235,11 @@ const CandidateProfileDialog = ({ candidate, open, onClose, onMessage, isFavorit
 
           {hasResume && (
             <div className="mt-4 pt-4 border-t border-gold/20">
-              {accessStatus === "approved" ? (
+              {isAdmin || accessStatus === "approved" ? (
                 <Button variant="gold" size="sm" onClick={viewFullResume}>
                   <FileText size={14} />
                   View Full Resume
+                  {isAdmin && <span className="ml-2 text-[10px] uppercase tracking-wider opacity-70">Admin</span>}
                 </Button>
               ) : accessStatus === "pending" ? (
                 <div className="flex items-center gap-2 text-sm font-body text-muted-foreground">
