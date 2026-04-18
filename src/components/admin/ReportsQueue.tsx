@@ -125,18 +125,14 @@ const ReportsQueue = ({ onChange }: Props) => {
   ) => {
     if (!active) return;
     setSaving(true);
-    const patch: Partial<Report> = {
+    const { data: u } = await supabase.auth.getUser();
+    const isFinal = next === "resolved" || next === "dismissed";
+    const patch = {
       status: next,
       admin_notes: adminNotes.trim() || null,
+      resolved_by: isFinal ? u.user?.id ?? null : null,
+      resolved_at: isFinal ? new Date().toISOString() : null,
     };
-    if (next === "resolved" || next === "dismissed") {
-      const { data: u } = await supabase.auth.getUser();
-      patch.resolved_by = u.user?.id ?? null;
-      patch.resolved_at = new Date().toISOString();
-    } else {
-      patch.resolved_by = null;
-      patch.resolved_at = null;
-    }
     const { error } = await supabase.from("reports").update(patch).eq("id", active.id);
     if (error) {
       setSaving(false);
