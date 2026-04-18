@@ -7,8 +7,9 @@ import UserManagementTable from "@/components/admin/UserManagementTable";
 import AdminRoleGrant from "@/components/admin/AdminRoleGrant";
 import AuditLog from "@/components/admin/AuditLog";
 import DeactivatedAccounts from "@/components/admin/DeactivatedAccounts";
+import ReportsQueue from "@/components/admin/ReportsQueue";
 import { supabase } from "@/integrations/supabase/client";
-import { UserCheck, Clock, Eye, CreditCard, MessageSquare, Briefcase, Building2 } from "lucide-react";
+import { UserCheck, Clock, Eye, CreditCard, MessageSquare, Briefcase, Building2, Flag } from "lucide-react";
 
 const AdminDashboard = () => {
   const [metrics, setMetrics] = useState({
@@ -21,6 +22,7 @@ const AdminDashboard = () => {
     totalConversations: 0,
     totalInterviews: 0,
     deactivatedCount: 0,
+    openReports: 0,
   });
 
   const loadMetrics = useCallback(async () => {
@@ -38,8 +40,9 @@ const AdminDashboard = () => {
       supabase.from("conversations").select("id", { count: "exact", head: true }),
       supabase.from("interview_requests").select("id", { count: "exact", head: true }),
       supabase.from("profiles").select("id", { count: "exact", head: true }).not("deactivated_at", "is", null),
+      supabase.from("reports").select("id", { count: "exact", head: true }).eq("status", "open"),
     ]);
-    const [candidatesRoles, employersRoles, pending, visible, convos, interviews, deactivated] = results;
+    const [candidatesRoles, employersRoles, pending, visible, convos, interviews, deactivated, openReports] = results;
 
     // Refine active subscription split by role
     const { data: activeSubs } = await supabase
@@ -68,6 +71,7 @@ const AdminDashboard = () => {
       totalConversations: convos.count ?? 0,
       totalInterviews: interviews.count ?? 0,
       deactivatedCount: deactivated.count ?? 0,
+      openReports: openReports.count ?? 0,
     });
   }, []);
 
@@ -94,6 +98,7 @@ const AdminDashboard = () => {
             { label: "Employer Subs", value: metrics.activeEmployerSubs, icon: CreditCard, color: "text-gold" },
             { label: "Conversations", value: metrics.totalConversations, icon: MessageSquare, color: "text-foreground" },
             { label: "Interview Requests", value: metrics.totalInterviews, icon: UserCheck, color: "text-foreground" },
+            { label: "Open Reports", value: metrics.openReports, icon: Flag, color: metrics.openReports > 0 ? "text-destructive" : "text-foreground" },
           ]}
         />
 
@@ -118,6 +123,14 @@ const AdminDashboard = () => {
                 </span>
               )}
             </TabsTrigger>
+            <TabsTrigger value="reports" className="font-body data-[state=active]:bg-background">
+              Reports
+              {metrics.openReports > 0 && (
+                <span className="ml-2 bg-destructive text-destructive-foreground text-xs px-2 py-0.5 rounded-full">
+                  {metrics.openReports}
+                </span>
+              )}
+            </TabsTrigger>
             <TabsTrigger value="audit" className="font-body data-[state=active]:bg-background">
               Audit Log
             </TabsTrigger>
@@ -132,6 +145,9 @@ const AdminDashboard = () => {
           </TabsContent>
           <TabsContent value="deactivated">
             <DeactivatedAccounts onChange={loadMetrics} />
+          </TabsContent>
+          <TabsContent value="reports">
+            <ReportsQueue onChange={loadMetrics} />
           </TabsContent>
           <TabsContent value="audit">
             <AuditLog />

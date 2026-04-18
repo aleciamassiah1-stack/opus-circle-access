@@ -6,8 +6,9 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
-import { Send, MessageSquare, Loader2, Building2 } from "lucide-react";
+import { Send, MessageSquare, Loader2, Building2, Flag } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
+import ReportDialog from "@/components/ReportDialog";
 
 type Conversation = {
   id: string;
@@ -37,6 +38,7 @@ const MessagingInbox = () => {
   const [reply, setReply] = useState("");
   const [sending, setSending] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [reportOpen, setReportOpen] = useState(false);
   const endRef = useRef<HTMLDivElement>(null);
 
   const loadConversations = async () => {
@@ -222,18 +224,35 @@ const MessagingInbox = () => {
         <div className="md:col-span-2 flex flex-col">
           {active ? (
             <>
-              <div className="p-4 border-b border-border flex items-center gap-3">
-                <Avatar className="h-10 w-10 border border-border">
-                  <AvatarImage src={active.company_logo_url ?? undefined} />
-                  <AvatarFallback className="bg-secondary"><Building2 size={16} /></AvatarFallback>
-                </Avatar>
-                <div>
-                  <p className="font-heading text-lg leading-tight">{active.company_name || active.employer_name}</p>
-                  {active.company_name && (
-                    <p className="text-xs text-muted-foreground font-body">{active.employer_name}</p>
-                  )}
+              <div className="p-4 border-b border-border flex items-center justify-between gap-3">
+                <div className="flex items-center gap-3 min-w-0">
+                  <Avatar className="h-10 w-10 border border-border">
+                    <AvatarImage src={active.company_logo_url ?? undefined} />
+                    <AvatarFallback className="bg-secondary"><Building2 size={16} /></AvatarFallback>
+                  </Avatar>
+                  <div className="min-w-0">
+                    <p className="font-heading text-lg leading-tight truncate">{active.company_name || active.employer_name}</p>
+                    {active.company_name && (
+                      <p className="text-xs text-muted-foreground font-body truncate">{active.employer_name}</p>
+                    )}
+                  </div>
                 </div>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={() => setReportOpen(true)}
+                  className="text-muted-foreground hover:text-destructive shrink-0"
+                >
+                  <Flag className="w-4 h-4 mr-1" /> Report
+                </Button>
               </div>
+              <ReportDialog
+                open={reportOpen}
+                onOpenChange={setReportOpen}
+                reportedUserId={active.employer_user_id}
+                reportedUserName={active.company_name || active.employer_name}
+                conversationId={active.id}
+              />
               <div className="flex-1 p-4 overflow-y-auto max-h-[400px] space-y-3">
                 {messages.map((m) => {
                   const mine = m.sender_id === user?.id;

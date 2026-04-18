@@ -5,8 +5,9 @@ import { Input } from "@/components/ui/input";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
-import { Send, MessageSquare, Loader2 } from "lucide-react";
+import { Send, MessageSquare, Loader2, Flag } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
+import ReportDialog from "@/components/ReportDialog";
 
 type Conversation = {
   id: string;
@@ -36,6 +37,7 @@ const EmployerMessaging = ({ initialCandidateUserId, onConsumed }: Props) => {
   const [reply, setReply] = useState("");
   const [sending, setSending] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [reportOpen, setReportOpen] = useState(false);
   const endRef = useRef<HTMLDivElement>(null);
 
   const loadConversations = async () => {
@@ -228,9 +230,26 @@ const EmployerMessaging = ({ initialCandidateUserId, onConsumed }: Props) => {
         <div className="md:col-span-2 flex flex-col">
           {active ? (
             <>
-              <div className="p-4 border-b border-border">
+              <div className="p-4 border-b border-border flex items-center justify-between gap-3">
                 <p className="font-heading text-lg">{active.candidate_name}</p>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={() => setReportOpen(true)}
+                  className="text-muted-foreground hover:text-destructive"
+                >
+                  <Flag className="w-4 h-4 mr-1" /> Report
+                </Button>
               </div>
+              {active && (
+                <ReportDialog
+                  open={reportOpen}
+                  onOpenChange={setReportOpen}
+                  reportedUserId={active.candidate_user_id}
+                  reportedUserName={active.candidate_name}
+                  conversationId={active.id}
+                />
+              )}
               <div className="flex-1 p-4 overflow-y-auto max-h-[400px] space-y-3">
                 {messages.map((m) => {
                   const mine = m.sender_id === user?.id;
