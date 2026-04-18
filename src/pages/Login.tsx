@@ -6,6 +6,14 @@ import { useToast } from "@/hooks/use-toast";
 import { Eye, EyeOff } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
+
+const destinationForRoles = (roles: string[]): string => {
+  if (roles.includes("admin")) return "/admin";
+  if (roles.includes("employer")) return "/employer";
+  if (roles.includes("candidate")) return "/dashboard";
+  return "/";
+};
 
 type AuthView = "login" | "signup-candidate" | "signup-employer";
 
@@ -18,15 +26,15 @@ const Login = () => {
   const [lastName, setLastName] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const { toast } = useToast();
-  const { signIn, signUp, user } = useAuth();
+  const { signIn, signUp, user, roles } = useAuth();
   const navigate = useNavigate();
 
-  // Redirect if already logged in
+  // Redirect if already logged in — send to the right home for their role
   useEffect(() => {
     if (user) {
-      navigate("/", { replace: true });
+      navigate(destinationForRoles(roles), { replace: true });
     }
-  }, [user, navigate]);
+  }, [user, roles, navigate]);
 
   if (user) return null;
 
@@ -40,7 +48,18 @@ const Login = () => {
         toast({ title: "Sign in failed", description: error.message, variant: "destructive" });
       } else {
         toast({ title: "Welcome back!" });
-        navigate("/");
+        // Roles aren't yet hydrated in context — query directly so we route correctly.
+        const { data: sessionData } = await supabase.auth.getUser();
+        const uid = sessionData.user?.id;
+        let dest = "/";
+        if (uid) {
+          const { data: roleRows } = await supabase
+            .from("user_roles")
+            .select("role")
+            .eq("user_id", uid);
+          dest = destinationForRoles((roleRows ?? []).map((r) => r.role));
+        }
+        navigate(dest, { replace: true });
       }
     } else {
       const role = view === "signup-candidate" ? "candidate" : "employer";
