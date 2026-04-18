@@ -1,7 +1,7 @@
 import { Link, Navigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import PageLayout from "@/components/layout/PageLayout";
-import heroImage from "@/assets/hero-estate.jpg";
+import heroImage from "@/assets/hero-professionals.jpg";
 import { Shield, Users, Eye, ArrowRight, Star, Lock, Crown } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 
