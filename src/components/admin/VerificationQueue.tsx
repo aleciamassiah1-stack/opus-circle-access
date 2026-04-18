@@ -236,11 +236,22 @@ const VerificationQueue = ({ onChange }: Props) => {
                   </div>
                 ) : /\.(pdf)$/i.test(active.file_path) ? (
                   <div className="space-y-2">
-                    <iframe
-                      src={previewUrl}
-                      title="Identity document"
+                    <object
+                      data={previewUrl}
+                      type="application/pdf"
                       className="w-full h-[60vh] bg-background"
-                    />
+                    >
+                      <div className="p-6 text-center space-y-3">
+                        <p className="text-sm text-muted-foreground font-body">
+                          Your browser blocked the inline PDF preview.
+                        </p>
+                        <Button variant="outline" size="sm" asChild>
+                          <a href={previewUrl} target="_blank" rel="noreferrer">
+                            <ExternalLink className="w-4 h-4 mr-2" /> Open PDF in new tab
+                          </a>
+                        </Button>
+                      </div>
+                    </object>
                     <div className="px-3 pb-3 text-right">
                       <Button variant="outline" size="sm" asChild>
                         <a href={previewUrl} target="_blank" rel="noreferrer">
