@@ -1,10 +1,19 @@
-import { Link } from "react-router-dom";
+import { Link, Navigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import PageLayout from "@/components/layout/PageLayout";
 import heroImage from "@/assets/hero-estate.jpg";
 import { Shield, Users, Eye, ArrowRight, Star, Lock, Crown } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
 
 const Index = () => {
+  const { user, loading, hasRole } = useAuth();
+
+  if (!loading && user) {
+    if (hasRole("admin")) return <Navigate to="/admin" replace />;
+    if (hasRole("employer")) return <Navigate to="/employer" replace />;
+    if (hasRole("candidate")) return <Navigate to="/dashboard" replace />;
+  }
+
   return (
     <PageLayout>
       {/* Hero — Split Screen */}

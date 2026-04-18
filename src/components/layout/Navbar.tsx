@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Menu, X, LogOut, Shield, LayoutDashboard, Building2 } from "lucide-react";
+import { Menu, X, LogOut, Shield, LayoutDashboard, Building2, UserCircle } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import logo from "@/assets/opulence-logo.png";
 
@@ -66,6 +66,14 @@ const Navbar = () => {
                     <Link to="/admin" className="gap-1">
                       <Shield size={14} />
                       Admin
+                    </Link>
+                  </Button>
+                )}
+                {!hasRole("admin") && (
+                  <Button variant="ghost" size="sm" asChild>
+                    <Link to="/profile" className="gap-1">
+                      <UserCircle size={14} />
+                      My Profile
                     </Link>
                   </Button>
                 )}
@@ -137,6 +145,14 @@ const Navbar = () => {
                       <Link to="/admin" onClick={() => setMobileOpen(false)}>
                         <Shield size={14} className="mr-1" />
                         Admin Dashboard
+                      </Link>
+                    </Button>
+                  )}
+                  {!hasRole("admin") && (
+                    <Button variant="ghost" size="sm" asChild>
+                      <Link to="/profile" onClick={() => setMobileOpen(false)}>
+                        <UserCircle size={14} className="mr-1" />
+                        My Profile
                       </Link>
                     </Button>
                   )}
