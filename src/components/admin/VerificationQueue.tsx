@@ -128,6 +128,13 @@ const VerificationQueue = ({ onChange }: Props) => {
       toast({ title: "Update failed", description: error.message, variant: "destructive" });
       return;
     }
+    // On rejection, delete the underlying file from storage to protect PII.
+    if (next === "rejected") {
+      const { error: rmErr } = await supabase.storage
+        .from("verification-documents")
+        .remove([active.file_path]);
+      if (rmErr) console.warn("Storage cleanup failed:", rmErr.message);
+    }
     await logAdminAction(
       next === "approved" ? "doc_approve" : "doc_reject",
       active.user_id,
