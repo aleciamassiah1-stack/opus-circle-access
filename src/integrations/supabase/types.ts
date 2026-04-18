@@ -557,6 +557,48 @@ export type Database = {
         }
         Relationships: []
       }
+      verification_documents: {
+        Row: {
+          created_at: string
+          document_type: Database["public"]["Enums"]["verification_doc_type"]
+          file_name: string | null
+          file_path: string
+          id: string
+          reviewed_at: string | null
+          reviewed_by: string | null
+          reviewer_notes: string | null
+          status: Database["public"]["Enums"]["verification_doc_status"]
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          document_type: Database["public"]["Enums"]["verification_doc_type"]
+          file_name?: string | null
+          file_path: string
+          id?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          reviewer_notes?: string | null
+          status?: Database["public"]["Enums"]["verification_doc_status"]
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          document_type?: Database["public"]["Enums"]["verification_doc_type"]
+          file_name?: string | null
+          file_path?: string
+          id?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          reviewer_notes?: string | null
+          status?: Database["public"]["Enums"]["verification_doc_status"]
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -590,6 +632,8 @@ export type Database = {
         | "scam"
         | "other"
       report_status: "open" | "under_review" | "resolved" | "dismissed"
+      verification_doc_status: "pending" | "approved" | "rejected"
+      verification_doc_type: "government_id"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -728,6 +772,8 @@ export const Constants = {
         "other",
       ],
       report_status: ["open", "under_review", "resolved", "dismissed"],
+      verification_doc_status: ["pending", "approved", "rejected"],
+      verification_doc_type: ["government_id"],
     },
   },
 } as const
