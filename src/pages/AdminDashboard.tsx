@@ -8,8 +8,9 @@ import AdminRoleGrant from "@/components/admin/AdminRoleGrant";
 import AuditLog from "@/components/admin/AuditLog";
 import DeactivatedAccounts from "@/components/admin/DeactivatedAccounts";
 import ReportsQueue from "@/components/admin/ReportsQueue";
+import VerificationQueue from "@/components/admin/VerificationQueue";
 import { supabase } from "@/integrations/supabase/client";
-import { UserCheck, Clock, Eye, CreditCard, MessageSquare, Briefcase, Building2, Flag } from "lucide-react";
+import { UserCheck, Clock, Eye, CreditCard, MessageSquare, Briefcase, Building2, Flag, ShieldCheck } from "lucide-react";
 
 const AdminDashboard = () => {
   const [metrics, setMetrics] = useState({
@@ -23,6 +24,7 @@ const AdminDashboard = () => {
     totalInterviews: 0,
     deactivatedCount: 0,
     openReports: 0,
+    pendingDocs: 0,
   });
 
   const loadMetrics = useCallback(async () => {
@@ -41,8 +43,9 @@ const AdminDashboard = () => {
       supabase.from("interview_requests").select("id", { count: "exact", head: true }),
       supabase.from("profiles").select("id", { count: "exact", head: true }).not("deactivated_at", "is", null),
       supabase.from("reports").select("id", { count: "exact", head: true }).eq("status", "open"),
+      supabase.from("verification_documents" as never).select("id", { count: "exact", head: true }).eq("status", "pending"),
     ]);
-    const [candidatesRoles, employersRoles, pending, visible, convos, interviews, deactivated, openReports] = results;
+    const [candidatesRoles, employersRoles, pending, visible, convos, interviews, deactivated, openReports, pendingDocs] = results;
 
     // Refine active subscription split by role
     const { data: activeSubs } = await supabase
@@ -72,6 +75,7 @@ const AdminDashboard = () => {
       totalInterviews: interviews.count ?? 0,
       deactivatedCount: deactivated.count ?? 0,
       openReports: openReports.count ?? 0,
+      pendingDocs: pendingDocs.count ?? 0,
     });
   }, []);
 
@@ -99,6 +103,7 @@ const AdminDashboard = () => {
             { label: "Conversations", value: metrics.totalConversations, icon: MessageSquare, color: "text-foreground" },
             { label: "Interview Requests", value: metrics.totalInterviews, icon: UserCheck, color: "text-foreground" },
             { label: "Open Reports", value: metrics.openReports, icon: Flag, color: metrics.openReports > 0 ? "text-destructive" : "text-foreground" },
+            { label: "Pending Documents", value: metrics.pendingDocs, icon: ShieldCheck, color: metrics.pendingDocs > 0 ? "text-amber-500" : "text-foreground" },
           ]}
         />
 
@@ -131,6 +136,14 @@ const AdminDashboard = () => {
                 </span>
               )}
             </TabsTrigger>
+            <TabsTrigger value="verifications" className="font-body data-[state=active]:bg-background">
+              Verifications
+              {metrics.pendingDocs > 0 && (
+                <span className="ml-2 bg-amber-500 text-white text-xs px-2 py-0.5 rounded-full">
+                  {metrics.pendingDocs}
+                </span>
+              )}
+            </TabsTrigger>
             <TabsTrigger value="audit" className="font-body data-[state=active]:bg-background">
               Audit Log
             </TabsTrigger>
@@ -148,6 +161,9 @@ const AdminDashboard = () => {
           </TabsContent>
           <TabsContent value="reports">
             <ReportsQueue onChange={loadMetrics} />
+          </TabsContent>
+          <TabsContent value="verifications">
+            <VerificationQueue onChange={loadMetrics} />
           </TabsContent>
           <TabsContent value="audit">
             <AuditLog />
