@@ -14,7 +14,9 @@ export type AuditAction =
   | "report_status_change"
   | "report_dismiss"
   | "report_resolve"
-  | "report_delete";
+  | "report_delete"
+  | "doc_approve"
+  | "doc_reject";
 
 export async function logAdminAction(
   action: AuditAction,
