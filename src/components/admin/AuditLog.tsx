@@ -34,6 +34,12 @@ const ACTION_CONFIG: Record<string, { label: string; variant: "default" | "secon
   soft_delete: { label: "Deactivated", variant: "secondary" },
   restore: { label: "Restored", variant: "default" },
   hard_delete: { label: "Deleted permanently", variant: "destructive" },
+  doc_approve: { label: "Document approved", variant: "default" },
+  doc_reject: { label: "Document rejected", variant: "destructive" },
+  report_status_change: { label: "Report status changed", variant: "outline" },
+  report_dismiss: { label: "Report dismissed", variant: "outline" },
+  report_resolve: { label: "Report resolved", variant: "default" },
+  report_delete: { label: "Report deleted", variant: "destructive" },
 };
 
 const AuditLog = () => {

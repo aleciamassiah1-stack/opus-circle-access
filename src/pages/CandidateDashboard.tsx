@@ -6,6 +6,7 @@ import ProfileEditor from "@/components/candidate/ProfileEditor";
 import MessagingInbox from "@/components/candidate/MessagingInbox";
 import InterviewRequests from "@/components/candidate/InterviewRequests";
 import ResumeAccessRequests from "@/components/candidate/ResumeAccessRequests";
+import VerificationPanel from "@/components/candidate/VerificationPanel";
 import BillingPanel from "@/components/BillingPanel";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -92,6 +93,9 @@ const CandidateDashboard = () => {
                 </span>
               )}
             </TabsTrigger>
+            <TabsTrigger value="verification" className="font-body data-[state=active]:bg-background">
+              Verification
+            </TabsTrigger>
             <TabsTrigger value="billing" className="font-body data-[state=active]:bg-background">
               Billing
             </TabsTrigger>
@@ -108,6 +112,9 @@ const CandidateDashboard = () => {
           </TabsContent>
           <TabsContent value="resume-requests">
             <ResumeAccessRequests />
+          </TabsContent>
+          <TabsContent value="verification">
+            <VerificationPanel />
           </TabsContent>
           <TabsContent value="billing">
             <BillingPanel plan="candidate" />
