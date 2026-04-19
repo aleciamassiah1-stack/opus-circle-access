@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import logo from "@/assets/opulence-logo.png";
+import logo from "@/assets/otc-logo.png";
 
 const Footer = () => {
   return (
@@ -7,7 +7,7 @@ const Footer = () => {
       <div className="container mx-auto px-6 py-16">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-10">
           <div className="md:col-span-2">
-            <img src={logo} alt="Opulence Talent Collective" className="h-10 mb-4" />
+            <img src={logo} alt="Opulence Talent Collective" className="h-16 w-16 mb-4 object-contain" />
             <p className="font-body text-sm text-background/60 max-w-sm leading-relaxed">
               A private network connecting exceptional talent with discerning employers 
               in hospitality, private estates, and family offices.
