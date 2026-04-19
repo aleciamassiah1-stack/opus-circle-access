@@ -123,14 +123,16 @@ const CandidateProfileDialog = ({ candidate, open, onClose, onMessage, isFavorit
 
   const viewFullResume = async () => {
     if (!resumePath) return;
+    setOpeningResume(true);
     const { data: signed, error } = await supabase.storage
       .from("resumes")
       .createSignedUrl(resumePath, 60 * 5);
+    setOpeningResume(false);
     if (error || !signed?.signedUrl) {
       toast({ title: "Could not access resume", description: error?.message, variant: "destructive" });
       return;
     }
-    window.open(signed.signedUrl, "_blank");
+    setResumePreviewUrl(signed.signedUrl);
   };
 
   const requestResumeAccess = async () => {
