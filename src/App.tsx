@@ -46,7 +46,7 @@ const App = () => (
             <Route
               path="/dashboard"
               element={
-                <ProtectedRoute requiredRole="candidate">
+                <ProtectedRoute requiredRole="candidate" requireApproval requireSubscription>
                   <CandidateDashboard />
                 </ProtectedRoute>
               }
@@ -54,7 +54,7 @@ const App = () => (
             <Route
               path="/employer"
               element={
-                <ProtectedRoute requiredRole="employer">
+                <ProtectedRoute requiredRole="employer" requireApproval requireSubscription>
                   <EmployerDashboard />
                 </ProtectedRoute>
               }
