@@ -3,12 +3,13 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
-import { Heart, MapPin, Briefcase, MessageSquare, CalendarCheck, Loader2, FileText, BadgeCheck, Sparkles, Lock, CheckCircle2, Clock } from "lucide-react";
+import { Heart, MapPin, Briefcase, MessageSquare, CalendarCheck, Loader2, FileText, BadgeCheck, Sparkles, Lock, CheckCircle2 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { Textarea } from "@/components/ui/textarea";
 import { sendNotificationEmail } from "@/lib/notifications";
+import PdfPreview from "@/components/admin/PdfPreview";
 
 type Candidate = {
   id: string;
@@ -63,6 +64,8 @@ const CandidateProfileDialog = ({ candidate, open, onClose, onMessage, isFavorit
   const [resumePath, setResumePath] = useState<string | null>(null);
   const [accessStatus, setAccessStatus] = useState<"none" | "pending" | "approved" | "denied">("none");
   const [loadingResume, setLoadingResume] = useState(true);
+  const [resumePreviewUrl, setResumePreviewUrl] = useState<string | null>(null);
+  const [openingResume, setOpeningResume] = useState(false);
 
   const initials = `${candidate.first_name?.[0] ?? ""}${candidate.last_name?.[0] ?? ""}`.toUpperCase() || "?";
 
@@ -120,14 +123,16 @@ const CandidateProfileDialog = ({ candidate, open, onClose, onMessage, isFavorit
 
   const viewFullResume = async () => {
     if (!resumePath) return;
+    setOpeningResume(true);
     const { data: signed, error } = await supabase.storage
       .from("resumes")
       .createSignedUrl(resumePath, 60 * 5);
+    setOpeningResume(false);
     if (error || !signed?.signedUrl) {
       toast({ title: "Could not access resume", description: error?.message, variant: "destructive" });
       return;
     }
-    window.open(signed.signedUrl, "_blank");
+    setResumePreviewUrl(signed.signedUrl);
   };
 
   const requestResumeAccess = async () => {
@@ -258,8 +263,8 @@ const CandidateProfileDialog = ({ candidate, open, onClose, onMessage, isFavorit
             <div className="mt-4 pt-4 border-t border-gold/20">
               {isAdmin || accessStatus === "approved" ? (
                 <div className="space-y-2">
-                  <Button variant="gold" size="sm" onClick={viewFullResume}>
-                    <FileText size={14} />
+                  <Button variant="gold" size="sm" onClick={viewFullResume} disabled={openingResume}>
+                    {openingResume ? <Loader2 size={14} className="animate-spin" /> : <FileText size={14} />}
                     View Full Resume
                     {isAdmin && <span className="ml-2 text-[10px] uppercase tracking-wider opacity-70">Admin</span>}
                   </Button>
@@ -319,6 +324,17 @@ const CandidateProfileDialog = ({ candidate, open, onClose, onMessage, isFavorit
           </div>
         </div>
       </DialogContent>
+
+      <Dialog open={!!resumePreviewUrl} onOpenChange={(v) => !v && setResumePreviewUrl(null)}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="font-heading text-xl">
+              {candidate.first_name} {candidate.last_name} — Resume
+            </DialogTitle>
+          </DialogHeader>
+          {resumePreviewUrl && <PdfPreview url={resumePreviewUrl} />}
+        </DialogContent>
+      </Dialog>
     </Dialog>
   );
 };
