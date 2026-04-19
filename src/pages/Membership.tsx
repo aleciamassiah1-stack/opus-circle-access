@@ -16,7 +16,7 @@ const employerFeatures = [
   "Access to fully vetted talent only",
   "Full talent directory access",
   "Advanced search & filters",
-  "Save favorite candidates",
+  "Save favorite talent",
   "Send interview requests",
   "Direct messaging",
   "Priority support",

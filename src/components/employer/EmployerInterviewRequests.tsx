@@ -92,7 +92,7 @@ const EmployerInterviewRequests = () => {
         <CalendarCheck size={40} className="mx-auto text-muted-foreground mb-4" />
         <h3 className="font-heading text-2xl mb-2">No interview requests yet</h3>
         <p className="text-muted-foreground font-body text-sm">
-          Send a request from a candidate's profile to start the conversation.
+          Send a request from a talent's profile to start the conversation.
         </p>
       </Card>
     );

@@ -87,8 +87,8 @@ const InterviewRequests = () => {
           kind: "interview_response",
           intro:
             status === "accepted"
-              ? "A candidate has accepted your interview request."
-              : "A candidate has declined your interview request.",
+              ? "A talent has accepted your interview request."
+              : "A talent has declined your interview request.",
           ctaPath: "/employer",
         });
       }

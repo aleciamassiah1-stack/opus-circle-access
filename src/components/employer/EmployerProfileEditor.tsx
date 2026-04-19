@@ -108,7 +108,7 @@ const EmployerProfileEditor = () => {
       <Card className="p-6 shadow-card">
         <h2 className="font-heading text-2xl mb-6 text-foreground">Company Profile</h2>
         <p className="text-sm text-muted-foreground font-body mb-6">
-          Candidates will see this information when you reach out. Adding a complete profile builds trust.
+          Talent will see this information when you reach out. Adding a complete profile builds trust.
         </p>
 
         <div className="mb-6">
@@ -180,7 +180,7 @@ const EmployerProfileEditor = () => {
               onChange={(e) => setForm({ ...form, company_description: e.target.value })}
               rows={5}
               maxLength={2000}
-              placeholder="Share what makes your organization unique. Candidates will see this when you reach out."
+              placeholder="Share what makes your organization unique. Talent will see this when you reach out."
             />
             <p className="text-xs text-muted-foreground mt-1 font-body">{form.company_description.length}/2000</p>
           </div>

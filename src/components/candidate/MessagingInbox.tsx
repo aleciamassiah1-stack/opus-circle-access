@@ -156,7 +156,7 @@ const MessagingInbox = () => {
         sendNotificationEmail({
           recipientUserId: convo.employer_user_id,
           kind: "new_message",
-          intro: "You have a new message from a candidate on Opulence Talent Collective.",
+          intro: "You have a new message from a talent on Opulence Talent Collective.",
           detail: body.length > 280 ? `${body.slice(0, 280)}…` : body,
           ctaPath: "/employer",
         });

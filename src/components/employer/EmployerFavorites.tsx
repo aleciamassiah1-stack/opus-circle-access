@@ -89,7 +89,7 @@ const EmployerFavorites = ({ onMessage }: Props) => {
     return (
       <Card className="p-12 text-center shadow-card">
         <Heart size={40} className="mx-auto text-muted-foreground mb-4" />
-        <h3 className="font-heading text-2xl mb-2">No saved candidates</h3>
+        <h3 className="font-heading text-2xl mb-2">No saved talent</h3>
         <p className="text-muted-foreground font-body text-sm">
           Tap the heart icon on a profile to save it for later.
         </p>

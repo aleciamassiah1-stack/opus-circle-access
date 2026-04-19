@@ -22,7 +22,7 @@ const Contact = () => {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
-  const [audience, setAudience] = useState("Candidate / Talent");
+  const [audience, setAudience] = useState("Talent");
   const [message, setMessage] = useState("");
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -51,7 +51,7 @@ const Contact = () => {
     setLastName("");
     setEmail("");
     setMessage("");
-    setAudience("Candidate / Talent");
+    setAudience("Talent");
   };
 
   return (
@@ -129,7 +129,7 @@ const Contact = () => {
                 value={audience}
                 onChange={(e) => setAudience(e.target.value)}
               >
-                <option>Candidate / Talent</option>
+                <option>Talent</option>
                 <option>Employer / Family Office</option>
                 <option>Other</option>
               </select>

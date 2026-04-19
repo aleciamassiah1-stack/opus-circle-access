@@ -196,7 +196,7 @@ const TalentDirectory = ({ onMessage }: Props) => {
         </Card>
       ) : filtered.length === 0 ? (
         <Card className="p-12 text-center shadow-card">
-          <p className="font-heading text-2xl mb-2">No candidates match</p>
+          <p className="font-heading text-2xl mb-2">No talent match</p>
           <p className="font-body text-muted-foreground text-sm">Try adjusting your filters.</p>
         </Card>
       ) : (
