@@ -736,6 +736,12 @@ export type Database = {
         Returns: number
       }
       find_user_id_by_email: { Args: { _email: string }; Returns: string }
+      get_candidate_user_ids: {
+        Args: never
+        Returns: {
+          user_id: string
+        }[]
+      }
       has_active_subscription: {
         Args: { check_env?: string; user_uuid: string }
         Returns: boolean
