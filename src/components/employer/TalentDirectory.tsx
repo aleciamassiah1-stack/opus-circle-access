@@ -53,11 +53,9 @@ const TalentDirectory = ({ onMessage }: Props) => {
     setLoading(true);
     // Restrict directory to users with the "candidate" role only — employers
     // and admins must never appear here, even if their profile is marked visible.
-    const { data: candidateRoleRows } = await supabase
-      .from("user_roles")
-      .select("user_id")
-      .eq("role", "candidate");
-    const candidateUserIds = (candidateRoleRows ?? []).map((r) => r.user_id);
+    // Uses a security-definer RPC because RLS on user_roles hides other users' role rows from employers.
+    const { data: candidateRoleRows } = await supabase.rpc("get_candidate_user_ids");
+    const candidateUserIds = (candidateRoleRows ?? []).map((r: any) => r.user_id);
 
     const [{ data: profiles }, { data: titles }, { data: tags }, { data: favs }] = await Promise.all([
       candidateUserIds.length
