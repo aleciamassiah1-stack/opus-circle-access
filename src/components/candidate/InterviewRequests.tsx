@@ -390,6 +390,40 @@ const InterviewRequests = () => {
           )}
         </Card>
       ))}
+
+      <AlertDialog
+        open={conflictPrompt !== null}
+        onOpenChange={(open) => {
+          if (!open) setConflictPrompt(null);
+        }}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2">
+              <AlertTriangle size={18} className="text-amber-600" />
+              You already have an interview at this time
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              {conflictPrompt
+                ? `${format(new Date(conflictPrompt.slot.start), "EEE, MMM d 'at' p")} (${conflictPrompt.slot.duration_minutes} min) overlaps with another confirmed interview. Are you sure you want to accept this one too?`
+                : ""}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={async () => {
+                if (!conflictPrompt) return;
+                const { request, slot } = conflictPrompt;
+                setConflictPrompt(null);
+                await performAccept(request, slot);
+              }}
+            >
+              Accept anyway
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
