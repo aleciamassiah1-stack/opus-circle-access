@@ -64,6 +64,7 @@ const CandidateProfileDialog = ({ candidate, open, onClose, onMessage, isFavorit
   const { user, hasRole } = useAuth();
   const isAdmin = hasRole("admin");
   const [interviewNote, setInterviewNote] = useState("");
+  const [slots, setSlots] = useState<Slot[]>([{ time: "10:00", duration: 30 }]);
   const [requestMessage, setRequestMessage] = useState("");
   const [sending, setSending] = useState(false);
   const [requestingAccess, setRequestingAccess] = useState(false);
