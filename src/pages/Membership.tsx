@@ -131,9 +131,34 @@ const Membership = () => {
         </div>
       </section>
 
+      <section className="py-20 px-6">
+        <div className="container mx-auto max-w-3xl">
+          <div className="text-center mb-12">
+            <h2 className="font-heading text-4xl text-foreground mb-4">
+              Frequently Asked <span className="text-gradient-gold">Questions</span>
+            </h2>
+            <p className="font-body text-muted-foreground">
+              Everything you need to know about membership, vetting, and billing.
+            </p>
+          </div>
+          <Accordion type="single" collapsible className="w-full">
+            {faqs.map((item, i) => (
+              <AccordionItem key={i} value={`item-${i}`} className="border-border">
+                <AccordionTrigger className="font-heading text-lg text-foreground text-left hover:no-underline">
+                  {item.q}
+                </AccordionTrigger>
+                <AccordionContent className="font-body text-muted-foreground leading-relaxed">
+                  {item.a}
+                </AccordionContent>
+              </AccordionItem>
+            ))}
+          </Accordion>
+        </div>
+      </section>
+
       <section className="bg-secondary/50 py-16 px-6">
         <div className="container mx-auto max-w-3xl text-center">
-          <h2 className="font-heading text-3xl text-foreground mb-4">Questions about membership?</h2>
+          <h2 className="font-heading text-3xl text-foreground mb-4">Still have questions?</h2>
           <p className="font-body text-muted-foreground mb-6">
             We're happy to discuss which plan fits your needs.
           </p>
