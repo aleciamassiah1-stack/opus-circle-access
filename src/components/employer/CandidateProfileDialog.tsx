@@ -2,14 +2,22 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useEffect, useState } from "react";
-import { Heart, MapPin, Briefcase, MessageSquare, CalendarCheck, Loader2, FileText, BadgeCheck, Sparkles, Lock, CheckCircle2 } from "lucide-react";
+import { Heart, MapPin, Briefcase, MessageSquare, CalendarCheck, CalendarIcon, Loader2, FileText, BadgeCheck, Sparkles, Lock, CheckCircle2, Plus, X } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { Textarea } from "@/components/ui/textarea";
 import { sendNotificationEmail } from "@/lib/notifications";
 import PdfPreview from "@/components/admin/PdfPreview";
+import { format } from "date-fns";
+import { cn } from "@/lib/utils";
+
+type Slot = { date?: Date; time: string; duration: number };
 
 type Candidate = {
   id: string;
