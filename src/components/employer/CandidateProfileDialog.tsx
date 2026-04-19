@@ -8,6 +8,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { Textarea } from "@/components/ui/textarea";
+import { sendNotificationEmail } from "@/lib/notifications";
 
 type Candidate = {
   id: string;
@@ -94,16 +95,24 @@ const CandidateProfileDialog = ({ candidate, open, onClose, onMessage, isFavorit
   const sendInterviewRequest = async () => {
     if (!user) return;
     setSending(true);
+    const note = interviewNote.trim();
     const { error } = await supabase.from("interview_requests").insert({
       employer_user_id: user.id,
       candidate_user_id: candidate.user_id,
-      note: interviewNote.trim() || null,
+      note: note || null,
       status: "pending",
     });
     if (error) {
       toast({ title: "Could not send request", description: error.message, variant: "destructive" });
     } else {
       toast({ title: "Interview request sent" });
+      sendNotificationEmail({
+        recipientUserId: candidate.user_id,
+        kind: "new_interview_request",
+        intro: "An employer on Opulence Talent Collective has requested an interview with you.",
+        detail: note || undefined,
+        ctaPath: "/dashboard",
+      });
       setInterviewNote("");
     }
     setSending(false);
@@ -112,17 +121,25 @@ const CandidateProfileDialog = ({ candidate, open, onClose, onMessage, isFavorit
   const requestResumeAccess = async () => {
     if (!user) return;
     setRequestingAccess(true);
+    const note = requestMessage.trim();
     const { error } = await supabase.from("resume_access_requests" as any).insert({
       employer_user_id: user.id,
       candidate_user_id: candidate.user_id,
       candidate_profile_id: candidate.id,
-      message: requestMessage.trim() || null,
+      message: note || null,
       status: "pending",
     });
     if (error) {
       toast({ title: "Could not send request", description: error.message, variant: "destructive" });
     } else {
       toast({ title: "Resume request sent", description: "The candidate will be notified." });
+      sendNotificationEmail({
+        recipientUserId: candidate.user_id,
+        kind: "new_resume_request",
+        intro: "An employer has requested access to your resume.",
+        detail: note || undefined,
+        ctaPath: "/dashboard",
+      });
       setAccessStatus("pending");
       setRequestMessage("");
     }
