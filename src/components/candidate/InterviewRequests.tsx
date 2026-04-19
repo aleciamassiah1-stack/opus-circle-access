@@ -332,6 +332,9 @@ const InterviewRequests = () => {
               {r.proposed_slots.map((slot, i) => {
                 const isPicked = pickedSlot[r.id] === i;
                 const isPast = new Date(slot.start).getTime() < Date.now();
+                const hasConflict =
+                  !isPast &&
+                  confirmedSlots.some((existing) => slotsOverlap(existing, slot));
                 return (
                   <button
                     key={i}
@@ -343,12 +346,19 @@ const InterviewRequests = () => {
                         ? "opacity-40 cursor-not-allowed border-border"
                         : isPicked
                         ? "border-gold bg-gold/10 text-foreground"
+                        : hasConflict
+                        ? "border-amber-300 bg-amber-50 hover:border-amber-400"
                         : "border-border hover:border-gold/50 bg-background"
                     }`}
                   >
-                    <div className="flex items-center justify-between">
+                    <div className="flex items-center justify-between gap-2">
                       <span>{format(new Date(slot.start), "EEE, MMM d 'at' p")}</span>
-                      <span className="text-xs text-muted-foreground">
+                      <span className="text-xs text-muted-foreground flex items-center gap-1.5">
+                        {hasConflict && (
+                          <span className="inline-flex items-center gap-1 text-amber-700">
+                            <AlertTriangle size={12} /> Conflict
+                          </span>
+                        )}
                         {slot.duration_minutes} min{isPast && " • past"}
                       </span>
                     </div>
