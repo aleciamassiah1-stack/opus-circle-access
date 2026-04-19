@@ -31,7 +31,7 @@ const Index = () => {
             Meets <span className="text-gradient-gold">Distinction</span>
           </h1>
           <p className="font-body text-muted-foreground text-lg max-w-md leading-relaxed mb-10">
-            A private platform of <strong className="text-foreground">individually vetted</strong> hospitality, private estate, and family office professionals — connected with employers who expect nothing less.
+            A private, talent-first platform for hospitality, private estate, and family office professionals—<strong className="text-foreground">individually vetted</strong> and positioned for visibility with employers who expect nothing less.
           </p>
           <div className="flex flex-wrap gap-4">
             <Button variant="gold" size="lg" asChild>
