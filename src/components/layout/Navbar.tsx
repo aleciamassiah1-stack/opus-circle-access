@@ -90,7 +90,7 @@ const Navbar = () => {
                   <Link to="/login">Sign In</Link>
                 </Button>
                 <Button variant="gold" size="sm" asChild>
-                  <Link to="/login">Apply Now</Link>
+                  <Link to="/login?signup=candidate">Apply Now</Link>
                 </Button>
               </>
             )}
@@ -166,7 +166,7 @@ const Navbar = () => {
                     <Link to="/login" onClick={() => setMobileOpen(false)}>Sign In</Link>
                   </Button>
                   <Button variant="gold" size="sm" asChild>
-                    <Link to="/login" onClick={() => setMobileOpen(false)}>Apply Now</Link>
+                    <Link to="/login?signup=candidate" onClick={() => setMobileOpen(false)}>Apply Now</Link>
                   </Button>
                 </>
               )}

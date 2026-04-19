@@ -133,7 +133,7 @@ const HowItWorks = () => {
             Apply today and join a network built on trust, discretion, and excellence.
           </p>
           <Button variant="gold" size="lg" asChild>
-            <Link to="/login">Apply Now</Link>
+            <Link to="/login?signup=candidate">Apply Now</Link>
           </Button>
         </div>
       </section>
