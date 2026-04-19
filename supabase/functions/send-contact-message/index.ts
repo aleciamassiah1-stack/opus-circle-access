@@ -60,6 +60,27 @@ Deno.serve(async (req) => {
     const supabase = createClient(supabaseUrl, serviceKey)
     const messageId = crypto.randomUUID()
 
+    // Get-or-create a single unsubscribe token for this recipient. The Lovable
+    // Email API requires every transactional send to carry one.
+    const normalizedEmail = TO_ADDRESS.toLowerCase()
+    let unsubscribeToken: string | null = null
+    const { data: existingToken } = await supabase
+      .from('email_unsubscribe_tokens')
+      .select('token')
+      .eq('email', normalizedEmail)
+      .maybeSingle()
+    if (existingToken?.token) {
+      unsubscribeToken = existingToken.token
+    } else {
+      const newToken = crypto.randomUUID().replace(/-/g, '') + crypto.randomUUID().replace(/-/g, '')
+      const { data: inserted } = await supabase
+        .from('email_unsubscribe_tokens')
+        .insert({ email: normalizedEmail, token: newToken })
+        .select('token')
+        .single()
+      unsubscribeToken = inserted?.token ?? newToken
+    }
+
     await supabase.from('email_send_log').insert({
       message_id: messageId,
       template_name: 'contact_message',
@@ -72,6 +93,7 @@ Deno.serve(async (req) => {
       payload: {
         message_id: messageId,
         idempotency_key: messageId,
+        unsubscribe_token: unsubscribeToken,
         to: TO_ADDRESS,
         from: `${SITE_NAME} <noreply@${FROM_DOMAIN}>`,
         sender_domain: SENDER_DOMAIN,
