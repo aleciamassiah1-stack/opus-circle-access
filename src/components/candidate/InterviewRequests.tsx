@@ -6,9 +6,12 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
-import { CalendarClock, Check, X, Loader2, Building2 } from "lucide-react";
-import { formatDistanceToNow } from "date-fns";
+import { CalendarClock, Check, X, Loader2, Building2, Video, CalendarPlus } from "lucide-react";
+import { format, formatDistanceToNow } from "date-fns";
 import { sendNotificationEmail } from "@/lib/notifications";
+import { generateMeetLookupUrl, buildIcs, icsDataUrl } from "@/lib/meeting";
+
+type Slot = { start: string; duration_minutes: number };
 
 type Request = {
   id: string;
@@ -16,6 +19,10 @@ type Request = {
   status: string;
   note: string | null;
   created_at: string;
+  proposed_slots: Slot[] | null;
+  selected_slot: Slot | null;
+  meeting_url: string | null;
+  meeting_provider: string | null;
   employer_name?: string;
   company_name?: string | null;
   company_logo_url?: string | null;
@@ -29,10 +36,11 @@ const statusColor: Record<string, string> = {
 };
 
 const InterviewRequests = () => {
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
   const [requests, setRequests] = useState<Request[]>([]);
   const [loading, setLoading] = useState(true);
   const [acting, setActing] = useState<string | null>(null);
+  const [pickedSlot, setPickedSlot] = useState<Record<string, number>>({});
 
   const load = async () => {
     if (!user) return;
@@ -47,7 +55,7 @@ const InterviewRequests = () => {
       return;
     }
     const enriched = await Promise.all(
-      data.map(async (r) => {
+      data.map(async (r: any) => {
         const { data: emp } = await supabase
           .from("profiles")
           .select("first_name, last_name, company_name, company_logo_url")
@@ -55,10 +63,14 @@ const InterviewRequests = () => {
           .maybeSingle();
         return {
           ...r,
+          proposed_slots: r.proposed_slots ?? null,
+          selected_slot: r.selected_slot ?? null,
+          meeting_url: r.meeting_url ?? null,
+          meeting_provider: r.meeting_provider ?? null,
           employer_name: emp ? `${emp.first_name ?? ""} ${emp.last_name ?? ""}`.trim() || "Employer" : "Employer",
           company_name: (emp as any)?.company_name ?? null,
           company_logo_url: (emp as any)?.company_logo_url ?? null,
-        };
+        } as Request;
       })
     );
     setRequests(enriched);
@@ -69,9 +81,74 @@ const InterviewRequests = () => {
     load();
   }, [user]);
 
-  const respond = async (id: string, status: "accepted" | "declined") => {
+  const accept = async (r: Request) => {
+    if (!r.proposed_slots || r.proposed_slots.length === 0) {
+      // Legacy request without slots — accept without scheduling.
+      return respondLegacy(r.id, "accepted", r.employer_user_id);
+    }
+    const idx = pickedSlot[r.id];
+    if (idx === undefined) {
+      toast({ title: "Pick a time slot first", variant: "destructive" });
+      return;
+    }
+    const chosen = r.proposed_slots[idx];
+    const meetingUrl = generateMeetLookupUrl();
+
+    setActing(r.id);
+    const { error } = await supabase
+      .from("interview_requests")
+      .update({
+        status: "accepted",
+        selected_slot: chosen,
+        meeting_url: meetingUrl,
+        meeting_provider: "google_meet",
+        updated_at: new Date().toISOString(),
+      } as any)
+      .eq("id", r.id);
+    setActing(null);
+
+    if (error) {
+      toast({ title: "Could not accept", description: error.message, variant: "destructive" });
+      return;
+    }
+
+    toast({ title: "Interview confirmed", description: "Meeting link generated." });
+
+    const startStr = format(new Date(chosen.start), "PPP 'at' p");
+    const detail = `Confirmed time: ${startStr} (${chosen.duration_minutes} min)\nMeeting link: ${meetingUrl}`;
+    sendNotificationEmail({
+      recipientUserId: r.employer_user_id,
+      kind: "interview_response",
+      intro: `${profile?.first_name || "A talent"} accepted your interview request.`,
+      detail,
+      ctaPath: "/employer",
+    });
+    load();
+  };
+
+  const decline = async (r: Request) => {
+    setActing(r.id);
+    const { error } = await supabase
+      .from("interview_requests")
+      .update({ status: "declined", updated_at: new Date().toISOString() })
+      .eq("id", r.id);
+    setActing(null);
+    if (error) {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+      return;
+    }
+    toast({ title: "Request declined" });
+    sendNotificationEmail({
+      recipientUserId: r.employer_user_id,
+      kind: "interview_response",
+      intro: "A talent has declined your interview request.",
+      ctaPath: "/employer",
+    });
+    load();
+  };
+
+  const respondLegacy = async (id: string, status: "accepted" | "declined", employerUserId: string) => {
     setActing(id);
-    const target = requests.find((r) => r.id === id);
     const { error } = await supabase
       .from("interview_requests")
       .update({ status, updated_at: new Date().toISOString() })
@@ -79,21 +156,35 @@ const InterviewRequests = () => {
     setActing(null);
     if (error) {
       toast({ title: "Error", description: error.message, variant: "destructive" });
-    } else {
-      toast({ title: `Request ${status}` });
-      if (target?.employer_user_id) {
-        sendNotificationEmail({
-          recipientUserId: target.employer_user_id,
-          kind: "interview_response",
-          intro:
-            status === "accepted"
-              ? "A talent has accepted your interview request."
-              : "A talent has declined your interview request.",
-          ctaPath: "/employer",
-        });
-      }
-      load();
+      return;
     }
+    toast({ title: `Request ${status}` });
+    sendNotificationEmail({
+      recipientUserId: employerUserId,
+      kind: "interview_response",
+      intro:
+        status === "accepted"
+          ? "A talent has accepted your interview request."
+          : "A talent has declined your interview request.",
+      ctaPath: "/employer",
+    });
+    load();
+  };
+
+  const downloadIcs = (r: Request) => {
+    if (!r.selected_slot || !r.meeting_url) return;
+    const ics = buildIcs({
+      uid: r.id,
+      startISO: r.selected_slot.start,
+      durationMinutes: r.selected_slot.duration_minutes,
+      title: `Interview — ${r.company_name || r.employer_name || "Employer"}`,
+      description: `Interview via Opulence Talent Collective.\n\nJoin: ${r.meeting_url}`,
+      location: r.meeting_url,
+    });
+    const a = document.createElement("a");
+    a.href = icsDataUrl(ics);
+    a.download = `interview-${r.id.slice(0, 8)}.ics`;
+    a.click();
   };
 
   if (loading) {
@@ -142,28 +233,90 @@ const InterviewRequests = () => {
               {r.status}
             </Badge>
           </div>
+
           {r.note && (
             <p className="text-sm text-foreground font-body bg-muted/50 p-3 rounded-md mb-4 italic">
               "{r.note}"
             </p>
           )}
+
+          {/* Confirmed interview view */}
+          {r.status === "accepted" && r.selected_slot && r.meeting_url && (
+            <div className="border border-gold/30 bg-gold/5 rounded-md p-4 mb-2">
+              <p className="text-xs uppercase tracking-wider text-foreground font-body font-semibold mb-2">
+                Confirmed Interview
+              </p>
+              <p className="font-body text-sm text-foreground mb-1">
+                {format(new Date(r.selected_slot.start), "EEEE, MMMM d 'at' p")}
+              </p>
+              <p className="font-body text-xs text-muted-foreground mb-3">
+                {r.selected_slot.duration_minutes} minutes • Google Meet
+              </p>
+              <div className="flex flex-wrap gap-2">
+                <Button variant="gold" size="sm" asChild>
+                  <a href={r.meeting_url} target="_blank" rel="noopener noreferrer">
+                    <Video size={14} /> Join Meet
+                  </a>
+                </Button>
+                <Button variant="outline" size="sm" onClick={() => downloadIcs(r)}>
+                  <CalendarPlus size={14} /> Add to calendar
+                </Button>
+              </div>
+            </div>
+          )}
+
+          {/* Pending: pick a slot */}
+          {r.status === "pending" && r.proposed_slots && r.proposed_slots.length > 0 && (
+            <div className="space-y-2 mb-3">
+              <p className="text-xs uppercase tracking-wider text-muted-foreground font-body">
+                Proposed times — pick one
+              </p>
+              {r.proposed_slots.map((slot, i) => {
+                const isPicked = pickedSlot[r.id] === i;
+                const isPast = new Date(slot.start).getTime() < Date.now();
+                return (
+                  <button
+                    key={i}
+                    type="button"
+                    disabled={isPast}
+                    onClick={() => setPickedSlot({ ...pickedSlot, [r.id]: i })}
+                    className={`w-full text-left p-3 rounded-md border font-body text-sm transition ${
+                      isPast
+                        ? "opacity-40 cursor-not-allowed border-border"
+                        : isPicked
+                        ? "border-gold bg-gold/10 text-foreground"
+                        : "border-border hover:border-gold/50 bg-background"
+                    }`}
+                  >
+                    <div className="flex items-center justify-between">
+                      <span>{format(new Date(slot.start), "EEE, MMM d 'at' p")}</span>
+                      <span className="text-xs text-muted-foreground">
+                        {slot.duration_minutes} min{isPast && " • past"}
+                      </span>
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          )}
+
           {r.status === "pending" && (
             <div className="flex gap-2">
               <Button
                 variant="gold"
                 size="sm"
-                onClick={() => respond(r.id, "accepted")}
+                onClick={() => accept(r)}
                 disabled={acting === r.id}
               >
-                <Check size={14} className="mr-1" /> Accept
+                <Check size={14} /> Accept
               </Button>
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => respond(r.id, "declined")}
+                onClick={() => decline(r)}
                 disabled={acting === r.id}
               >
-                <X size={14} className="mr-1" /> Decline
+                <X size={14} /> Decline
               </Button>
             </div>
           )}
