@@ -3,7 +3,7 @@ import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Menu, X, LogOut, Shield, LayoutDashboard, Building2, UserCircle } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
-import logo from "@/assets/otc-icon.png";
+import logo from "@/assets/otc-mark.png";
 
 const publicLinks = [
   { label: "How It Works", href: "/how-it-works" },
