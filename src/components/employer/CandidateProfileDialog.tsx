@@ -350,13 +350,78 @@ const CandidateProfileDialog = ({ candidate, open, onClose, onMessage, isFavorit
               Send Interview Request
             </p>
             <Textarea
-              placeholder="Optional note to introduce yourself or share scheduling details..."
+              placeholder="Optional note to introduce yourself..."
               value={interviewNote}
               onChange={(e) => setInterviewNote(e.target.value)}
               maxLength={1000}
-              rows={3}
+              rows={2}
+              className="mb-3"
             />
-            <Button variant="gold" className="mt-2" onClick={sendInterviewRequest} disabled={sending}>
+
+            <p className="text-xs font-body text-muted-foreground mb-2">
+              Propose 1–3 time slots. The talent will pick one to confirm. A Google Meet link is generated automatically.
+            </p>
+            <div className="space-y-2 mb-2">
+              {slots.map((slot, i) => (
+                <div key={i} className="flex flex-wrap items-center gap-2 p-2 border border-border rounded-md bg-background">
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className={cn("font-body justify-start text-left flex-1 min-w-[140px]", !slot.date && "text-muted-foreground")}
+                      >
+                        <CalendarIcon size={14} />
+                        {slot.date ? format(slot.date, "PP") : "Pick date"}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar
+                        mode="single"
+                        selected={slot.date}
+                        onSelect={(d) => updateSlot(i, { date: d ?? undefined })}
+                        disabled={(d) => d < new Date(new Date().setHours(0, 0, 0, 0))}
+                        initialFocus
+                        className={cn("p-3 pointer-events-auto")}
+                      />
+                    </PopoverContent>
+                  </Popover>
+                  <Input
+                    type="time"
+                    value={slot.time}
+                    onChange={(e) => updateSlot(i, { time: e.target.value })}
+                    className="w-[110px] font-body"
+                  />
+                  <Select
+                    value={String(slot.duration)}
+                    onValueChange={(v) => updateSlot(i, { duration: Number(v) })}
+                  >
+                    <SelectTrigger className="w-[110px] font-body">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="15">15 min</SelectItem>
+                      <SelectItem value="30">30 min</SelectItem>
+                      <SelectItem value="45">45 min</SelectItem>
+                      <SelectItem value="60">1 hour</SelectItem>
+                      <SelectItem value="90">1.5 hours</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  {slots.length > 1 && (
+                    <Button variant="ghost" size="sm" onClick={() => removeSlot(i)} aria-label="Remove slot">
+                      <X size={14} />
+                    </Button>
+                  )}
+                </div>
+              ))}
+            </div>
+            {slots.length < 3 && (
+              <Button variant="outline" size="sm" onClick={addSlot} className="mb-3">
+                <Plus size={14} /> Add another slot
+              </Button>
+            )}
+
+            <Button variant="gold" className="mt-2 w-full" onClick={sendInterviewRequest} disabled={sending}>
               {sending ? <Loader2 size={14} className="animate-spin" /> : <CalendarCheck size={14} />}
               Send Request
             </Button>
