@@ -185,7 +185,7 @@ Deno.serve(async (req) => {
         to: profile.email,
         from: `${SITE_NAME} <noreply@${FROM_DOMAIN}>`,
         sender_domain: SENDER_DOMAIN,
-        subject: copy.subject,
+        subject,
         html,
         text,
         label: kind,
