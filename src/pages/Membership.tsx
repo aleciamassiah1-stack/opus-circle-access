@@ -61,7 +61,7 @@ const Membership = () => {
               ))}
             </ul>
             <Button variant="gold" size="lg" asChild>
-              <Link to="/checkout?plan=candidate">Apply as Talent</Link>
+              <Link to="/login?signup=candidate">Apply as Talent</Link>
             </Button>
           </div>
 
@@ -92,7 +92,7 @@ const Membership = () => {
               ))}
             </ul>
             <Button variant="gold" size="lg" asChild>
-              <Link to="/checkout?plan=employer">Request Access</Link>
+              <Link to="/login?signup=employer">Apply as Employer</Link>
             </Button>
           </div>
         </div>
