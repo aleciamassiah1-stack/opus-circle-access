@@ -5,7 +5,7 @@ import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { Eye, EyeOff } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 
 const destinationForRoles = (roles: string[]): string => {
@@ -45,7 +45,14 @@ const Login = () => {
     if (view === "login") {
       const { error } = await signIn(email, password);
       if (error) {
-        toast({ title: "Sign in failed", description: error.message, variant: "destructive" });
+        const isUnverified = error.message?.toLowerCase().includes("email not confirmed");
+        toast({
+          title: isUnverified ? "Email not verified" : "Sign in failed",
+          description: isUnverified
+            ? "Please check your inbox for the verification link before signing in."
+            : error.message,
+          variant: "destructive",
+        });
       } else {
         toast({ title: "Welcome back!" });
         // Roles aren't yet hydrated in context — query directly so we route correctly.
@@ -68,9 +75,11 @@ const Login = () => {
         toast({ title: "Sign up failed", description: error.message, variant: "destructive" });
       } else {
         toast({
-          title: "Account created!",
-          description: "Please check your email to verify your account.",
+          title: "Check your email",
+          description: "We sent a verification link to confirm your account. You'll be able to sign in once verified.",
         });
+        setView("login");
+        setPassword("");
       }
     }
 
@@ -125,6 +134,14 @@ const Login = () => {
             <Button variant="gold" size="lg" className="w-full" disabled={submitting}>
               {submitting ? "Please wait..." : view === "login" ? "Sign In" : "Create Account"}
             </Button>
+            {view === "login" && (
+              <Link
+                to="/forgot-password"
+                className="block text-center font-body text-xs text-muted-foreground hover:text-gold transition-colors"
+              >
+                Forgot your password?
+              </Link>
+            )}
           </form>
 
           <div className="mt-6 text-center space-y-3">
