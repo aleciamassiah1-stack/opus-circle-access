@@ -1,16 +1,44 @@
-// Helpers for generating Google Meet lookup links and .ics calendar files.
-// We use the anonymous "lookup" URL pattern — first person to click creates the room.
+// Helpers for generating Google Meet links and calendar files.
+//
+// We use https://meet.google.com/new — when the first participant clicks,
+// Google creates a fresh room and gives the persistent link. Anyone with
+// the calendar invite can then join. (Random "lookup/<token>" URLs are NOT
+// valid — Google rejects unknown tokens, so we can't fabricate them client-side.)
 
 export function generateMeetLookupUrl(): string {
-  // 12 lowercase alphanumeric chars — Meet's lookup tokens are similar in shape.
-  const chars = "abcdefghijklmnopqrstuvwxyz0123456789";
-  let token = "";
-  const arr = new Uint8Array(12);
-  crypto.getRandomValues(arr);
-  for (let i = 0; i < 12; i++) {
-    token += chars[arr[i] % chars.length];
-  }
-  return `https://meet.google.com/lookup/${token}`;
+  return "https://meet.google.com/new";
+}
+
+/**
+ * Build a Google Calendar "create event" URL that pre-fills the date,
+ * title, description, and location. Opens in a new tab — no download needed.
+ */
+export function googleCalendarUrl(p: {
+  startISO: string;
+  durationMinutes: number;
+  title: string;
+  description: string;
+  location: string;
+}): string {
+  const start = new Date(p.startISO);
+  const end = new Date(start.getTime() + p.durationMinutes * 60_000);
+  const fmt = (d: Date) =>
+    d.getUTCFullYear().toString() +
+    String(d.getUTCMonth() + 1).padStart(2, "0") +
+    String(d.getUTCDate()).padStart(2, "0") +
+    "T" +
+    String(d.getUTCHours()).padStart(2, "0") +
+    String(d.getUTCMinutes()).padStart(2, "0") +
+    String(d.getUTCSeconds()).padStart(2, "0") +
+    "Z";
+  const params = new URLSearchParams({
+    action: "TEMPLATE",
+    text: p.title,
+    dates: `${fmt(start)}/${fmt(end)}`,
+    details: p.description,
+    location: p.location,
+  });
+  return `https://calendar.google.com/calendar/render?${params.toString()}`;
 }
 
 function pad(n: number) {
