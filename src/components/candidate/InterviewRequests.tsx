@@ -51,6 +51,16 @@ const InterviewRequests = () => {
   const [loading, setLoading] = useState(true);
   const [acting, setActing] = useState<string | null>(null);
   const [pickedSlot, setPickedSlot] = useState<Record<string, number>>({});
+  const [conflictPrompt, setConflictPrompt] = useState<{ request: Request; slot: Slot } | null>(null);
+
+  // All slots already confirmed for this candidate — used to flag double-bookings.
+  const confirmedSlots = useMemo<Slot[]>(
+    () =>
+      requests
+        .filter((r) => r.status === "accepted" && r.selected_slot)
+        .map((r) => r.selected_slot as Slot),
+    [requests],
+  );
 
   const load = async () => {
     if (!user) return;
