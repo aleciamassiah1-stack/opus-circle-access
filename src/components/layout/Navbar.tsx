@@ -24,10 +24,9 @@ const Navbar = () => {
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md border-b border-border/50">
-      <div className="container mx-auto flex items-center justify-between h-16 px-6">
-        <Link to="/" className="flex items-center gap-3">
-          <img src={logo} alt="OTC" className="h-12 w-12 object-contain" />
-          <span className="font-heading text-lg text-foreground hidden sm:inline">Opulence Talent Collective</span>
+      <div className="container mx-auto flex items-center justify-between h-20 px-6">
+        <Link to="/" className="flex items-center" aria-label="Opulence Talent Collective">
+          <img src={logo} alt="Opulence Talent Collective" className="h-16 w-16 object-contain" />
         </Link>
 
         {/* Desktop */}
