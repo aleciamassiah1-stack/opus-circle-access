@@ -8,6 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { FileText, Check, X, Loader2, Building2 } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
+import { sendNotificationEmail } from "@/lib/notifications";
 
 type Request = {
   id: string;
