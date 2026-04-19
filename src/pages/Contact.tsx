@@ -5,22 +5,53 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { Mail, MapPin } from "lucide-react";
+import { z } from "zod";
+import { supabase } from "@/integrations/supabase/client";
+
+const contactSchema = z.object({
+  firstName: z.string().trim().min(1, "First name is required").max(100),
+  lastName: z.string().trim().min(1, "Last name is required").max(100),
+  email: z.string().trim().email("Enter a valid email").max(255),
+  audience: z.string().trim().min(1).max(80),
+  message: z.string().trim().min(1, "Message is required").max(5000),
+});
 
 const Contact = () => {
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [email, setEmail] = useState("");
+  const [audience, setAudience] = useState("Candidate / Talent");
+  const [message, setMessage] = useState("");
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    const parsed = contactSchema.safeParse({ firstName, lastName, email, audience, message });
+    if (!parsed.success) {
+      const first = parsed.error.errors[0];
+      toast({ title: "Check your form", description: first.message, variant: "destructive" });
+      return;
+    }
     setLoading(true);
-    setTimeout(() => {
+    const { error } = await supabase.functions.invoke("send-contact-message", {
+      body: parsed.data,
+    });
+    setLoading(false);
+    if (error) {
       toast({
-        title: "Message sent",
-        description: "We'll get back to you within 24 hours.",
+        title: "Could not send message",
+        description: error.message ?? "Please try again in a moment.",
+        variant: "destructive",
       });
-      setLoading(false);
-      (e.target as HTMLFormElement).reset();
-    }, 1000);
+      return;
+    }
+    toast({ title: "Message sent", description: "We'll get back to you within 24 hours." });
+    setFirstName("");
+    setLastName("");
+    setEmail("");
+    setMessage("");
+    setAudience("Candidate / Talent");
   };
 
   return (
@@ -32,7 +63,7 @@ const Contact = () => {
               Get in <span className="text-gradient-gold">Touch</span>
             </h1>
             <p className="font-body text-muted-foreground text-lg leading-relaxed mb-10">
-              Have questions about the platform, membership, or partnership opportunities? 
+              Have questions about the platform, membership, or partnership opportunities?
               We'd love to hear from you.
             </p>
             <div className="space-y-6">
@@ -61,20 +92,43 @@ const Contact = () => {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="font-body text-xs font-medium text-foreground mb-1.5 block">First Name</label>
-                <Input required placeholder="Jane" />
+                <Input
+                  required
+                  placeholder="Jane"
+                  value={firstName}
+                  onChange={(e) => setFirstName(e.target.value)}
+                  maxLength={100}
+                />
               </div>
               <div>
                 <label className="font-body text-xs font-medium text-foreground mb-1.5 block">Last Name</label>
-                <Input required placeholder="Doe" />
+                <Input
+                  required
+                  placeholder="Doe"
+                  value={lastName}
+                  onChange={(e) => setLastName(e.target.value)}
+                  maxLength={100}
+                />
               </div>
             </div>
             <div>
               <label className="font-body text-xs font-medium text-foreground mb-1.5 block">Email</label>
-              <Input required type="email" placeholder="jane@example.com" />
+              <Input
+                required
+                type="email"
+                placeholder="jane@example.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                maxLength={255}
+              />
             </div>
             <div>
               <label className="font-body text-xs font-medium text-foreground mb-1.5 block">I am a...</label>
-              <select className="w-full h-10 rounded-md border border-input bg-background px-3 text-sm font-body text-foreground">
+              <select
+                className="w-full h-10 rounded-md border border-input bg-background px-3 text-sm font-body text-foreground"
+                value={audience}
+                onChange={(e) => setAudience(e.target.value)}
+              >
                 <option>Candidate / Talent</option>
                 <option>Employer / Family Office</option>
                 <option>Other</option>
@@ -82,7 +136,14 @@ const Contact = () => {
             </div>
             <div>
               <label className="font-body text-xs font-medium text-foreground mb-1.5 block">Message</label>
-              <Textarea required placeholder="How can we help?" rows={4} />
+              <Textarea
+                required
+                placeholder="How can we help?"
+                rows={4}
+                value={message}
+                onChange={(e) => setMessage(e.target.value)}
+                maxLength={5000}
+              />
             </div>
             <Button variant="gold" size="lg" className="w-full" disabled={loading}>
               {loading ? "Sending..." : "Send Message"}
