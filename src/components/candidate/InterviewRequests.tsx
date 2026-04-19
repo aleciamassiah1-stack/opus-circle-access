@@ -9,7 +9,7 @@ import { toast } from "@/hooks/use-toast";
 import { CalendarClock, Check, X, Loader2, Building2, Video, CalendarPlus } from "lucide-react";
 import { format, formatDistanceToNow } from "date-fns";
 import { sendNotificationEmail } from "@/lib/notifications";
-import { generateMeetLookupUrl, buildIcs, icsDataUrl } from "@/lib/meeting";
+import { generateMeetLookupUrl, buildIcs, icsDataUrl, googleCalendarUrl } from "@/lib/meeting";
 
 type Slot = { start: string; duration_minutes: number };
 
