@@ -114,7 +114,7 @@ const CandidateProfileDialog = ({ candidate, open, onClose, onMessage, isFavorit
         kind: "new_interview_request",
         intro: "An employer on Opulence Talent Collective has requested an interview with you.",
         detail: note || undefined,
-        ctaPath: "/dashboard",
+        ctaPath: "/talent",
       });
       setInterviewNote("");
     }
@@ -157,7 +157,7 @@ const CandidateProfileDialog = ({ candidate, open, onClose, onMessage, isFavorit
         kind: "new_resume_request",
         intro: "An employer on Opulence Talent Collective viewed your full resume.",
         detail: note ? `Their note: ${note}` : undefined,
-        ctaPath: "/dashboard",
+        ctaPath: "/talent",
       });
       setAccessStatus("approved");
       setRequestMessage("");

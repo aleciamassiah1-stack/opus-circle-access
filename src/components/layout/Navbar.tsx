@@ -46,7 +46,7 @@ const Navbar = () => {
               <>
                 {hasRole("candidate") && (
                   <Button variant="ghost" size="sm" asChild>
-                    <Link to="/dashboard" className="gap-1">
+                    <Link to="/talent" className="gap-1">
                       <LayoutDashboard size={14} />
                       Dashboard
                     </Link>
@@ -125,7 +125,7 @@ const Navbar = () => {
                 <>
                   {hasRole("candidate") && (
                     <Button variant="ghost" size="sm" asChild>
-                      <Link to="/dashboard" onClick={() => setMobileOpen(false)}>
+                      <Link to="/talent" onClick={() => setMobileOpen(false)}>
                         <LayoutDashboard size={14} className="mr-1" />
                         Dashboard
                       </Link>

@@ -177,7 +177,7 @@ const EmployerMessaging = ({ initialCandidateUserId, onConsumed }: Props) => {
           kind: "new_message",
           intro: "You have a new message from an employer on Opulence Talent Collective.",
           detail: body.length > 280 ? `${body.slice(0, 280)}…` : body,
-          ctaPath: "/dashboard",
+          ctaPath: "/talent",
         });
       }
     }

@@ -11,7 +11,7 @@ import { supabase } from "@/integrations/supabase/client";
 const destinationForRoles = (roles: string[]): string => {
   if (roles.includes("admin")) return "/admin";
   if (roles.includes("employer")) return "/employer";
-  if (roles.includes("candidate")) return "/dashboard";
+  if (roles.includes("candidate")) return "/talent";
   return "/";
 };
 

@@ -61,7 +61,7 @@ const ApprovalQueue = ({ onChange }: { onChange?: () => void }) => {
           recipientUserId: userId,
           kind: "account_approved",
           intro: "Welcome to Opulence Talent Collective. Your application has been approved and your profile is now visible to vetted employers.",
-          ctaPath: "/dashboard",
+          ctaPath: "/talent",
         });
       }
       load();
