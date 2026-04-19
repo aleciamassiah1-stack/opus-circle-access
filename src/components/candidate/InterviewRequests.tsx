@@ -239,47 +239,59 @@ const InterviewRequests = () => {
           )}
 
           {/* Confirmed interview view */}
-          {r.status === "accepted" && r.selected_slot && r.meeting_url && (
-            <div className="border border-gold/30 bg-gold/5 rounded-md p-4 mb-2">
-              <p className="text-xs uppercase tracking-wider text-foreground font-body font-semibold mb-2">
-                Confirmed Interview
-              </p>
-              <p className="font-body text-sm text-foreground mb-1">
-                {format(new Date(r.selected_slot.start), "EEEE, MMMM d 'at' p")}
-              </p>
-              <p className="font-body text-xs text-muted-foreground mb-3">
-                {r.selected_slot.duration_minutes} minutes • Google Meet
-              </p>
-              <div className="flex flex-wrap gap-2">
-                <Button variant="gold" size="sm" asChild>
-                  <a href={r.meeting_url} target="_blank" rel="noopener noreferrer">
-                    <Video size={14} /> Join Meet
-                  </a>
-                </Button>
-                <Button variant="outline" size="sm" asChild>
-                  <a
-                    href={googleCalendarUrl({
-                      startISO: r.selected_slot.start,
-                      durationMinutes: r.selected_slot.duration_minutes,
-                      title: `Interview — ${r.company_name || r.employer_name || "Employer"}`,
-                      description: `Interview via Opulence Talent Collective.\n\nJoin: ${r.meeting_url}`,
-                      location: r.meeting_url,
-                    })}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    <CalendarPlus size={14} /> Add to Google Calendar
-                  </a>
-                </Button>
-                <Button variant="ghost" size="sm" onClick={() => downloadIcs(r)}>
-                  Download .ics
-                </Button>
+          {r.status === "accepted" && r.selected_slot && (() => {
+            const url = r.meeting_url ?? "";
+            const isBroken =
+              !url ||
+              url === "https://meet.google.com/new" ||
+              /meet\.google\.com\/lookup\//i.test(url);
+            return (
+              <div className="border border-gold/30 bg-gold/5 rounded-md p-4 mb-2">
+                <p className="text-xs uppercase tracking-wider text-foreground font-body font-semibold mb-2">
+                  Confirmed Interview
+                </p>
+                <p className="font-body text-sm text-foreground mb-1">
+                  {format(new Date(r.selected_slot.start), "EEEE, MMMM d 'at' p")}
+                </p>
+                <p className="font-body text-xs text-muted-foreground mb-3">
+                  {r.selected_slot.duration_minutes} minutes
+                </p>
+                {isBroken ? (
+                  <div className="rounded-md border border-amber-200 bg-amber-50 p-3 mb-2">
+                    <p className="font-body text-xs text-amber-900">
+                      The employer hasn't shared a meeting link yet. Send them a message to confirm where to meet.
+                    </p>
+                  </div>
+                ) : (
+                  <div className="flex flex-wrap gap-2">
+                    <Button variant="gold" size="sm" asChild>
+                      <a href={url} target="_blank" rel="noopener noreferrer">
+                        <Video size={14} /> Join Meeting
+                      </a>
+                    </Button>
+                    <Button variant="outline" size="sm" asChild>
+                      <a
+                        href={googleCalendarUrl({
+                          startISO: r.selected_slot.start,
+                          durationMinutes: r.selected_slot.duration_minutes,
+                          title: `Interview — ${r.company_name || r.employer_name || "Employer"}`,
+                          description: `Interview via Opulence Talent Collective.\n\nJoin: ${url}`,
+                          location: url,
+                        })}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        <CalendarPlus size={14} /> Add to Google Calendar
+                      </a>
+                    </Button>
+                    <Button variant="ghost" size="sm" onClick={() => downloadIcs(r)}>
+                      Download .ics
+                    </Button>
+                  </div>
+                )}
               </div>
-              <p className="text-[11px] font-body text-muted-foreground italic mt-2">
-                The Meet link opens a fresh room when the first person joins. Save the calendar event so you have the link handy.
-              </p>
-            </div>
-          )}
+            );
+          })()}
 
           {/* Pending: pick a slot */}
           {r.status === "pending" && r.proposed_slots && r.proposed_slots.length > 0 && (
