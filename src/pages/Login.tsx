@@ -5,7 +5,7 @@ import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { Eye, EyeOff } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 
 const destinationForRoles = (roles: string[]): string => {
@@ -18,7 +18,14 @@ const destinationForRoles = (roles: string[]): string => {
 type AuthView = "login" | "signup-candidate" | "signup-employer";
 
 const Login = () => {
-  const [view, setView] = useState<AuthView>("login");
+  const [searchParams] = useSearchParams();
+  const initialView: AuthView = (() => {
+    const s = searchParams.get("signup");
+    if (s === "candidate") return "signup-candidate";
+    if (s === "employer") return "signup-employer";
+    return "login";
+  })();
+  const [view, setView] = useState<AuthView>(initialView);
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
