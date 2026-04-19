@@ -1,14 +1,11 @@
 import { useEffect, useState } from "react";
 import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
-import { toast } from "@/hooks/use-toast";
-import { FileText, Check, X, Loader2, Building2 } from "lucide-react";
+import { FileText, Loader2, Building2, Eye } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
-import { sendNotificationEmail } from "@/lib/notifications";
 
 type Request = {
   id: string;
@@ -25,7 +22,6 @@ const ResumeAccessRequests = () => {
   const { user } = useAuth();
   const [requests, setRequests] = useState<Request[]>([]);
   const [loading, setLoading] = useState(true);
-  const [acting, setActing] = useState<string | null>(null);
 
   const load = async () => {
     if (!user) return;
@@ -61,33 +57,6 @@ const ResumeAccessRequests = () => {
 
   useEffect(() => { load(); }, [user]);
 
-  const respond = async (id: string, status: "approved" | "denied") => {
-    setActing(id);
-    const target = requests.find((r) => r.id === id);
-    const { error } = await supabase
-      .from("resume_access_requests" as any)
-      .update({ status, responded_at: new Date().toISOString() })
-      .eq("id", id);
-    setActing(null);
-    if (error) {
-      toast({ title: "Error", description: error.message, variant: "destructive" });
-    } else {
-      toast({ title: status === "approved" ? "Resume access granted" : "Request denied" });
-      if (target?.employer_user_id) {
-        sendNotificationEmail({
-          recipientUserId: target.employer_user_id,
-          kind: "resume_response",
-          intro:
-            status === "approved"
-              ? "A candidate has approved your resume access request."
-              : "A candidate has declined your resume access request.",
-          ctaPath: "/employer",
-        });
-      }
-      load();
-    }
-  };
-
   if (loading) {
     return (
       <Card className="p-12 text-center shadow-card">
@@ -100,9 +69,9 @@ const ResumeAccessRequests = () => {
     return (
       <Card className="p-12 text-center shadow-card">
         <FileText className="mx-auto text-muted-foreground mb-3" size={28} />
-        <p className="font-body text-muted-foreground">No resume requests yet.</p>
+        <p className="font-body text-muted-foreground">No resume views yet.</p>
         <p className="text-xs text-muted-foreground font-body mt-1">
-          When an employer asks to view your full resume, you'll see it here.
+          You'll see a record here whenever a vetted employer views your full resume.
         </p>
       </Card>
     );
@@ -110,6 +79,9 @@ const ResumeAccessRequests = () => {
 
   return (
     <div className="space-y-3">
+      <p className="text-xs font-body text-muted-foreground italic">
+        Verified employers on Opulence Talent Collective can unlock your full resume. Each view is logged below.
+      </p>
       {requests.map((r) => (
         <Card key={r.id} className="p-5 shadow-card">
           <div className="flex items-start gap-4">
@@ -125,37 +97,18 @@ const ResumeAccessRequests = () => {
                 {r.company_name && (
                   <span className="text-xs text-muted-foreground font-body">via {r.employer_name}</span>
                 )}
-                <Badge variant="outline" className="capitalize text-[10px]">{r.status}</Badge>
+                <Badge variant="outline" className="text-[10px] gap-1">
+                  <Eye size={10} />
+                  Viewed
+                </Badge>
               </div>
               <p className="text-xs text-muted-foreground font-body mt-1">
-                Requested {formatDistanceToNow(new Date(r.created_at), { addSuffix: true })}
+                {formatDistanceToNow(new Date(r.created_at), { addSuffix: true })}
               </p>
               {r.message && (
                 <p className="font-body text-sm text-foreground mt-3 p-3 bg-muted rounded-md whitespace-pre-wrap">
                   "{r.message}"
                 </p>
-              )}
-              {r.status === "pending" && (
-                <div className="flex gap-2 mt-4">
-                  <Button
-                    variant="gold"
-                    size="sm"
-                    disabled={acting === r.id}
-                    onClick={() => respond(r.id, "approved")}
-                  >
-                    {acting === r.id ? <Loader2 size={14} className="animate-spin" /> : <Check size={14} />}
-                    Approve
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    disabled={acting === r.id}
-                    onClick={() => respond(r.id, "denied")}
-                  >
-                    <X size={14} />
-                    Deny
-                  </Button>
-                </div>
               )}
             </div>
           </div>

@@ -118,34 +118,6 @@ const CandidateProfileDialog = ({ candidate, open, onClose, onMessage, isFavorit
     setSending(false);
   };
 
-  const requestResumeAccess = async () => {
-    if (!user) return;
-    setRequestingAccess(true);
-    const note = requestMessage.trim();
-    const { error } = await supabase.from("resume_access_requests" as any).insert({
-      employer_user_id: user.id,
-      candidate_user_id: candidate.user_id,
-      candidate_profile_id: candidate.id,
-      message: note || null,
-      status: "pending",
-    });
-    if (error) {
-      toast({ title: "Could not send request", description: error.message, variant: "destructive" });
-    } else {
-      toast({ title: "Resume request sent", description: "The candidate will be notified." });
-      sendNotificationEmail({
-        recipientUserId: candidate.user_id,
-        kind: "new_resume_request",
-        intro: "An employer has requested access to your resume.",
-        detail: note || undefined,
-        ctaPath: "/dashboard",
-      });
-      setAccessStatus("pending");
-      setRequestMessage("");
-    }
-    setRequestingAccess(false);
-  };
-
   const viewFullResume = async () => {
     if (!resumePath) return;
     const { data: signed, error } = await supabase.storage
@@ -156,6 +128,38 @@ const CandidateProfileDialog = ({ candidate, open, onClose, onMessage, isFavorit
       return;
     }
     window.open(signed.signedUrl, "_blank");
+  };
+
+  const requestResumeAccess = async () => {
+    if (!user) return;
+    setRequestingAccess(true);
+    const note = requestMessage.trim();
+    // Auto-grant access. The candidate is notified that their resume was viewed.
+    const { error } = await supabase.from("resume_access_requests" as any).insert({
+      employer_user_id: user.id,
+      candidate_user_id: candidate.user_id,
+      candidate_profile_id: candidate.id,
+      message: note || null,
+      status: "approved",
+      responded_at: new Date().toISOString(),
+    });
+    if (error) {
+      toast({ title: "Could not access resume", description: error.message, variant: "destructive" });
+    } else {
+      toast({ title: "Resume unlocked", description: "The candidate has been notified that you viewed it." });
+      sendNotificationEmail({
+        recipientUserId: candidate.user_id,
+        kind: "new_resume_request",
+        intro: "An employer on Opulence Talent Collective viewed your full resume.",
+        detail: note ? `Their note: ${note}` : undefined,
+        ctaPath: "/dashboard",
+      });
+      setAccessStatus("approved");
+      setRequestMessage("");
+      // Immediately open the resume for the employer.
+      await viewFullResume();
+    }
+    setRequestingAccess(false);
   };
 
   return (
@@ -253,29 +257,26 @@ const CandidateProfileDialog = ({ candidate, open, onClose, onMessage, isFavorit
           {hasResume && (
             <div className="mt-4 pt-4 border-t border-gold/20">
               {isAdmin || accessStatus === "approved" ? (
-                <Button variant="gold" size="sm" onClick={viewFullResume}>
-                  <FileText size={14} />
-                  View Full Resume
-                  {isAdmin && <span className="ml-2 text-[10px] uppercase tracking-wider opacity-70">Admin</span>}
-                </Button>
-              ) : accessStatus === "pending" ? (
-                <div className="flex items-center gap-2 text-sm font-body text-muted-foreground">
-                  <Clock size={14} />
-                  Resume access requested — awaiting candidate approval.
-                </div>
-              ) : accessStatus === "denied" ? (
-                <div className="flex items-center gap-2 text-sm font-body text-destructive">
-                  <Lock size={14} />
-                  Resume access was declined by the candidate.
+                <div className="space-y-2">
+                  <Button variant="gold" size="sm" onClick={viewFullResume}>
+                    <FileText size={14} />
+                    View Full Resume
+                    {isAdmin && <span className="ml-2 text-[10px] uppercase tracking-wider opacity-70">Admin</span>}
+                  </Button>
+                  {!isAdmin && accessStatus === "approved" && (
+                    <p className="text-[11px] font-body text-muted-foreground italic">
+                      The candidate is notified each time you view their full resume.
+                    </p>
+                  )}
                 </div>
               ) : (
                 <div>
                   <p className="text-xs font-body text-muted-foreground mb-2 flex items-center gap-1">
                     <Lock size={12} />
-                    Want the full resume? Send a request — the candidate will review and respond.
+                    Unlock the full resume — the candidate will be notified that you viewed it.
                   </p>
                   <Textarea
-                    placeholder="Optional message to the candidate explaining the role..."
+                    placeholder="Optional note to the candidate (visible to them)..."
                     value={requestMessage}
                     onChange={(e) => setRequestMessage(e.target.value)}
                     maxLength={500}
@@ -284,7 +285,7 @@ const CandidateProfileDialog = ({ candidate, open, onClose, onMessage, isFavorit
                   />
                   <Button variant="gold" size="sm" onClick={requestResumeAccess} disabled={requestingAccess}>
                     {requestingAccess ? <Loader2 size={14} className="animate-spin" /> : <CheckCircle2 size={14} />}
-                    Request Full Resume
+                    Unlock Full Resume
                   </Button>
                 </div>
               )}
