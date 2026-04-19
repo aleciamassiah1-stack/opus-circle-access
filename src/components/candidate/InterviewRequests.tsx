@@ -92,7 +92,6 @@ const InterviewRequests = () => {
       return;
     }
     const chosen = r.proposed_slots[idx];
-    const meetingUrl = generateMeetLookupUrl();
 
     setActing(r.id);
     const { error } = await supabase
@@ -100,8 +99,6 @@ const InterviewRequests = () => {
       .update({
         status: "accepted",
         selected_slot: chosen,
-        meeting_url: meetingUrl,
-        meeting_provider: "google_meet",
         updated_at: new Date().toISOString(),
       } as any)
       .eq("id", r.id);
@@ -112,10 +109,11 @@ const InterviewRequests = () => {
       return;
     }
 
-    toast({ title: "Interview confirmed", description: "Meeting link generated." });
+    toast({ title: "Interview confirmed" });
 
     const startStr = format(new Date(chosen.start), "PPP 'at' p");
-    const detail = `Confirmed time: ${startStr} (${chosen.duration_minutes} min)\nMeeting link: ${meetingUrl}`;
+    const linkLine = r.meeting_url ? `\nMeeting link: ${r.meeting_url}` : "";
+    const detail = `Confirmed time: ${startStr} (${chosen.duration_minutes} min)${linkLine}`;
     sendNotificationEmail({
       recipientUserId: r.employer_user_id,
       kind: "interview_response",
