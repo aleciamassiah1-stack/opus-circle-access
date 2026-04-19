@@ -307,11 +307,13 @@ const CandidateProfileDialog = ({ candidate, open, onClose, onMessage, isFavorit
                     View Full Resume
                     {isAdmin && <span className="ml-2 text-[10px] uppercase tracking-wider opacity-70">Admin</span>}
                   </Button>
-                  {!isAdmin && accessStatus === "approved" && (
-                    <p className="text-[11px] font-body text-muted-foreground italic">
-                      The talent is notified each time you view their full resume.
-                    </p>
-                  )}
+                  <p className="text-[11px] font-body text-muted-foreground italic flex items-start gap-1.5">
+                    <Lock size={11} className="mt-0.5 shrink-0" />
+                    <span>
+                      Confidential — the resume contains personal details (full name, contact info, employment history). Do not share, store, or redistribute outside your hiring process.
+                      {!isAdmin && " The talent is notified each time you view it."}
+                    </span>
+                  </p>
                 </div>
               ) : (
                 <div>
