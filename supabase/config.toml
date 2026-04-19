@@ -18,4 +18,4 @@ project_id = "dxjcoklvlyagelvapaqi"
   [functions.send-contact-message]
     verify_jwt = false
   [functions.send-notification-email]
-    verify_jwt = true
+    verify_jwt = false
