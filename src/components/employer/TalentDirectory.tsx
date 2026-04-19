@@ -51,13 +51,24 @@ const TalentDirectory = ({ onMessage }: Props) => {
 
   const loadDirectory = async () => {
     setLoading(true);
+    // Restrict directory to users with the "candidate" role only — employers
+    // and admins must never appear here, even if their profile is marked visible.
+    const { data: candidateRoleRows } = await supabase
+      .from("user_roles")
+      .select("user_id")
+      .eq("role", "candidate");
+    const candidateUserIds = (candidateRoleRows ?? []).map((r) => r.user_id);
+
     const [{ data: profiles }, { data: titles }, { data: tags }, { data: favs }] = await Promise.all([
-      supabase
-        .from("profiles")
-        .select("id, user_id, first_name, last_name, title, headline, location, bio, avatar_url, years_experience, availability_status, verified")
-        .eq("approval_status", "approved")
-        .eq("subscription_active", true)
-        .eq("visibility_status", "visible"),
+      candidateUserIds.length
+        ? supabase
+            .from("profiles")
+            .select("id, user_id, first_name, last_name, title, headline, location, bio, avatar_url, years_experience, availability_status, verified")
+            .eq("approval_status", "approved")
+            .eq("subscription_active", true)
+            .eq("visibility_status", "visible")
+            .in("user_id", candidateUserIds)
+        : Promise.resolve({ data: [] as any[] }),
       supabase.from("job_titles").select("id, name").order("sort_order"),
       supabase.from("specialty_tags").select("id, name").order("sort_order"),
       user
