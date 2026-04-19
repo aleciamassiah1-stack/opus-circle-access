@@ -2,6 +2,39 @@ import PageLayout from "@/components/layout/PageLayout";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { Check, Crown, Briefcase } from "lucide-react";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
+
+const faqs = [
+  {
+    q: "How long does approval take?",
+    a: "Most applications are reviewed within 2–4 business days. Talent profiles undergo individual vetting (identity verification, background check, and reference review) before going live. Employers are typically approved within 1–2 business days after verification of household or estate details.",
+  },
+  {
+    q: "Can I cancel my membership anytime?",
+    a: "Yes. You can cancel your subscription at any time from your dashboard's billing panel. Your access will continue through the end of the current billing period, and you will not be charged again. There are no cancellation fees.",
+  },
+  {
+    q: "Who can see my profile?",
+    a: "Talent profiles are only visible to verified, approved, and actively subscribed employers within the OTC network. Profiles are never indexed by search engines, never shared publicly, and never sold to third parties. You control your availability status and can hide your profile at any time.",
+  },
+  {
+    q: "How is talent vetted?",
+    a: "Every talent applicant goes through a multi-step vetting process: government-issued ID verification, professional reference checks, work history validation, and an admin review of qualifications. Only candidates who pass all stages have their profiles activated in the directory.",
+  },
+  {
+    q: "How does billing work?",
+    a: "Memberships are billed monthly via Stripe. Talent is $14.99/month and Employer access is $49.99/month. You can update your payment method, view invoices, or cancel anytime through the secure billing portal in your dashboard.",
+  },
+  {
+    q: "What happens if my application is not approved?",
+    a: "If your application is not approved, you will not be charged for membership. We'll notify you by email with the outcome. In some cases, we may request additional documentation before making a final decision.",
+  },
+];
 
 const candidateFeatures = [
   "Full professional profile",
@@ -98,9 +131,34 @@ const Membership = () => {
         </div>
       </section>
 
+      <section className="py-20 px-6">
+        <div className="container mx-auto max-w-3xl">
+          <div className="text-center mb-12">
+            <h2 className="font-heading text-4xl text-foreground mb-4">
+              Frequently Asked <span className="text-gradient-gold">Questions</span>
+            </h2>
+            <p className="font-body text-muted-foreground">
+              Everything you need to know about membership, vetting, and billing.
+            </p>
+          </div>
+          <Accordion type="single" collapsible className="w-full">
+            {faqs.map((item, i) => (
+              <AccordionItem key={i} value={`item-${i}`} className="border-border">
+                <AccordionTrigger className="font-heading text-lg text-foreground text-left hover:no-underline">
+                  {item.q}
+                </AccordionTrigger>
+                <AccordionContent className="font-body text-muted-foreground leading-relaxed">
+                  {item.a}
+                </AccordionContent>
+              </AccordionItem>
+            ))}
+          </Accordion>
+        </div>
+      </section>
+
       <section className="bg-secondary/50 py-16 px-6">
         <div className="container mx-auto max-w-3xl text-center">
-          <h2 className="font-heading text-3xl text-foreground mb-4">Questions about membership?</h2>
+          <h2 className="font-heading text-3xl text-foreground mb-4">Still have questions?</h2>
           <p className="font-body text-muted-foreground mb-6">
             We're happy to discuss which plan fits your needs.
           </p>
