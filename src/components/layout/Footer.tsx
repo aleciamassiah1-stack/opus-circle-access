@@ -50,9 +50,15 @@ const Footer = () => {
           <p className="text-xs text-background/40">
             © {new Date().getFullYear()} Opulence Talent Collective. All rights reserved.
           </p>
-          <p className="text-xs text-background/40">
-            Private & Confidential
-          </p>
+          <div className="flex items-center gap-5">
+            <Link to="/terms" className="text-xs text-background/60 hover:text-gold-light transition-colors">
+              Terms of Service
+            </Link>
+            <Link to="/privacy" className="text-xs text-background/60 hover:text-gold-light transition-colors">
+              Privacy Policy
+            </Link>
+            <span className="text-xs text-background/40">Private &amp; Confidential</span>
+          </div>
         </div>
       </div>
     </footer>

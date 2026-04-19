@@ -31,6 +31,7 @@ const Login = () => {
   const [password, setPassword] = useState("");
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const { toast } = useToast();
   const { signIn, signUp, user, roles } = useAuth();
@@ -76,6 +77,15 @@ const Login = () => {
         navigate(dest, { replace: true });
       }
     } else {
+      if (!acceptedTerms) {
+        toast({
+          title: "Please accept the Terms",
+          description: "You must agree to the Terms of Service and Privacy Policy to create an account.",
+          variant: "destructive",
+        });
+        setSubmitting(false);
+        return;
+      }
       const role = view === "signup-candidate" ? "candidate" : "employer";
       const { error } = await signUp(email, password, { first_name: firstName, last_name: lastName, role });
       if (error) {
@@ -138,6 +148,23 @@ const Login = () => {
                 </button>
               </div>
             </div>
+            {view !== "login" && (
+              <label className="flex items-start gap-2 text-xs font-body text-muted-foreground leading-relaxed cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={acceptedTerms}
+                  onChange={(e) => setAcceptedTerms(e.target.checked)}
+                  className="mt-0.5 h-4 w-4 rounded border-border accent-gold cursor-pointer"
+                  required
+                />
+                <span>
+                  I agree to the{" "}
+                  <Link to="/terms" target="_blank" className="text-gold hover:underline">Terms of Service</Link>{" "}
+                  and{" "}
+                  <Link to="/privacy" target="_blank" className="text-gold hover:underline">Privacy Policy</Link>.
+                </span>
+              </label>
+            )}
             <Button variant="gold" size="lg" className="w-full" disabled={submitting}>
               {submitting ? "Please wait..." : view === "login" ? "Sign In" : "Create Account"}
             </Button>
