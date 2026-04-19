@@ -1,15 +1,25 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
-import { CalendarClock, Check, X, Loader2, Building2, Video, CalendarPlus } from "lucide-react";
+import { CalendarClock, Check, X, Loader2, Building2, Video, CalendarPlus, AlertTriangle } from "lucide-react";
 import { format, formatDistanceToNow } from "date-fns";
 import { sendNotificationEmail } from "@/lib/notifications";
-import { buildIcs, icsDataUrl, googleCalendarUrl } from "@/lib/meeting";
+import { buildIcs, icsDataUrl, googleCalendarUrl, slotsOverlap } from "@/lib/meeting";
 
 type Slot = { start: string; duration_minutes: number };
 
@@ -41,6 +51,16 @@ const InterviewRequests = () => {
   const [loading, setLoading] = useState(true);
   const [acting, setActing] = useState<string | null>(null);
   const [pickedSlot, setPickedSlot] = useState<Record<string, number>>({});
+  const [conflictPrompt, setConflictPrompt] = useState<{ request: Request; slot: Slot } | null>(null);
+
+  // All slots already confirmed for this candidate — used to flag double-bookings.
+  const confirmedSlots = useMemo<Slot[]>(
+    () =>
+      requests
+        .filter((r) => r.status === "accepted" && r.selected_slot)
+        .map((r) => r.selected_slot as Slot),
+    [requests],
+  );
 
   const load = async () => {
     if (!user) return;
@@ -93,6 +113,16 @@ const InterviewRequests = () => {
     }
     const chosen = r.proposed_slots[idx];
 
+    // Soft warn if this slot overlaps another already-confirmed interview.
+    const conflict = confirmedSlots.some((existing) => slotsOverlap(existing, chosen));
+    if (conflict) {
+      setConflictPrompt({ request: r, slot: chosen });
+      return;
+    }
+    await performAccept(r, chosen);
+  };
+
+  const performAccept = async (r: Request, chosen: Slot) => {
     setActing(r.id);
     const { error } = await supabase
       .from("interview_requests")
@@ -302,6 +332,9 @@ const InterviewRequests = () => {
               {r.proposed_slots.map((slot, i) => {
                 const isPicked = pickedSlot[r.id] === i;
                 const isPast = new Date(slot.start).getTime() < Date.now();
+                const hasConflict =
+                  !isPast &&
+                  confirmedSlots.some((existing) => slotsOverlap(existing, slot));
                 return (
                   <button
                     key={i}
@@ -313,12 +346,19 @@ const InterviewRequests = () => {
                         ? "opacity-40 cursor-not-allowed border-border"
                         : isPicked
                         ? "border-gold bg-gold/10 text-foreground"
+                        : hasConflict
+                        ? "border-amber-300 bg-amber-50 hover:border-amber-400"
                         : "border-border hover:border-gold/50 bg-background"
                     }`}
                   >
-                    <div className="flex items-center justify-between">
+                    <div className="flex items-center justify-between gap-2">
                       <span>{format(new Date(slot.start), "EEE, MMM d 'at' p")}</span>
-                      <span className="text-xs text-muted-foreground">
+                      <span className="text-xs text-muted-foreground flex items-center gap-1.5">
+                        {hasConflict && (
+                          <span className="inline-flex items-center gap-1 text-amber-700">
+                            <AlertTriangle size={12} /> Conflict
+                          </span>
+                        )}
                         {slot.duration_minutes} min{isPast && " • past"}
                       </span>
                     </div>
@@ -350,6 +390,40 @@ const InterviewRequests = () => {
           )}
         </Card>
       ))}
+
+      <AlertDialog
+        open={conflictPrompt !== null}
+        onOpenChange={(open) => {
+          if (!open) setConflictPrompt(null);
+        }}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2">
+              <AlertTriangle size={18} className="text-amber-600" />
+              You already have an interview at this time
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              {conflictPrompt
+                ? `${format(new Date(conflictPrompt.slot.start), "EEE, MMM d 'at' p")} (${conflictPrompt.slot.duration_minutes} min) overlaps with another confirmed interview. Are you sure you want to accept this one too?`
+                : ""}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={async () => {
+                if (!conflictPrompt) return;
+                const { request, slot } = conflictPrompt;
+                setConflictPrompt(null);
+                await performAccept(request, slot);
+              }}
+            >
+              Accept anyway
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
