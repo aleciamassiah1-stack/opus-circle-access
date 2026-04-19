@@ -1,0 +1,1 @@
+UPDATE public.interview_requests SET meeting_url = 'https://meet.google.com/new', updated_at = now() WHERE status = 'accepted' AND meeting_url LIKE 'https://meet.google.com/lookup/%';
