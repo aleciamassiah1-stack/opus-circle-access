@@ -250,7 +250,7 @@ const CandidateProfileDialog = ({ candidate, open, onClose, onMessage, isFavorit
           {loadingResume ? (
             <Loader2 size={16} className="animate-spin text-muted-foreground" />
           ) : !hasResume ? (
-            <p className="font-body text-sm text-muted-foreground italic">This candidate hasn't uploaded a resume yet.</p>
+            <p className="font-body text-sm text-muted-foreground italic">This talent hasn't uploaded a resume yet.</p>
           ) : !resumeSummary ? (
             <p className="font-body text-sm text-muted-foreground italic">
               Summary is being generated. Check back shortly.
