@@ -31,8 +31,7 @@ const Index = () => {
             Meets <span className="text-gradient-gold">Distinction</span>
           </h1>
           <p className="font-body text-muted-foreground text-lg max-w-md leading-relaxed mb-10">
-            A private, vetted platform connecting exceptional professionals in hospitality, 
-            private estates, and family offices with employers who expect nothing less.
+            A private platform of <strong className="text-foreground">individually vetted</strong> hospitality, private estate, and family office professionals — connected with employers who expect nothing less.
           </p>
           <div className="flex flex-wrap gap-4">
             <Button variant="gold" size="lg" asChild>
@@ -63,7 +62,7 @@ const Index = () => {
         <div className="container mx-auto px-6 py-8">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
             {[
-              { icon: Shield, label: "Vetted & Verified", desc: "Every member is carefully screened" },
+              { icon: Shield, label: "Every Talent Vetted", desc: "Resumes, credentials, and identity reviewed" },
               { icon: Lock, label: "Private & Secure", desc: "Not indexed, not public, invitation-grade" },
               { icon: Star, label: "Premium Talent", desc: "UHNW, estates, yachts & hospitality" },
             ].map((item) => (

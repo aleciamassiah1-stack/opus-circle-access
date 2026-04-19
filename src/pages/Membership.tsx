@@ -13,6 +13,7 @@ const candidateFeatures = [
 ];
 
 const employerFeatures = [
+  "Access to fully vetted talent only",
   "Full talent directory access",
   "Advanced search & filters",
   "Save favorite candidates",
@@ -30,8 +31,8 @@ const Membership = () => {
             Membership <span className="text-gradient-gold">Plans</span>
           </h1>
           <p className="font-body text-muted-foreground text-lg max-w-2xl mx-auto leading-relaxed">
-            Simple, transparent pricing. One plan for talent, one for employers. 
-            Cancel anytime.
+            Simple, transparent pricing. Talent is individually vetted before profiles go live —
+            employers pay for assured access to that curated network. Cancel anytime.
           </p>
         </div>
 
