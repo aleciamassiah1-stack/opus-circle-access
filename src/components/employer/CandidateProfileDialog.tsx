@@ -171,7 +171,7 @@ const CandidateProfileDialog = ({ candidate, open, onClose, onMessage, isFavorit
     <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="font-heading text-2xl">Candidate Profile</DialogTitle>
+          <DialogTitle className="font-heading text-2xl">Talent Profile</DialogTitle>
         </DialogHeader>
 
         <div className="flex items-start gap-4 mb-6">
@@ -250,7 +250,7 @@ const CandidateProfileDialog = ({ candidate, open, onClose, onMessage, isFavorit
           {loadingResume ? (
             <Loader2 size={16} className="animate-spin text-muted-foreground" />
           ) : !hasResume ? (
-            <p className="font-body text-sm text-muted-foreground italic">This candidate hasn't uploaded a resume yet.</p>
+            <p className="font-body text-sm text-muted-foreground italic">This talent hasn't uploaded a resume yet.</p>
           ) : !resumeSummary ? (
             <p className="font-body text-sm text-muted-foreground italic">
               Summary is being generated. Check back shortly.
@@ -270,7 +270,7 @@ const CandidateProfileDialog = ({ candidate, open, onClose, onMessage, isFavorit
                   </Button>
                   {!isAdmin && accessStatus === "approved" && (
                     <p className="text-[11px] font-body text-muted-foreground italic">
-                      The candidate is notified each time you view their full resume.
+                      The talent is notified each time you view their full resume.
                     </p>
                   )}
                 </div>
@@ -278,10 +278,10 @@ const CandidateProfileDialog = ({ candidate, open, onClose, onMessage, isFavorit
                 <div>
                   <p className="text-xs font-body text-muted-foreground mb-2 flex items-center gap-1">
                     <Lock size={12} />
-                    Unlock the full resume — the candidate will be notified that you viewed it.
+                    Unlock the full resume — the talent will be notified that you viewed it.
                   </p>
                   <Textarea
-                    placeholder="Optional note to the candidate (visible to them)..."
+                    placeholder="Optional note to the talent (visible to them)..."
                     value={requestMessage}
                     onChange={(e) => setRequestMessage(e.target.value)}
                     maxLength={500}

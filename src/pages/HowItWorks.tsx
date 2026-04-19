@@ -12,7 +12,7 @@ const candidateSteps = [
   {
     icon: CreditCard,
     title: "Activate Your Membership",
-    desc: "Candidates join OTC through a monthly membership of $14.99, which enables profile visibility within our private network.",
+    desc: "Talent join OTC through a monthly membership of $14.99, which enables profile visibility within our private network.",
   },
   {
     icon: ClipboardCheck,
@@ -45,12 +45,12 @@ const employerSteps = [
   {
     icon: Search,
     title: "Search & Discover Talent",
-    desc: "Browse a refined database of candidates and filter by role, experience, and specialty. Each profile is designed to give you a clear, concise understanding of a candidate's background and capabilities.",
+    desc: "Browse a refined database of talent and filter by role, experience, and specialty. Each profile is designed to give you a clear, concise understanding of a talent's background and capabilities.",
   },
   {
     icon: Handshake,
     title: "Connect Directly",
-    desc: "Message candidates, request interviews, and initiate conversations—all within the platform. OTC is designed to streamline communication and reduce friction in the hiring process.",
+    desc: "Message talent, request interviews, and initiate conversations—all within the platform. OTC is designed to streamline communication and reduce friction in the hiring process.",
   },
   {
     icon: Users,
@@ -99,14 +99,14 @@ const HowItWorks = () => {
         </div>
       </section>
 
-      {/* For Candidates */}
+      {/* For Talent */}
       <section className="px-6 pb-20">
         <div className="container mx-auto max-w-4xl">
           <div className="flex items-center gap-3 mb-10">
             <div className="w-10 h-10 rounded-full bg-secondary flex items-center justify-center">
               <UserCircle size={20} className="text-gold" />
             </div>
-            <h2 className="font-heading text-3xl md:text-4xl text-foreground">For Candidates</h2>
+            <h2 className="font-heading text-3xl md:text-4xl text-foreground">For Talent</h2>
           </div>
           <StepList steps={candidateSteps} label="Talent" />
         </div>

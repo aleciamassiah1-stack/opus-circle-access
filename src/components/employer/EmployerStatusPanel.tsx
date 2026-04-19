@@ -30,7 +30,7 @@ const EmployerStatusPanel = () => {
             </div>
             <p className="font-body text-sm text-muted-foreground mt-1">
               {active
-                ? "Full access to vetted candidates, messaging, and interview coordination."
+                ? "Full access to vetted talent, messaging, and interview coordination."
                 : "Activate your membership to unlock the talent directory."}
             </p>
           </div>

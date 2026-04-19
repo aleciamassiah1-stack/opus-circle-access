@@ -198,7 +198,7 @@ const EmployerMessaging = ({ initialCandidateUserId, onConsumed }: Props) => {
         <MessageSquare size={40} className="mx-auto text-muted-foreground mb-4" />
         <h3 className="font-heading text-2xl mb-2">No conversations yet</h3>
         <p className="text-muted-foreground font-body text-sm">
-          Browse the directory and reach out to candidates to start a conversation.
+          Browse the directory and reach out to talent to start a conversation.
         </p>
       </Card>
     );

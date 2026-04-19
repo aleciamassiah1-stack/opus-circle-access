@@ -93,7 +93,7 @@ const Index = () => {
             {
               icon: Users,
               title: "Apply & Get Vetted",
-              description: "Submit your application. Our team reviews every candidate to ensure quality and discretion.",
+              description: "Submit your application. Our team reviews every applicant to ensure quality and discretion.",
               step: "01",
             },
             {

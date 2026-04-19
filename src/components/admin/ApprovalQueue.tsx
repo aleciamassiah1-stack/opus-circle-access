@@ -55,7 +55,7 @@ const ApprovalQueue = ({ onChange }: { onChange?: () => void }) => {
     if (error) {
       toast({ title: "Update failed", description: error.message, variant: "destructive" });
     } else {
-      toast({ title: `Candidate ${status}` });
+      toast({ title: `Talent ${status}` });
       if (status === "approved") {
         sendNotificationEmail({
           recipientUserId: userId,
@@ -92,7 +92,7 @@ const ApprovalQueue = ({ onChange }: { onChange?: () => void }) => {
       <Card className="p-12 text-center shadow-card">
         <CheckCircle size={40} className="mx-auto text-emerald-500 mb-4" />
         <h3 className="font-heading text-2xl mb-2">All caught up</h3>
-        <p className="text-muted-foreground font-body text-sm">No candidates pending approval.</p>
+        <p className="text-muted-foreground font-body text-sm">No talent pending approval.</p>
       </Card>
     );
   }

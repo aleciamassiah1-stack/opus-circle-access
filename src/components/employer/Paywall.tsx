@@ -11,7 +11,7 @@ const Paywall = () => (
     <p className="text-xs uppercase tracking-[0.2em] text-gold mb-3 font-body">Subscription Required</p>
     <h2 className="font-heading text-3xl md:text-4xl text-foreground mb-3">Unlock the Talent Collective</h2>
     <p className="font-body text-muted-foreground max-w-md mx-auto mb-6">
-      An active employer membership grants access to vetted candidate profiles, direct messaging, and interview
+      An active employer membership grants access to vetted talent profiles, direct messaging, and interview
       coordination.
     </p>
     <Button variant="gold" size="lg" asChild>

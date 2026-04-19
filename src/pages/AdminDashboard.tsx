@@ -94,11 +94,11 @@ const AdminDashboard = () => {
 
         <AdminMetrics
           stats={[
-            { label: "Candidates", value: metrics.totalCandidates, icon: Briefcase, color: "text-foreground" },
+            { label: "Talent", value: metrics.totalCandidates, icon: Briefcase, color: "text-foreground" },
             { label: "Employers", value: metrics.totalEmployers, icon: Building2, color: "text-foreground" },
             { label: "Pending Approvals", value: metrics.pendingApprovals, icon: Clock, color: "text-amber-500" },
             { label: "Live Profiles", value: metrics.visibleCandidates, icon: Eye, color: "text-emerald-500" },
-            { label: "Candidate Subs", value: metrics.activeCandidateSubs, icon: CreditCard, color: "text-gold" },
+            { label: "Talent Subs", value: metrics.activeCandidateSubs, icon: CreditCard, color: "text-gold" },
             { label: "Employer Subs", value: metrics.activeEmployerSubs, icon: CreditCard, color: "text-gold" },
             { label: "Conversations", value: metrics.totalConversations, icon: MessageSquare, color: "text-foreground" },
             { label: "Interview Requests", value: metrics.totalInterviews, icon: UserCheck, color: "text-foreground" },

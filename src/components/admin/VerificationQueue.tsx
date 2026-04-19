@@ -146,7 +146,7 @@ const VerificationQueue = ({ onChange }: Props) => {
     setPreviewUrl(null);
     toast({
       title: next === "approved" ? "Document approved" : "Document rejected",
-      description: next === "approved" ? "Candidate is now verified." : "File has been deleted.",
+      description: next === "approved" ? "Talent is now verified." : "File has been deleted.",
     });
     load();
     onChange?.();
@@ -197,7 +197,7 @@ const VerificationQueue = ({ onChange }: Props) => {
                     </span>
                   </div>
                   <p className="text-sm font-body">
-                    <span className="text-muted-foreground">Candidate:</span>{" "}
+                    <span className="text-muted-foreground">Talent:</span>{" "}
                     <span className="font-medium">{nameFor(d.user_id)}</span>
                   </p>
                   {d.file_name && (
