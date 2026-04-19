@@ -211,7 +211,7 @@ const MessagingInbox = () => {
                   <div className="flex-1 min-w-0">
                     <div className="flex justify-between items-start gap-2">
                       <p className="font-body font-medium text-sm text-foreground truncate">
-                        {c.company_name || c.employer_name}
+                        {c.employer_name}
                       </p>
                       {c.unread! > 0 && (
                         <span className="bg-gold text-primary-foreground text-xs px-2 py-0.5 rounded-full flex-shrink-0">
@@ -220,7 +220,7 @@ const MessagingInbox = () => {
                       )}
                     </div>
                     {c.company_name && (
-                      <p className="text-xs text-muted-foreground font-body truncate">{c.employer_name}</p>
+                      <p className="text-xs text-muted-foreground font-body truncate">{c.company_name}</p>
                     )}
                     <p className="text-xs text-muted-foreground font-body truncate mt-0.5">{c.last_message || "—"}</p>
                     <p className="text-xs text-muted-foreground font-body mt-1">
@@ -243,9 +243,9 @@ const MessagingInbox = () => {
                     <AvatarFallback className="bg-secondary"><Building2 size={16} /></AvatarFallback>
                   </Avatar>
                   <div className="min-w-0">
-                    <p className="font-heading text-lg leading-tight truncate">{active.company_name || active.employer_name}</p>
+                    <p className="font-heading text-lg leading-tight truncate">{active.employer_name}</p>
                     {active.company_name && (
-                      <p className="text-xs text-muted-foreground font-body truncate">{active.employer_name}</p>
+                      <p className="text-xs text-muted-foreground font-body truncate">{active.company_name}</p>
                     )}
                   </div>
                 </div>
