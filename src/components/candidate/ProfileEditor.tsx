@@ -9,7 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
-import { Upload, FileText, Loader2, X } from "lucide-react";
+import { Upload, FileText, Loader2, X, Sparkles } from "lucide-react";
 import { z } from "zod";
 
 const profileSchema = z.object({
@@ -49,8 +49,40 @@ const ProfileEditor = () => {
   const [saving, setSaving] = useState(false);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const [uploadingResume, setUploadingResume] = useState(false);
+  const [generatingBio, setGeneratingBio] = useState(false);
   const avatarRef = useRef<HTMLInputElement>(null);
   const resumeRef = useRef<HTMLInputElement>(null);
+
+  const handleGenerateBio = async () => {
+    if (!user) return;
+    setGeneratingBio(true);
+    const titleNames = allTitles.filter((t) => selectedTitles.includes(t.id)).map((t) => t.name);
+    const tagNames = allTags.filter((t) => selectedTags.includes(t.id)).map((t) => t.name);
+    const { data, error } = await supabase.functions.invoke("generate-bio", {
+      body: {
+        first_name: form.first_name,
+        title: form.title,
+        headline: form.headline,
+        location: form.location,
+        years_experience: form.years_experience,
+        job_titles: titleNames,
+        specialties: tagNames,
+      },
+    });
+    setGeneratingBio(false);
+    if (error || (data as any)?.error) {
+      const msg = (data as any)?.error ?? error?.message ?? "Could not generate bio";
+      toast({ title: "Bio generation failed", description: msg, variant: "destructive" });
+      return;
+    }
+    const generated = (data as any)?.bio as string | undefined;
+    if (!generated) {
+      toast({ title: "No bio returned", variant: "destructive" });
+      return;
+    }
+    setForm((prev) => ({ ...prev, bio: generated }));
+    toast({ title: "Draft ready", description: "Review and edit before saving." });
+  };
 
   useEffect(() => {
     if (profile) {
@@ -348,15 +380,34 @@ const ProfileEditor = () => {
             </Select>
           </div>
           <div className="md:col-span-2">
-            <Label className="font-body text-sm">Bio</Label>
+            <div className="flex items-center justify-between mb-1">
+              <Label className="font-body text-sm">Bio</Label>
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={handleGenerateBio}
+                disabled={generatingBio}
+                className="h-7 text-xs gap-1.5"
+              >
+                {generatingBio ? (
+                  <Loader2 size={12} className="animate-spin" />
+                ) : (
+                  <Sparkles size={12} className="text-gold" />
+                )}
+                {generatingBio ? "Drafting…" : (form.bio ? "Regenerate with AI" : "Generate with AI")}
+              </Button>
+            </div>
             <Textarea
               value={form.bio}
               onChange={(e) => setForm({ ...form, bio: e.target.value })}
               rows={5}
               maxLength={2000}
-              placeholder="Share your background, expertise, and what makes you exceptional..."
+              placeholder="Share your background, expertise, and what makes you exceptional — or click 'Generate with AI' to draft from your profile."
             />
-            <p className="text-xs text-muted-foreground mt-1 font-body">{form.bio.length}/2000</p>
+            <p className="text-xs text-muted-foreground mt-1 font-body">
+              {form.bio.length}/2000 · AI drafts use your title, headline, job titles, specialties, and resume summary. Always review before saving.
+            </p>
           </div>
         </div>
       </Card>
