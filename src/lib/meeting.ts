@@ -115,3 +115,19 @@ export function icsDataUrl(ics: string): string {
   const b64 = btoa(unescape(encodeURIComponent(ics)));
   return `data:text/calendar;charset=utf-8;base64,${b64}`;
 }
+
+/**
+ * Returns true when two time ranges overlap. Each is defined by an ISO
+ * start and a duration in minutes. Touching boundaries (one ends exactly
+ * when the next starts) are NOT considered overlapping.
+ */
+export function slotsOverlap(
+  a: { start: string; duration_minutes: number },
+  b: { start: string; duration_minutes: number },
+): boolean {
+  const aStart = new Date(a.start).getTime();
+  const aEnd = aStart + a.duration_minutes * 60_000;
+  const bStart = new Date(b.start).getTime();
+  const bEnd = bStart + b.duration_minutes * 60_000;
+  return aStart < bEnd && bStart < aEnd;
+}
