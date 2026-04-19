@@ -1,15 +1,25 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
-import { CalendarClock, Check, X, Loader2, Building2, Video, CalendarPlus } from "lucide-react";
+import { CalendarClock, Check, X, Loader2, Building2, Video, CalendarPlus, AlertTriangle } from "lucide-react";
 import { format, formatDistanceToNow } from "date-fns";
 import { sendNotificationEmail } from "@/lib/notifications";
-import { buildIcs, icsDataUrl, googleCalendarUrl } from "@/lib/meeting";
+import { buildIcs, icsDataUrl, googleCalendarUrl, slotsOverlap } from "@/lib/meeting";
 
 type Slot = { start: string; duration_minutes: number };
 
