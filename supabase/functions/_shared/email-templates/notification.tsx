@@ -63,7 +63,7 @@ export const NotificationEmail = ({
           <Heading style={h1}>{heading}</Heading>
           <Text style={text}>Hello {recipientName},</Text>
           <Text style={text}>{intro}</Text>
-          {detail ? <Text style={detailStyle}>{detail}</Text> : null}
+          {detail ? <Text style={detailStyle}>{renderWithLinks(detail)}</Text> : null}
           {ctaLabel && ctaUrl ? (
             <Section style={buttonWrap}>
               <Button style={button} href={ctaUrl}>{ctaLabel}</Button>
