@@ -106,6 +106,23 @@ const CandidateProfileDialog = ({ candidate, open, onClose, onMessage, isFavorit
 
   const sendInterviewRequest = async () => {
     if (!user) return;
+    const validSlots = slots
+      .filter((s) => s.date && s.time)
+      .map((s) => {
+        const [h, m] = s.time.split(":").map(Number);
+        const d = new Date(s.date!);
+        d.setHours(h, m, 0, 0);
+        return { start: d.toISOString(), duration_minutes: s.duration };
+      });
+    if (validSlots.length === 0) {
+      toast({ title: "Add at least one time slot", variant: "destructive" });
+      return;
+    }
+    // Reject past slots
+    if (validSlots.some((s) => new Date(s.start).getTime() < Date.now())) {
+      toast({ title: "Time slots must be in the future", variant: "destructive" });
+      return;
+    }
     setSending(true);
     const note = interviewNote.trim();
     const { error } = await supabase.from("interview_requests").insert({
@@ -113,7 +130,9 @@ const CandidateProfileDialog = ({ candidate, open, onClose, onMessage, isFavorit
       candidate_user_id: candidate.user_id,
       note: note || null,
       status: "pending",
-    });
+      proposed_slots: validSlots,
+      meeting_provider: "google_meet",
+    } as any);
     if (error) {
       toast({ title: "Could not send request", description: error.message, variant: "destructive" });
     } else {
@@ -126,8 +145,19 @@ const CandidateProfileDialog = ({ candidate, open, onClose, onMessage, isFavorit
         ctaPath: "/talent",
       });
       setInterviewNote("");
+      setSlots([{ time: "10:00", duration: 30 }]);
     }
     setSending(false);
+  };
+
+  const addSlot = () => {
+    if (slots.length < 3) setSlots([...slots, { time: "10:00", duration: 30 }]);
+  };
+  const removeSlot = (i: number) => {
+    if (slots.length > 1) setSlots(slots.filter((_, idx) => idx !== i));
+  };
+  const updateSlot = (i: number, patch: Partial<Slot>) => {
+    setSlots(slots.map((s, idx) => (idx === i ? { ...s, ...patch } : s)));
   };
 
   const viewFullResume = async () => {
