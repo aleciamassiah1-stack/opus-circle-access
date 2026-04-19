@@ -135,10 +135,28 @@ Deno.serve(async (req) => {
     const ctaUrl = `${ROOT_URL}${ctaPath ?? copy.ctaPath}`
     const recipientName = profile.first_name?.trim() || 'there'
 
+    // For new-message notifications, look up the sender's profile so the
+    // subject reveals who's reaching out (company name preferred, then full
+    // name). Looked up server-side so it can't be spoofed by the client.
+    let subject = copy.subject
+    if (kind === 'new_message') {
+      const { data: senderProfile } = await supabase
+        .from('profiles')
+        .select('company_name, first_name, last_name')
+        .eq('user_id', userData.user.id)
+        .maybeSingle()
+      const senderLabel =
+        senderProfile?.company_name?.trim() ||
+        `${senderProfile?.first_name ?? ''} ${senderProfile?.last_name ?? ''}`.trim()
+      if (senderLabel) {
+        subject = `New message from ${senderLabel}`
+      }
+    }
+
     const props = {
       recipientName,
       heading: copy.heading,
-      preview: copy.subject,
+      preview: subject,
       intro,
       detail,
       ctaLabel: copy.ctaLabel,
@@ -167,7 +185,7 @@ Deno.serve(async (req) => {
         to: profile.email,
         from: `${SITE_NAME} <noreply@${FROM_DOMAIN}>`,
         sender_domain: SENDER_DOMAIN,
-        subject: copy.subject,
+        subject,
         html,
         text,
         label: kind,
