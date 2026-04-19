@@ -9,7 +9,7 @@ import { toast } from "@/hooks/use-toast";
 import { CalendarClock, Check, X, Loader2, Building2, Video, CalendarPlus } from "lucide-react";
 import { format, formatDistanceToNow } from "date-fns";
 import { sendNotificationEmail } from "@/lib/notifications";
-import { generateMeetLookupUrl, buildIcs, icsDataUrl } from "@/lib/meeting";
+import { generateMeetLookupUrl, buildIcs, icsDataUrl, googleCalendarUrl } from "@/lib/meeting";
 
 type Slot = { start: string; duration_minutes: number };
 
@@ -258,10 +258,28 @@ const InterviewRequests = () => {
                     <Video size={14} /> Join Meet
                   </a>
                 </Button>
-                <Button variant="outline" size="sm" onClick={() => downloadIcs(r)}>
-                  <CalendarPlus size={14} /> Add to calendar
+                <Button variant="outline" size="sm" asChild>
+                  <a
+                    href={googleCalendarUrl({
+                      startISO: r.selected_slot.start,
+                      durationMinutes: r.selected_slot.duration_minutes,
+                      title: `Interview — ${r.company_name || r.employer_name || "Employer"}`,
+                      description: `Interview via Opulence Talent Collective.\n\nJoin: ${r.meeting_url}`,
+                      location: r.meeting_url,
+                    })}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <CalendarPlus size={14} /> Add to Google Calendar
+                  </a>
+                </Button>
+                <Button variant="ghost" size="sm" onClick={() => downloadIcs(r)}>
+                  Download .ics
                 </Button>
               </div>
+              <p className="text-[11px] font-body text-muted-foreground italic mt-2">
+                The Meet link opens a fresh room when the first person joins. Save the calendar event so you have the link handy.
+              </p>
             </div>
           )}
 
