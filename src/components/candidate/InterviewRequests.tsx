@@ -113,6 +113,16 @@ const InterviewRequests = () => {
     }
     const chosen = r.proposed_slots[idx];
 
+    // Soft warn if this slot overlaps another already-confirmed interview.
+    const conflict = confirmedSlots.some((existing) => slotsOverlap(existing, chosen));
+    if (conflict) {
+      setConflictPrompt({ request: r, slot: chosen });
+      return;
+    }
+    await performAccept(r, chosen);
+  };
+
+  const performAccept = async (r: Request, chosen: Slot) => {
     setActing(r.id);
     const { error } = await supabase
       .from("interview_requests")
