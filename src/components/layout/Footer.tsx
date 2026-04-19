@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import logo from "@/assets/otc-mark.png";
+import logo from "@/assets/otc-mark-light.png";
 
 const Footer = () => {
   return (
