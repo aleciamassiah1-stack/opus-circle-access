@@ -449,7 +449,24 @@ const CandidateProfileDialog = ({ candidate, open, onClose, onMessage, isFavorit
               </Button>
             )}
 
-            <Button variant="gold" className="mt-2 w-full" onClick={sendInterviewRequest} disabled={sending}>
+            <div className="mt-3 space-y-1">
+              <label className="text-xs uppercase tracking-wider text-muted-foreground font-body">
+                Meeting link
+              </label>
+              <Input
+                type="url"
+                placeholder="https://meet.google.com/abc-defg-hij"
+                value={meetingUrl}
+                onChange={(e) => setMeetingUrl(e.target.value)}
+                maxLength={500}
+                className="font-body"
+              />
+              <p className="text-[11px] font-body text-muted-foreground">
+                Paste a real Google Meet, Zoom, or Teams URL — both you and the talent will use this exact link.
+              </p>
+            </div>
+
+            <Button variant="gold" className="mt-3 w-full" onClick={sendInterviewRequest} disabled={sending}>
               {sending ? <Loader2 size={14} className="animate-spin" /> : <CalendarCheck size={14} />}
               Send Request
             </Button>
