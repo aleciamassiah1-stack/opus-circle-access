@@ -35,7 +35,7 @@ const Checkout = () => {
   }
 
   if (isActive) {
-    return <Navigate to={hasRole("employer") ? "/employer" : "/dashboard"} replace />;
+    return <Navigate to={hasRole("employer") ? "/employer" : "/talent"} replace />;
   }
 
   const priceId = PRICE_IDS[plan];

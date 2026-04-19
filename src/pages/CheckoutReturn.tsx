@@ -26,7 +26,7 @@ const CheckoutReturn = () => {
     };
   }, [isActive, refresh]);
 
-  const dashboardPath = hasRole("employer") ? "/employer" : "/dashboard";
+  const dashboardPath = hasRole("employer") ? "/employer" : "/talent";
   const loading = authLoading || subLoading;
 
   return (

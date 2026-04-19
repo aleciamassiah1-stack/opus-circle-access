@@ -13,7 +13,7 @@ import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
 import PendingApproval from "./pages/PendingApproval";
 import AdminDashboard from "./pages/AdminDashboard";
-import CandidateDashboard from "./pages/CandidateDashboard";
+import TalentDashboard from "./pages/TalentDashboard";
 import EmployerDashboard from "./pages/EmployerDashboard";
 import Checkout from "./pages/Checkout";
 import CheckoutReturn from "./pages/CheckoutReturn";
@@ -44,10 +44,19 @@ const App = () => (
             <Route path="/checkout" element={<Checkout />} />
             <Route path="/checkout/return" element={<CheckoutReturn />} />
             <Route
+              path="/talent"
+              element={
+                <ProtectedRoute requiredRole="candidate" requireApproval requireSubscription>
+                  <TalentDashboard />
+                </ProtectedRoute>
+              }
+            />
+            {/* Backwards-compat: old /dashboard URL still works */}
+            <Route
               path="/dashboard"
               element={
                 <ProtectedRoute requiredRole="candidate" requireApproval requireSubscription>
-                  <CandidateDashboard />
+                  <TalentDashboard />
                 </ProtectedRoute>
               }
             />

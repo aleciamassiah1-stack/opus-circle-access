@@ -11,7 +11,7 @@ const Index = () => {
   if (!loading && user) {
     if (hasRole("admin")) return <Navigate to="/admin" replace />;
     if (hasRole("employer")) return <Navigate to="/employer" replace />;
-    if (hasRole("candidate")) return <Navigate to="/dashboard" replace />;
+    if (hasRole("candidate")) return <Navigate to="/talent" replace />;
   }
 
   return (

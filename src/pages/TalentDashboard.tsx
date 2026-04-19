@@ -8,7 +8,7 @@ import ResumeAccessRequests from "@/components/candidate/ResumeAccessRequests";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 
-const CandidateDashboard = () => {
+const TalentDashboard = () => {
   const { user, profile } = useAuth();
   const [unreadCount, setUnreadCount] = useState(0);
   const [pendingRequests, setPendingRequests] = useState(0);
@@ -104,4 +104,4 @@ const CandidateDashboard = () => {
   );
 };
 
-export default CandidateDashboard;
+export default TalentDashboard;
