@@ -17,7 +17,7 @@ const Index = () => {
   return (
     <PageLayout>
       {/* Hero — Split Screen */}
-      <section className="min-h-[calc(100vh-4rem)] grid grid-cols-1 lg:grid-cols-2">
+      <section className="min-h-[calc(100vh-5rem)] grid grid-cols-1 lg:grid-cols-2">
         {/* Left Content */}
         <div className="flex flex-col justify-center px-8 lg:px-16 xl:px-24 py-20 animate-slide-in-left">
           <p className="font-heading text-xl text-gold mb-4 tracking-wide">Opulence Talent Collective</p>
