@@ -7,7 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { CalendarCheck, Loader2, X, Video, CalendarPlus } from "lucide-react";
 import { format, formatDistanceToNow } from "date-fns";
-import { buildIcs, icsDataUrl } from "@/lib/meeting";
+import { buildIcs, icsDataUrl, googleCalendarUrl } from "@/lib/meeting";
 
 type Slot = { start: string; duration_minutes: number };
 
