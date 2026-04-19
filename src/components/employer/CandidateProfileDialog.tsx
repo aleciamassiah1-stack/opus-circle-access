@@ -124,6 +124,29 @@ const CandidateProfileDialog = ({ candidate, open, onClose, onMessage, isFavorit
       toast({ title: "Time slots must be in the future", variant: "destructive" });
       return;
     }
+    const trimmedUrl = meetingUrl.trim();
+    if (!trimmedUrl) {
+      toast({
+        title: "Meeting link required",
+        description: "Paste a Google Meet, Zoom, or Teams link so the talent can join.",
+        variant: "destructive",
+      });
+      return;
+    }
+    let parsedUrl: URL;
+    try {
+      parsedUrl = new URL(trimmedUrl);
+      if (parsedUrl.protocol !== "https:" && parsedUrl.protocol !== "http:") {
+        throw new Error("Invalid protocol");
+      }
+    } catch {
+      toast({
+        title: "Invalid meeting link",
+        description: "Enter a full URL starting with https:// (e.g. https://meet.google.com/abc-defg-hij).",
+        variant: "destructive",
+      });
+      return;
+    }
     setSending(true);
     const note = interviewNote.trim();
     const { error } = await supabase.from("interview_requests").insert({
@@ -132,7 +155,8 @@ const CandidateProfileDialog = ({ candidate, open, onClose, onMessage, isFavorit
       note: note || null,
       status: "pending",
       proposed_slots: validSlots,
-      meeting_provider: "google_meet",
+      meeting_url: parsedUrl.toString(),
+      meeting_provider: "custom",
     } as any);
     if (error) {
       toast({ title: "Could not send request", description: error.message, variant: "destructive" });
@@ -147,6 +171,7 @@ const CandidateProfileDialog = ({ candidate, open, onClose, onMessage, isFavorit
       });
       setInterviewNote("");
       setSlots([{ time: "10:00", duration: 30 }]);
+      setMeetingUrl("");
     }
     setSending(false);
   };
