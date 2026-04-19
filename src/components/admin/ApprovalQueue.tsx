@@ -7,6 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { CheckCircle, XCircle, FileText, Loader2, Clock, MapPin, Briefcase } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
+import { sendNotificationEmail } from "@/lib/notifications";
 
 type Pending = {
   id: string;
@@ -55,6 +56,14 @@ const ApprovalQueue = ({ onChange }: { onChange?: () => void }) => {
       toast({ title: "Update failed", description: error.message, variant: "destructive" });
     } else {
       toast({ title: `Candidate ${status}` });
+      if (status === "approved") {
+        sendNotificationEmail({
+          recipientUserId: userId,
+          kind: "account_approved",
+          intro: "Welcome to Opulence Talent Collective. Your application has been approved and your profile is now visible to vetted employers.",
+          ctaPath: "/dashboard",
+        });
+      }
       load();
       onChange?.();
     }

@@ -9,6 +9,7 @@ import { toast } from "@/hooks/use-toast";
 import { Send, MessageSquare, Loader2, Building2, Flag } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import ReportDialog from "@/components/ReportDialog";
+import { sendNotificationEmail } from "@/lib/notifications";
 
 type Conversation = {
   id: string;
@@ -139,16 +140,27 @@ const MessagingInbox = () => {
   const sendReply = async () => {
     if (!reply.trim() || !activeId || !user) return;
     setSending(true);
+    const body = reply.trim();
     const { error } = await supabase.from("messages").insert({
       conversation_id: activeId,
       sender_id: user.id,
-      body: reply.trim(),
+      body,
     });
     if (error) {
       toast({ title: "Failed to send", description: error.message, variant: "destructive" });
     } else {
       setReply("");
       await supabase.from("conversations").update({ updated_at: new Date().toISOString() }).eq("id", activeId);
+      const convo = conversations.find((c) => c.id === activeId);
+      if (convo?.employer_user_id) {
+        sendNotificationEmail({
+          recipientUserId: convo.employer_user_id,
+          kind: "new_message",
+          intro: "You have a new message from a candidate on Opulence Talent Collective.",
+          detail: body.length > 280 ? `${body.slice(0, 280)}…` : body,
+          ctaPath: "/employer",
+        });
+      }
     }
     setSending(false);
   };

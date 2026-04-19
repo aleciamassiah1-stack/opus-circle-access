@@ -8,6 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { FileText, Check, X, Loader2, Building2 } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
+import { sendNotificationEmail } from "@/lib/notifications";
 
 type Request = {
   id: string;
@@ -62,6 +63,7 @@ const ResumeAccessRequests = () => {
 
   const respond = async (id: string, status: "approved" | "denied") => {
     setActing(id);
+    const target = requests.find((r) => r.id === id);
     const { error } = await supabase
       .from("resume_access_requests" as any)
       .update({ status, responded_at: new Date().toISOString() })
@@ -71,6 +73,17 @@ const ResumeAccessRequests = () => {
       toast({ title: "Error", description: error.message, variant: "destructive" });
     } else {
       toast({ title: status === "approved" ? "Resume access granted" : "Request denied" });
+      if (target?.employer_user_id) {
+        sendNotificationEmail({
+          recipientUserId: target.employer_user_id,
+          kind: "resume_response",
+          intro:
+            status === "approved"
+              ? "A candidate has approved your resume access request."
+              : "A candidate has declined your resume access request.",
+          ctaPath: "/employer",
+        });
+      }
       load();
     }
   };

@@ -8,6 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { CalendarClock, Check, X, Loader2, Building2 } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
+import { sendNotificationEmail } from "@/lib/notifications";
 
 type Request = {
   id: string;
@@ -70,6 +71,7 @@ const InterviewRequests = () => {
 
   const respond = async (id: string, status: "accepted" | "declined") => {
     setActing(id);
+    const target = requests.find((r) => r.id === id);
     const { error } = await supabase
       .from("interview_requests")
       .update({ status, updated_at: new Date().toISOString() })
@@ -79,6 +81,17 @@ const InterviewRequests = () => {
       toast({ title: "Error", description: error.message, variant: "destructive" });
     } else {
       toast({ title: `Request ${status}` });
+      if (target?.employer_user_id) {
+        sendNotificationEmail({
+          recipientUserId: target.employer_user_id,
+          kind: "interview_response",
+          intro:
+            status === "accepted"
+              ? "A candidate has accepted your interview request."
+              : "A candidate has declined your interview request.",
+          ctaPath: "/employer",
+        });
+      }
       load();
     }
   };

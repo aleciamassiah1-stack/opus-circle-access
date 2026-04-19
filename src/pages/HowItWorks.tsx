@@ -35,7 +35,7 @@ const employerSteps = [
   {
     icon: Building2,
     title: "Create an Account",
-    desc: "Sign up to access a curated network of experienced professionals across private households, estates, and hospitality environments.",
+    desc: "Employers sign up with instant access to the platform. No vetting queue — your time matters. Talent on the other side of the network has been individually screened so you don't have to.",
   },
   {
     icon: CreditCard,
