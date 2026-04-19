@@ -324,6 +324,17 @@ const CandidateProfileDialog = ({ candidate, open, onClose, onMessage, isFavorit
           </div>
         </div>
       </DialogContent>
+
+      <Dialog open={!!resumePreviewUrl} onOpenChange={(v) => !v && setResumePreviewUrl(null)}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="font-heading text-xl">
+              {candidate.first_name} {candidate.last_name} — Resume
+            </DialogTitle>
+          </DialogHeader>
+          {resumePreviewUrl && <PdfPreview url={resumePreviewUrl} />}
+        </DialogContent>
+      </Dialog>
     </Dialog>
   );
 };
