@@ -24,7 +24,7 @@ const faqs = [
   },
   {
     q: "How is talent vetted?",
-    a: "Every talent applicant goes through a multi-step vetting process: government-issued ID verification, professional reference checks, work history validation, and an admin review of qualifications. Only candidates who pass all stages have their profiles activated in the directory.",
+    a: "Every talent applicant goes through a rigorous multi-step vetting process before their profile goes live: identity verification (government-issued ID), comprehensive background checks, and professional reference checks with prior employers. Our admin team also reviews work history and qualifications. Only candidates who successfully clear all three pillars — identity, background, and references — are activated in the directory.",
   },
   {
     q: "How does billing work?",
