@@ -387,7 +387,7 @@ const CandidateProfileDialog = ({ candidate, open, onClose, onMessage, isFavorit
             />
 
             <p className="text-xs font-body text-muted-foreground mb-2">
-              Propose 1–3 time slots. The talent will pick one to confirm. A Google Meet link is generated automatically.
+              Propose 1–3 time slots and paste your meeting link. The talent will pick a slot to confirm.
             </p>
             <div className="space-y-2 mb-2">
               {slots.map((slot, i) => (
