@@ -5,8 +5,11 @@ import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
-import { CalendarCheck, Loader2, X } from "lucide-react";
-import { formatDistanceToNow } from "date-fns";
+import { CalendarCheck, Loader2, X, Video, CalendarPlus } from "lucide-react";
+import { format, formatDistanceToNow } from "date-fns";
+import { buildIcs, icsDataUrl } from "@/lib/meeting";
+
+type Slot = { start: string; duration_minutes: number };
 
 type Row = {
   id: string;
@@ -15,6 +18,9 @@ type Row = {
   note: string | null;
   created_at: string;
   candidate_name: string;
+  proposed_slots: Slot[] | null;
+  selected_slot: Slot | null;
+  meeting_url: string | null;
 };
 
 const EmployerInterviewRequests = () => {
@@ -36,7 +42,7 @@ const EmployerInterviewRequests = () => {
       return;
     }
     const enriched = await Promise.all(
-      data.map(async (r) => {
+      data.map(async (r: any) => {
         const { data: prof } = await supabase
           .from("profiles")
           .select("first_name, last_name")
@@ -48,8 +54,11 @@ const EmployerInterviewRequests = () => {
           status: r.status,
           note: r.note,
           created_at: r.created_at,
+          proposed_slots: r.proposed_slots ?? null,
+          selected_slot: r.selected_slot ?? null,
+          meeting_url: r.meeting_url ?? null,
           candidate_name: prof ? `${prof.first_name ?? ""} ${prof.last_name ?? ""}`.trim() || "Candidate" : "Candidate",
-        };
+        } as Row;
       })
     );
     setRows(enriched);
@@ -69,6 +78,22 @@ const EmployerInterviewRequests = () => {
       toast({ title: "Request withdrawn" });
       load();
     }
+  };
+
+  const downloadIcs = (r: Row) => {
+    if (!r.selected_slot || !r.meeting_url) return;
+    const ics = buildIcs({
+      uid: r.id,
+      startISO: r.selected_slot.start,
+      durationMinutes: r.selected_slot.duration_minutes,
+      title: `Interview — ${r.candidate_name}`,
+      description: `Interview via Opulence Talent Collective.\n\nJoin: ${r.meeting_url}`,
+      location: r.meeting_url,
+    });
+    const a = document.createElement("a");
+    a.href = icsDataUrl(ics);
+    a.download = `interview-${r.id.slice(0, 8)}.ics`;
+    a.click();
   };
 
   const statusBadge = (s: string) => {
@@ -102,7 +127,7 @@ const EmployerInterviewRequests = () => {
     <div className="space-y-3">
       {rows.map((r) => (
         <Card key={r.id} className="p-5 shadow-card">
-          <div className="flex items-start justify-between gap-4">
+          <div className="flex items-start justify-between gap-4 mb-2">
             <div className="flex-1">
               <div className="flex items-center gap-3 mb-1">
                 <p className="font-heading text-lg">{r.candidate_name}</p>
@@ -120,6 +145,45 @@ const EmployerInterviewRequests = () => {
               </Button>
             )}
           </div>
+
+          {r.status === "pending" && r.proposed_slots && r.proposed_slots.length > 0 && (
+            <div className="mt-2 space-y-1">
+              <p className="text-[11px] uppercase tracking-wider text-muted-foreground font-body">
+                Proposed times
+              </p>
+              <ul className="text-sm font-body text-foreground space-y-0.5">
+                {r.proposed_slots.map((s, i) => (
+                  <li key={i}>
+                    • {format(new Date(s.start), "EEE, MMM d 'at' p")} ({s.duration_minutes} min)
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {r.status === "accepted" && r.selected_slot && r.meeting_url && (
+            <div className="mt-3 border border-gold/30 bg-gold/5 rounded-md p-4">
+              <p className="text-xs uppercase tracking-wider text-foreground font-body font-semibold mb-2">
+                Confirmed Interview
+              </p>
+              <p className="font-body text-sm text-foreground mb-1">
+                {format(new Date(r.selected_slot.start), "EEEE, MMMM d 'at' p")}
+              </p>
+              <p className="font-body text-xs text-muted-foreground mb-3">
+                {r.selected_slot.duration_minutes} minutes • Google Meet
+              </p>
+              <div className="flex flex-wrap gap-2">
+                <Button variant="gold" size="sm" asChild>
+                  <a href={r.meeting_url} target="_blank" rel="noopener noreferrer">
+                    <Video size={14} /> Join Meet
+                  </a>
+                </Button>
+                <Button variant="outline" size="sm" onClick={() => downloadIcs(r)}>
+                  <CalendarPlus size={14} /> Add to calendar
+                </Button>
+              </div>
+            </div>
+          )}
         </Card>
       ))}
     </div>

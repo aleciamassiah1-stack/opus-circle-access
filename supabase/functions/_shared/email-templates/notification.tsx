@@ -10,10 +10,25 @@ import {
   Heading,
   Hr,
   Html,
+  Link,
   Preview,
   Section,
   Text,
 } from 'npm:@react-email/components@0.0.22'
+
+// Render text with URLs as clickable links.
+function renderWithLinks(text: string): React.ReactNode {
+  const parts = text.split(/(https?:\/\/[^\s]+)/g)
+  return parts.map((part, i) =>
+    /^https?:\/\//.test(part) ? (
+      <Link key={i} href={part} style={{ color: '#a8862e', wordBreak: 'break-all' }}>
+        {part}
+      </Link>
+    ) : (
+      <React.Fragment key={i}>{part}</React.Fragment>
+    )
+  )
+}
 
 interface NotificationEmailProps {
   recipientName: string
@@ -48,7 +63,7 @@ export const NotificationEmail = ({
           <Heading style={h1}>{heading}</Heading>
           <Text style={text}>Hello {recipientName},</Text>
           <Text style={text}>{intro}</Text>
-          {detail ? <Text style={detailStyle}>{detail}</Text> : null}
+          {detail ? <Text style={detailStyle}>{renderWithLinks(detail)}</Text> : null}
           {ctaLabel && ctaUrl ? (
             <Section style={buttonWrap}>
               <Button style={button} href={ctaUrl}>{ctaLabel}</Button>

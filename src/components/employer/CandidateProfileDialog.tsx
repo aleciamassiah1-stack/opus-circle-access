@@ -2,14 +2,22 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useEffect, useState } from "react";
-import { Heart, MapPin, Briefcase, MessageSquare, CalendarCheck, Loader2, FileText, BadgeCheck, Sparkles, Lock, CheckCircle2 } from "lucide-react";
+import { Heart, MapPin, Briefcase, MessageSquare, CalendarCheck, CalendarIcon, Loader2, FileText, BadgeCheck, Sparkles, Lock, CheckCircle2, Plus, X } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { Textarea } from "@/components/ui/textarea";
 import { sendNotificationEmail } from "@/lib/notifications";
 import PdfPreview from "@/components/admin/PdfPreview";
+import { format } from "date-fns";
+import { cn } from "@/lib/utils";
+
+type Slot = { date?: Date; time: string; duration: number };
 
 type Candidate = {
   id: string;
@@ -56,6 +64,7 @@ const CandidateProfileDialog = ({ candidate, open, onClose, onMessage, isFavorit
   const { user, hasRole } = useAuth();
   const isAdmin = hasRole("admin");
   const [interviewNote, setInterviewNote] = useState("");
+  const [slots, setSlots] = useState<Slot[]>([{ time: "10:00", duration: 30 }]);
   const [requestMessage, setRequestMessage] = useState("");
   const [sending, setSending] = useState(false);
   const [requestingAccess, setRequestingAccess] = useState(false);
@@ -97,6 +106,23 @@ const CandidateProfileDialog = ({ candidate, open, onClose, onMessage, isFavorit
 
   const sendInterviewRequest = async () => {
     if (!user) return;
+    const validSlots = slots
+      .filter((s) => s.date && s.time)
+      .map((s) => {
+        const [h, m] = s.time.split(":").map(Number);
+        const d = new Date(s.date!);
+        d.setHours(h, m, 0, 0);
+        return { start: d.toISOString(), duration_minutes: s.duration };
+      });
+    if (validSlots.length === 0) {
+      toast({ title: "Add at least one time slot", variant: "destructive" });
+      return;
+    }
+    // Reject past slots
+    if (validSlots.some((s) => new Date(s.start).getTime() < Date.now())) {
+      toast({ title: "Time slots must be in the future", variant: "destructive" });
+      return;
+    }
     setSending(true);
     const note = interviewNote.trim();
     const { error } = await supabase.from("interview_requests").insert({
@@ -104,7 +130,9 @@ const CandidateProfileDialog = ({ candidate, open, onClose, onMessage, isFavorit
       candidate_user_id: candidate.user_id,
       note: note || null,
       status: "pending",
-    });
+      proposed_slots: validSlots,
+      meeting_provider: "google_meet",
+    } as any);
     if (error) {
       toast({ title: "Could not send request", description: error.message, variant: "destructive" });
     } else {
@@ -117,8 +145,19 @@ const CandidateProfileDialog = ({ candidate, open, onClose, onMessage, isFavorit
         ctaPath: "/talent",
       });
       setInterviewNote("");
+      setSlots([{ time: "10:00", duration: 30 }]);
     }
     setSending(false);
+  };
+
+  const addSlot = () => {
+    if (slots.length < 3) setSlots([...slots, { time: "10:00", duration: 30 }]);
+  };
+  const removeSlot = (i: number) => {
+    if (slots.length > 1) setSlots(slots.filter((_, idx) => idx !== i));
+  };
+  const updateSlot = (i: number, patch: Partial<Slot>) => {
+    setSlots(slots.map((s, idx) => (idx === i ? { ...s, ...patch } : s)));
   };
 
   const viewFullResume = async () => {
@@ -311,13 +350,78 @@ const CandidateProfileDialog = ({ candidate, open, onClose, onMessage, isFavorit
               Send Interview Request
             </p>
             <Textarea
-              placeholder="Optional note to introduce yourself or share scheduling details..."
+              placeholder="Optional note to introduce yourself..."
               value={interviewNote}
               onChange={(e) => setInterviewNote(e.target.value)}
               maxLength={1000}
-              rows={3}
+              rows={2}
+              className="mb-3"
             />
-            <Button variant="gold" className="mt-2" onClick={sendInterviewRequest} disabled={sending}>
+
+            <p className="text-xs font-body text-muted-foreground mb-2">
+              Propose 1–3 time slots. The talent will pick one to confirm. A Google Meet link is generated automatically.
+            </p>
+            <div className="space-y-2 mb-2">
+              {slots.map((slot, i) => (
+                <div key={i} className="flex flex-wrap items-center gap-2 p-2 border border-border rounded-md bg-background">
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className={cn("font-body justify-start text-left flex-1 min-w-[140px]", !slot.date && "text-muted-foreground")}
+                      >
+                        <CalendarIcon size={14} />
+                        {slot.date ? format(slot.date, "PP") : "Pick date"}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar
+                        mode="single"
+                        selected={slot.date}
+                        onSelect={(d) => updateSlot(i, { date: d ?? undefined })}
+                        disabled={(d) => d < new Date(new Date().setHours(0, 0, 0, 0))}
+                        initialFocus
+                        className={cn("p-3 pointer-events-auto")}
+                      />
+                    </PopoverContent>
+                  </Popover>
+                  <Input
+                    type="time"
+                    value={slot.time}
+                    onChange={(e) => updateSlot(i, { time: e.target.value })}
+                    className="w-[110px] font-body"
+                  />
+                  <Select
+                    value={String(slot.duration)}
+                    onValueChange={(v) => updateSlot(i, { duration: Number(v) })}
+                  >
+                    <SelectTrigger className="w-[110px] font-body">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="15">15 min</SelectItem>
+                      <SelectItem value="30">30 min</SelectItem>
+                      <SelectItem value="45">45 min</SelectItem>
+                      <SelectItem value="60">1 hour</SelectItem>
+                      <SelectItem value="90">1.5 hours</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  {slots.length > 1 && (
+                    <Button variant="ghost" size="sm" onClick={() => removeSlot(i)} aria-label="Remove slot">
+                      <X size={14} />
+                    </Button>
+                  )}
+                </div>
+              ))}
+            </div>
+            {slots.length < 3 && (
+              <Button variant="outline" size="sm" onClick={addSlot} className="mb-3">
+                <Plus size={14} /> Add another slot
+              </Button>
+            )}
+
+            <Button variant="gold" className="mt-2 w-full" onClick={sendInterviewRequest} disabled={sending}>
               {sending ? <Loader2 size={14} className="animate-spin" /> : <CalendarCheck size={14} />}
               Send Request
             </Button>
