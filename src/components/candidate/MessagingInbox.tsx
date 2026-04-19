@@ -9,6 +9,7 @@ import { toast } from "@/hooks/use-toast";
 import { Send, MessageSquare, Loader2, Building2, Flag } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import ReportDialog from "@/components/ReportDialog";
+import { sendNotificationEmail } from "@/lib/notifications";
 
 type Conversation = {
   id: string;
