@@ -257,29 +257,26 @@ const CandidateProfileDialog = ({ candidate, open, onClose, onMessage, isFavorit
           {hasResume && (
             <div className="mt-4 pt-4 border-t border-gold/20">
               {isAdmin || accessStatus === "approved" ? (
-                <Button variant="gold" size="sm" onClick={viewFullResume}>
-                  <FileText size={14} />
-                  View Full Resume
-                  {isAdmin && <span className="ml-2 text-[10px] uppercase tracking-wider opacity-70">Admin</span>}
-                </Button>
-              ) : accessStatus === "pending" ? (
-                <div className="flex items-center gap-2 text-sm font-body text-muted-foreground">
-                  <Clock size={14} />
-                  Resume access requested — awaiting candidate approval.
-                </div>
-              ) : accessStatus === "denied" ? (
-                <div className="flex items-center gap-2 text-sm font-body text-destructive">
-                  <Lock size={14} />
-                  Resume access was declined by the candidate.
+                <div className="space-y-2">
+                  <Button variant="gold" size="sm" onClick={viewFullResume}>
+                    <FileText size={14} />
+                    View Full Resume
+                    {isAdmin && <span className="ml-2 text-[10px] uppercase tracking-wider opacity-70">Admin</span>}
+                  </Button>
+                  {!isAdmin && accessStatus === "approved" && (
+                    <p className="text-[11px] font-body text-muted-foreground italic">
+                      The candidate is notified each time you view their full resume.
+                    </p>
+                  )}
                 </div>
               ) : (
                 <div>
                   <p className="text-xs font-body text-muted-foreground mb-2 flex items-center gap-1">
                     <Lock size={12} />
-                    Want the full resume? Send a request — the candidate will review and respond.
+                    Unlock the full resume — the candidate will be notified that you viewed it.
                   </p>
                   <Textarea
-                    placeholder="Optional message to the candidate explaining the role..."
+                    placeholder="Optional note to the candidate (visible to them)..."
                     value={requestMessage}
                     onChange={(e) => setRequestMessage(e.target.value)}
                     maxLength={500}
@@ -288,7 +285,7 @@ const CandidateProfileDialog = ({ candidate, open, onClose, onMessage, isFavorit
                   />
                   <Button variant="gold" size="sm" onClick={requestResumeAccess} disabled={requestingAccess}>
                     {requestingAccess ? <Loader2 size={14} className="animate-spin" /> : <CheckCircle2 size={14} />}
-                    Request Full Resume
+                    Unlock Full Resume
                   </Button>
                 </div>
               )}
