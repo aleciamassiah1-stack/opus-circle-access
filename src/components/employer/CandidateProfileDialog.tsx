@@ -263,8 +263,8 @@ const CandidateProfileDialog = ({ candidate, open, onClose, onMessage, isFavorit
             <div className="mt-4 pt-4 border-t border-gold/20">
               {isAdmin || accessStatus === "approved" ? (
                 <div className="space-y-2">
-                  <Button variant="gold" size="sm" onClick={viewFullResume}>
-                    <FileText size={14} />
+                  <Button variant="gold" size="sm" onClick={viewFullResume} disabled={openingResume}>
+                    {openingResume ? <Loader2 size={14} className="animate-spin" /> : <FileText size={14} />}
                     View Full Resume
                     {isAdmin && <span className="ml-2 text-[10px] uppercase tracking-wider opacity-70">Admin</span>}
                   </Button>
