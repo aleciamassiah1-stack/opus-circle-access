@@ -65,6 +65,7 @@ const CandidateProfileDialog = ({ candidate, open, onClose, onMessage, isFavorit
   const isAdmin = hasRole("admin");
   const [interviewNote, setInterviewNote] = useState("");
   const [slots, setSlots] = useState<Slot[]>([{ time: "10:00", duration: 30 }]);
+  const [meetingUrl, setMeetingUrl] = useState("");
   const [requestMessage, setRequestMessage] = useState("");
   const [sending, setSending] = useState(false);
   const [requestingAccess, setRequestingAccess] = useState(false);
@@ -123,6 +124,29 @@ const CandidateProfileDialog = ({ candidate, open, onClose, onMessage, isFavorit
       toast({ title: "Time slots must be in the future", variant: "destructive" });
       return;
     }
+    const trimmedUrl = meetingUrl.trim();
+    if (!trimmedUrl) {
+      toast({
+        title: "Meeting link required",
+        description: "Paste a Google Meet, Zoom, or Teams link so the talent can join.",
+        variant: "destructive",
+      });
+      return;
+    }
+    let parsedUrl: URL;
+    try {
+      parsedUrl = new URL(trimmedUrl);
+      if (parsedUrl.protocol !== "https:" && parsedUrl.protocol !== "http:") {
+        throw new Error("Invalid protocol");
+      }
+    } catch {
+      toast({
+        title: "Invalid meeting link",
+        description: "Enter a full URL starting with https:// (e.g. https://meet.google.com/abc-defg-hij).",
+        variant: "destructive",
+      });
+      return;
+    }
     setSending(true);
     const note = interviewNote.trim();
     const { error } = await supabase.from("interview_requests").insert({
@@ -131,7 +155,8 @@ const CandidateProfileDialog = ({ candidate, open, onClose, onMessage, isFavorit
       note: note || null,
       status: "pending",
       proposed_slots: validSlots,
-      meeting_provider: "google_meet",
+      meeting_url: parsedUrl.toString(),
+      meeting_provider: "custom",
     } as any);
     if (error) {
       toast({ title: "Could not send request", description: error.message, variant: "destructive" });
@@ -146,6 +171,7 @@ const CandidateProfileDialog = ({ candidate, open, onClose, onMessage, isFavorit
       });
       setInterviewNote("");
       setSlots([{ time: "10:00", duration: 30 }]);
+      setMeetingUrl("");
     }
     setSending(false);
   };
@@ -361,7 +387,7 @@ const CandidateProfileDialog = ({ candidate, open, onClose, onMessage, isFavorit
             />
 
             <p className="text-xs font-body text-muted-foreground mb-2">
-              Propose 1–3 time slots. The talent will pick one to confirm. A Google Meet link is generated automatically.
+              Propose 1–3 time slots and paste your meeting link. The talent will pick a slot to confirm.
             </p>
             <div className="space-y-2 mb-2">
               {slots.map((slot, i) => (
@@ -423,7 +449,24 @@ const CandidateProfileDialog = ({ candidate, open, onClose, onMessage, isFavorit
               </Button>
             )}
 
-            <Button variant="gold" className="mt-2 w-full" onClick={sendInterviewRequest} disabled={sending}>
+            <div className="mt-3 space-y-1">
+              <label className="text-xs uppercase tracking-wider text-muted-foreground font-body">
+                Meeting link
+              </label>
+              <Input
+                type="url"
+                placeholder="https://meet.google.com/abc-defg-hij"
+                value={meetingUrl}
+                onChange={(e) => setMeetingUrl(e.target.value)}
+                maxLength={500}
+                className="font-body"
+              />
+              <p className="text-[11px] font-body text-muted-foreground">
+                Paste a real Google Meet, Zoom, or Teams URL — both you and the talent will use this exact link.
+              </p>
+            </div>
+
+            <Button variant="gold" className="mt-3 w-full" onClick={sendInterviewRequest} disabled={sending}>
               {sending ? <Loader2 size={14} className="animate-spin" /> : <CalendarCheck size={14} />}
               Send Request
             </Button>
