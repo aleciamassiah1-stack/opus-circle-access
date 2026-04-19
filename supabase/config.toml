@@ -1,16 +1,17 @@
 project_id = "dxjcoklvlyagelvapaqi"
 
-[functions.payments-webhook]
-verify_jwt = false
-
-[functions.create-checkout]
-verify_jwt = false
-
-[functions.get-stripe-price]
-verify_jwt = false
-
-[functions.create-portal-session]
-verify_jwt = false
-
-[functions.admin-delete-user]
-verify_jwt = true
+[functions]
+  [functions.admin-delete-user]
+    verify_jwt = true
+  [functions.auth-email-hook]
+    verify_jwt = false
+  [functions.create-checkout]
+    verify_jwt = false
+  [functions.create-portal-session]
+    verify_jwt = false
+  [functions.get-stripe-price]
+    verify_jwt = false
+  [functions.payments-webhook]
+    verify_jwt = false
+  [functions.process-email-queue]
+    verify_jwt = true
