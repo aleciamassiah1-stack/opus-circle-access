@@ -178,10 +178,28 @@ const EmployerInterviewRequests = () => {
                     <Video size={14} /> Join Meet
                   </a>
                 </Button>
-                <Button variant="outline" size="sm" onClick={() => downloadIcs(r)}>
-                  <CalendarPlus size={14} /> Add to calendar
+                <Button variant="outline" size="sm" asChild>
+                  <a
+                    href={googleCalendarUrl({
+                      startISO: r.selected_slot.start,
+                      durationMinutes: r.selected_slot.duration_minutes,
+                      title: `Interview — ${r.candidate_name}`,
+                      description: `Interview via Opulence Talent Collective.\n\nJoin: ${r.meeting_url}`,
+                      location: r.meeting_url,
+                    })}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <CalendarPlus size={14} /> Add to Google Calendar
+                  </a>
+                </Button>
+                <Button variant="ghost" size="sm" onClick={() => downloadIcs(r)}>
+                  Download .ics
                 </Button>
               </div>
+              <p className="text-[11px] font-body text-muted-foreground italic mt-2">
+                The Meet link opens a fresh room when the first person joins.
+              </p>
             </div>
           )}
         </Card>
