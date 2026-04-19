@@ -94,19 +94,53 @@ const EmployerMessaging = ({ initialCandidateUserId, onConsumed }: Props) => {
   useEffect(() => {
     const openWith = async () => {
       if (!initialCandidateUserId || !user) return;
-      const existing = conversations.find((c) => c.candidate_user_id === initialCandidateUserId);
+
+      // 1. Check local cache first
+      const cached = conversations.find((c) => c.candidate_user_id === initialCandidateUserId);
+      if (cached) {
+        setActiveId(cached.id);
+        onConsumed?.();
+        return;
+      }
+
+      // 2. Check the DB directly — local cache may be stale
+      const { data: existing } = await supabase
+        .from("conversations")
+        .select("*")
+        .eq("employer_user_id", user.id)
+        .eq("candidate_user_id", initialCandidateUserId)
+        .maybeSingle();
+
       if (existing) {
+        await loadConversations();
         setActiveId(existing.id);
         onConsumed?.();
         return;
       }
+
+      // 3. Safe to insert
       const { data: newConvo, error } = await supabase
         .from("conversations")
         .insert({ employer_user_id: user.id, candidate_user_id: initialCandidateUserId })
         .select("*")
         .single();
+
       if (error) {
-        toast({ title: "Could not start conversation", description: error.message, variant: "destructive" });
+        // Race: another tab/click already created it — fetch and use it.
+        if ((error as any).code === "23505") {
+          const { data: raced } = await supabase
+            .from("conversations")
+            .select("*")
+            .eq("employer_user_id", user.id)
+            .eq("candidate_user_id", initialCandidateUserId)
+            .maybeSingle();
+          if (raced) {
+            await loadConversations();
+            setActiveId(raced.id);
+          }
+        } else {
+          toast({ title: "Could not start conversation", description: error.message, variant: "destructive" });
+        }
       } else if (newConvo) {
         await loadConversations();
         setActiveId(newConvo.id);
