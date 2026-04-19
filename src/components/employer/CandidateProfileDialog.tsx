@@ -64,6 +64,8 @@ const CandidateProfileDialog = ({ candidate, open, onClose, onMessage, isFavorit
   const [resumePath, setResumePath] = useState<string | null>(null);
   const [accessStatus, setAccessStatus] = useState<"none" | "pending" | "approved" | "denied">("none");
   const [loadingResume, setLoadingResume] = useState(true);
+  const [resumePreviewUrl, setResumePreviewUrl] = useState<string | null>(null);
+  const [openingResume, setOpeningResume] = useState(false);
 
   const initials = `${candidate.first_name?.[0] ?? ""}${candidate.last_name?.[0] ?? ""}`.toUpperCase() || "?";
 
