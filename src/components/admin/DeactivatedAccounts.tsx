@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useRefreshToken } from "@/contexts/RefreshBus";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Card } from "@/components/ui/card";
@@ -44,7 +45,8 @@ const DeactivatedAccounts = ({ onChange }: Props) => {
     setLoading(false);
   };
 
-  useEffect(() => { load(); }, []);
+  const refreshToken = useRefreshToken();
+  useEffect(() => { load(); }, [refreshToken]);
 
   const restore = async (uid: string) => {
     setBusyId(uid);

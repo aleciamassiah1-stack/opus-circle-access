@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { useRefreshToken } from "@/contexts/RefreshBus";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -119,9 +120,10 @@ const TalentDirectory = ({ onMessage }: Props) => {
     setLoading(false);
   };
 
+  const refreshToken = useRefreshToken();
   useEffect(() => {
     loadDirectory();
-  }, [user]);
+  }, [user, refreshToken]);
 
   const toggleFavorite = async (profileId: string) => {
     if (!user) return;

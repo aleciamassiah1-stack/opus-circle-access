@@ -1,4 +1,5 @@
 import { useEffect, useState, useCallback } from "react";
+import { useRefreshToken } from "@/contexts/RefreshBus";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -103,9 +104,10 @@ const ReportsQueue = ({ onChange }: Props) => {
     setLoading(false);
   }, [statusFilter]);
 
+  const refreshToken = useRefreshToken();
   useEffect(() => {
     load();
-  }, [load]);
+  }, [load, refreshToken]);
 
   const nameFor = (uid: string) => {
     const p = profilesById[uid];

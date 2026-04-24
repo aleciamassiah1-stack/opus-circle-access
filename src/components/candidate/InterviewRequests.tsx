@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { useRefreshToken } from "@/contexts/RefreshBus";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -97,9 +98,10 @@ const InterviewRequests = () => {
     setLoading(false);
   };
 
+  const refreshToken = useRefreshToken();
   useEffect(() => {
     load();
-  }, [user]);
+  }, [user, refreshToken]);
 
   const accept = async (r: Request) => {
     if (!r.proposed_slots || r.proposed_slots.length === 0) {

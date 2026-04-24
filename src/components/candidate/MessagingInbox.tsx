@@ -1,4 +1,5 @@
 import { useEffect, useState, useRef } from "react";
+import { useRefreshToken } from "@/contexts/RefreshBus";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -89,9 +90,10 @@ const MessagingInbox = () => {
     setLoading(false);
   };
 
+  const refreshToken = useRefreshToken();
   useEffect(() => {
     loadConversations();
-  }, [user]);
+  }, [user, refreshToken]);
 
   const loadMessages = async (convId: string) => {
     const { data } = await supabase

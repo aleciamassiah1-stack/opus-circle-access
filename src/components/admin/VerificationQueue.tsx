@@ -1,4 +1,5 @@
 import { useEffect, useState, useCallback } from "react";
+import { useRefreshToken } from "@/contexts/RefreshBus";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { logAdminAction } from "@/lib/auditLog";
@@ -85,7 +86,8 @@ const VerificationQueue = ({ onChange }: Props) => {
     setLoading(false);
   }, [statusFilter]);
 
-  useEffect(() => { load(); }, [load]);
+  const refreshToken = useRefreshToken();
+  useEffect(() => { load(); }, [load, refreshToken]);
 
   const nameFor = (uid: string) => {
     const p = profilesById[uid];

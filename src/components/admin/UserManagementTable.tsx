@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useRefreshToken } from "@/contexts/RefreshBus";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
@@ -85,7 +86,8 @@ const UserManagementTable = ({ onChange }: Props) => {
     setLoading(false);
   };
 
-  useEffect(() => { load(); }, []);
+  const refreshToken = useRefreshToken();
+  useEffect(() => { load(); }, [refreshToken]);
 
   const updateApproval = async (userId: string, status: ApprovalStatus) => {
     const update: any = { approval_status: status };

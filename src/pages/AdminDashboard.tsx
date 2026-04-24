@@ -11,6 +11,8 @@ import ReportsQueue from "@/components/admin/ReportsQueue";
 import VerificationQueue from "@/components/admin/VerificationQueue";
 import { supabase } from "@/integrations/supabase/client";
 import { UserCheck, Clock, Eye, CreditCard, MessageSquare, Briefcase, Building2, Flag, ShieldCheck } from "lucide-react";
+import { RefreshBusProvider } from "@/contexts/RefreshBus";
+import PullToRefresh from "@/components/layout/PullToRefresh";
 
 const AdminDashboard = () => {
   const [metrics, setMetrics] = useState({
@@ -83,7 +85,9 @@ const AdminDashboard = () => {
 
   return (
     <PageLayout>
-      <div className="container mx-auto px-6 py-12 max-w-6xl">
+      <RefreshBusProvider>
+        <PullToRefresh onRefresh={loadMetrics}>
+          <div className="container mx-auto px-6 py-12 max-w-6xl">
         <div className="mb-8 animate-fade-in">
           <p className="text-xs uppercase tracking-[0.2em] text-gold mb-3 font-body">Admin Dashboard</p>
           <h1 className="text-5xl md:text-6xl font-heading text-foreground mb-2">Platform Overview</h1>
@@ -169,7 +173,9 @@ const AdminDashboard = () => {
             <AuditLog />
           </TabsContent>
         </Tabs>
-      </div>
+          </div>
+        </PullToRefresh>
+      </RefreshBusProvider>
     </PageLayout>
   );
 };
