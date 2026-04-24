@@ -3,6 +3,7 @@ import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Menu, X, LogOut, Shield, LayoutDashboard, Building2, UserCircle } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
+import { isIosNative, WEB_SUBSCRIPTION_URL } from "@/lib/platform";
 import logo from "@/assets/otc-mark.png";
 
 const publicLinks = [
@@ -17,6 +18,8 @@ const Navbar = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const location = useLocation();
   const { user, profile, hasRole, signOut } = useAuth();
+  const iosNative = isIosNative();
+  const openWebSignup = () => window.open(WEB_SUBSCRIPTION_URL, "_blank", "noopener,noreferrer");
 
   // Hide marketing links once a member is signed in with an active subscription, or for admins.
   const isActiveMember = !!user && (hasRole("admin") || profile?.subscription_active === true);
@@ -90,9 +93,15 @@ const Navbar = () => {
                 <Button variant="ghost" size="sm" asChild>
                   <Link to="/login">Sign In</Link>
                 </Button>
-                <Button variant="gold" size="sm" asChild>
-                  <Link to="/login?signup=candidate">Apply Now</Link>
-                </Button>
+                {iosNative ? (
+                  <Button variant="gold" size="sm" onClick={openWebSignup}>
+                    Apply Now
+                  </Button>
+                ) : (
+                  <Button variant="gold" size="sm" asChild>
+                    <Link to="/login?signup=candidate">Apply Now</Link>
+                  </Button>
+                )}
               </>
             )}
           </div>
@@ -167,9 +176,22 @@ const Navbar = () => {
                   <Button variant="ghost" size="sm" asChild>
                     <Link to="/login" onClick={() => setMobileOpen(false)}>Sign In</Link>
                   </Button>
-                  <Button variant="gold" size="sm" asChild>
-                    <Link to="/login?signup=candidate" onClick={() => setMobileOpen(false)}>Apply Now</Link>
-                  </Button>
+                  {iosNative ? (
+                    <Button
+                      variant="gold"
+                      size="sm"
+                      onClick={() => {
+                        openWebSignup();
+                        setMobileOpen(false);
+                      }}
+                    >
+                      Apply Now
+                    </Button>
+                  ) : (
+                    <Button variant="gold" size="sm" asChild>
+                      <Link to="/login?signup=candidate" onClick={() => setMobileOpen(false)}>Apply Now</Link>
+                    </Button>
+                  )}
                 </>
               )}
             </div>
