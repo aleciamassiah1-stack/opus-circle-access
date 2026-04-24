@@ -8,6 +8,17 @@ const config: CapacitorConfig = {
     url: 'https://367c6d40-e2e6-4852-a421-c1fb20630537.lovableproject.com?forceHideBadge=true',
     cleartext: true,
   },
+  // The custom URL scheme that the app responds to (e.g. otc://talent/123).
+  // Universal Links are configured in the native projects (see DEEP_LINKS_SETUP.md):
+  //   - iOS: ios/App/App/App.entitlements + apple-app-site-association on the domain
+  //   - Android: AndroidManifest.xml intent-filter + assetlinks.json on the domain
+  ios: {
+    scheme: 'otc',
+  },
+  android: {
+    // Android equivalent — used for `otc://` intent handling.
+    // Universal "App Links" (https://) are handled via AndroidManifest intent-filters.
+  },
   plugins: {
     SplashScreen: {
       launchShowDuration: 1800,
