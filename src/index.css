@@ -71,17 +71,33 @@
     @apply border-border;
   }
 
+  html, body {
+    /* Lock background color so the iOS rubber-band overscroll matches the brand. */
+    background-color: hsl(var(--background));
+  }
+
   body {
     @apply bg-background text-foreground;
     font-family: var(--font-body);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    /* Prevent iOS auto-zoom on form focus and double-tap zoom in the native shell. */
+    -webkit-text-size-adjust: 100%;
+    touch-action: manipulation;
+    /* Disable the long-press text callout/selection menu on native, but keep on web. */
+    -webkit-tap-highlight-color: transparent;
   }
 
   h1, h2, h3, h4, h5, h6 {
     font-family: var(--font-heading);
     font-weight: 400;
   }
+
+  /* iOS safe-area helpers — applied to the navbar and footer wrappers. */
+  .pt-safe { padding-top: env(safe-area-inset-top); }
+  .pb-safe { padding-bottom: env(safe-area-inset-bottom); }
+  .pl-safe { padding-left: env(safe-area-inset-left); }
+  .pr-safe { padding-right: env(safe-area-inset-right); }
 }
 
 @layer utilities {

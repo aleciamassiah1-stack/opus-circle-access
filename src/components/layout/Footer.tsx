@@ -3,9 +3,9 @@ import logo from "@/assets/otc-mark-light.png";
 
 const Footer = () => {
   return (
-    <footer className="bg-foreground text-background/80">
-      <div className="container mx-auto px-6 py-16">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-10">
+    <footer className="bg-foreground text-background/80 pb-safe pl-safe pr-safe">
+      <div className="container mx-auto px-6 py-10 md:py-16">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-8 md:gap-10">
           <div className="md:col-span-2">
             <img src={logo} alt="Opulence Talent Collective" className="h-16 w-16 mb-4 object-contain" />
             <p className="font-body text-sm text-background/60 max-w-sm leading-relaxed">
@@ -46,11 +46,11 @@ const Footer = () => {
             </div>
           </div>
         </div>
-        <div className="border-t border-background/10 mt-12 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
-          <p className="text-xs text-background/40">
+        <div className="border-t border-background/10 mt-10 md:mt-12 pt-6 md:pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
+          <p className="text-xs text-background/40 text-center md:text-left">
             © {new Date().getFullYear()} Opulence Talent Collective. All rights reserved.
           </p>
-          <div className="flex items-center gap-5">
+          <div className="flex items-center gap-4 md:gap-5 flex-wrap justify-center">
             <Link to="/terms" className="text-xs text-background/60 hover:text-gold-light transition-colors">
               Terms of Service
             </Link>

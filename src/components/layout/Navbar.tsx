@@ -23,10 +23,10 @@ const Navbar = () => {
   const navLinks = isActiveMember ? memberLinks : publicLinks;
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md border-b border-border/50">
-      <div className="container mx-auto flex items-center justify-between h-24 px-6">
+    <nav className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md border-b border-border/50 pt-safe pl-safe pr-safe">
+      <div className="container mx-auto flex items-center justify-between h-16 md:h-24 px-4 md:px-6">
         <Link to="/" className="flex items-center" aria-label="Opulence Talent Collective">
-          <img src={logo} alt="Opulence Talent Collective" className="h-20 w-20 object-contain" />
+          <img src={logo} alt="Opulence Talent Collective" className="h-12 w-12 md:h-20 md:w-20 object-contain" />
         </Link>
 
         {/* Desktop */}
@@ -100,8 +100,9 @@ const Navbar = () => {
 
         {/* Mobile Toggle */}
         <button
-          className="md:hidden text-foreground"
+          className="md:hidden text-foreground p-2 -mr-2"
           onClick={() => setMobileOpen(!mobileOpen)}
+          aria-label={mobileOpen ? "Close menu" : "Open menu"}
         >
           {mobileOpen ? <X size={24} /> : <Menu size={24} />}
         </button>
