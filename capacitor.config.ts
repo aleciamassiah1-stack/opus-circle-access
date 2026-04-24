@@ -1,7 +1,7 @@
 import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'app.lovable.367c6d40e2e64852a421c1fb20630537',
+  appId: 'com.opulencetalentcollective.app',
   appName: 'Opulence Talent Collective',
   webDir: 'dist',
   server: {

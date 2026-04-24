@@ -4,7 +4,7 @@
     "target": {
       "namespace": "android_app",
       "//": "package_name matches capacitor.config.ts → appId.",
-      "package_name": "app.lovable.367c6d40e2e64852a421c1fb20630537",
+      "package_name": "com.opulencetalentcollective.app",
       "//": "Replace with the SHA-256 fingerprint of your release signing key.",
       "//": "Get it via: keytool -list -v -keystore your-release-key.keystore -alias your-alias",
       "//": "Add a second entry with the debug key SHA-256 if you want App Links to work in dev builds.",
