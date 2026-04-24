@@ -176,15 +176,14 @@ const ProfileEditor = () => {
     }
   };
 
-  const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file || !user) return;
+  const uploadAvatarFile = async (file: File) => {
+    if (!user) return;
     if (file.size > 5 * 1024 * 1024) {
       toast({ title: "File too large", description: "Max 5MB", variant: "destructive" });
       return;
     }
     setUploadingAvatar(true);
-    const ext = file.name.split(".").pop();
+    const ext = (file.name.split(".").pop() || "jpg").toLowerCase();
     const path = `${user.id}/avatar.${ext}`;
     const { error: upErr } = await supabase.storage.from("avatars").upload(path, file, { upsert: true });
     if (upErr) {
@@ -198,6 +197,22 @@ const ProfileEditor = () => {
     setUploadingAvatar(false);
     toast({ title: "Photo updated" });
     window.location.reload();
+  };
+
+  const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) await uploadAvatarFile(file);
+  };
+
+  const handleAvatarClick = async () => {
+    // On iOS/Android, prefer the native camera/library picker for better UX.
+    const picked = await pickNativeImage({ maxDimension: 1200, quality: 85 });
+    if (picked) {
+      await uploadAvatarFile(picked.file);
+    } else {
+      // Web (or user is on native but cancelled the prompt below) — fall back to file input
+      avatarRef.current?.click();
+    }
   };
 
   const handleResumeUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
