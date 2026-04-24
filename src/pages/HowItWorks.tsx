@@ -1,7 +1,8 @@
 import PageLayout from "@/components/layout/PageLayout";
-import { UserCircle, CreditCard, ClipboardCheck, BadgeCheck, MessageSquare, Building2, Search, Handshake, Users } from "lucide-react";
+import { UserCircle, CreditCard, ClipboardCheck, BadgeCheck, MessageSquare, Building2, Search, Handshake, Users, Globe } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { isIosNative, WEB_SUBSCRIPTION_URL } from "@/lib/platform";
 
 const candidateSteps = [
   {
@@ -132,9 +133,20 @@ const HowItWorks = () => {
           <p className="font-body text-background/60 mb-8">
             Apply today and join a network built on trust, discretion, and excellence.
           </p>
-          <Button variant="gold" size="lg" asChild>
-            <Link to="/login?signup=candidate">Apply Now</Link>
-          </Button>
+          {isIosNative() ? (
+            <Button
+              variant="gold"
+              size="lg"
+              onClick={() => window.open(WEB_SUBSCRIPTION_URL, "_blank", "noopener,noreferrer")}
+            >
+              <Globe size={16} className="mr-2" />
+              Apply Now on the web
+            </Button>
+          ) : (
+            <Button variant="gold" size="lg" asChild>
+              <Link to="/login?signup=candidate">Apply Now</Link>
+            </Button>
+          )}
         </div>
       </section>
     </PageLayout>
