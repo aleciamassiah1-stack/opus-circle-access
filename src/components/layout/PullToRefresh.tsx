@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { Loader2 } from "lucide-react";
 import { useTriggerRefresh } from "@/contexts/RefreshBus";
+import { haptics } from "@/lib/haptics";
 
 interface PullToRefreshProps {
   /** Called when the user completes a pull gesture. Should refetch data. */
