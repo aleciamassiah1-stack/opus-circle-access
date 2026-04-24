@@ -34,6 +34,8 @@ export const PullToRefresh = ({
   const startY = useRef<number | null>(null);
   const tracking = useRef(false);
   const triggerBus = useTriggerRefresh();
+  // Tracks whether we've already fired the "armed" haptic for this gesture.
+  const armedRef = useRef(false);
 
   useEffect(() => {
     const onTouchStart = (e: TouchEvent) => {
@@ -45,6 +47,7 @@ export const PullToRefresh = ({
       }
       startY.current = e.touches[0].clientY;
       tracking.current = true;
+      armedRef.current = false;
     };
 
     const onTouchMove = (e: TouchEvent) => {
@@ -59,6 +62,12 @@ export const PullToRefresh = ({
       // Apply rubber-band resistance so the pull feels native.
       const resisted = Math.min(maxPull, delta * 0.5);
       setPull(resisted);
+      // Fire a single light "armed" tick the moment we cross the threshold,
+      // so the user knows they can release to refresh.
+      if (!armedRef.current && resisted >= threshold) {
+        armedRef.current = true;
+        void haptics.select();
+      }
     };
 
     const onTouchEnd = async () => {
@@ -68,6 +77,8 @@ export const PullToRefresh = ({
       if (shouldRefresh) {
         setRefreshing(true);
         setPull(threshold); // hold the indicator at the trigger line
+        // Confirm the refresh with a firmer tap.
+        void haptics.tap();
         try {
           // Fan out: dashboard-level refetch + per-child bus signal.
           triggerBus();
