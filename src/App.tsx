@@ -22,6 +22,7 @@ import CheckoutReturn from "./pages/CheckoutReturn";
 import Profile from "./pages/Profile";
 import ProtectedRoute from "./components/ProtectedRoute";
 import ScrollToTop from "./components/ScrollToTop";
+import { NativeNavigationBridge } from "./components/mobile/NativeNavigationBridge";
 import { PaymentTestModeBanner } from "./components/PaymentTestModeBanner";
 import NotFound from "./pages/NotFound";
 
@@ -35,6 +36,7 @@ const App = () => (
       <BrowserRouter>
         <AuthProvider>
           <ScrollToTop />
+          <NativeNavigationBridge />
           <PaymentTestModeBanner />
           <Routes>
             <Route path="/" element={<Index />} />
