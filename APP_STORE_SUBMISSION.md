@@ -8,7 +8,7 @@ This checklist gets Opulence Talent Collective from "works on a phone" to
 ## 1. Apple Developer Setup ($99/yr)
 
 - [ ] Sign up at https://developer.apple.com/programs/
-- [ ] Create an App ID matching `app.lovable.367c6d40e2e64852a421c1fb20630537`
+- [ ] Create an App ID matching `com.opulencetalentcollective.app`
   (or rename the bundle to something cleaner, e.g. `com.opulencetalentcollective.app`)
 - [ ] Enable capabilities on the App ID:
   - Push Notifications
@@ -26,7 +26,7 @@ This checklist gets Opulence Talent Collective from "works on a phone" to
   **Back this file up — losing it means you can never update the app again.**
 - [ ] Set up Firebase project for FCM:
   - https://console.firebase.google.com → Add project
-  - Add Android app with package `app.lovable.367c6d40e2e64852a421c1fb20630537`
+  - Add Android app with package `com.opulencetalentcollective.app`
   - Download `google-services.json` → place in `android/app/`
   - Generate a service account JSON: Project Settings → Service Accounts → Generate new private key
 
@@ -39,7 +39,7 @@ Already coded; just need values:
 **iOS (APNs)**
 - `APNS_KEY_ID` — 10-char key ID from Apple Developer (e.g. `ABC123DEF4`)
 - `APNS_TEAM_ID` — 10-char team ID (top-right of Apple Developer site)
-- `APNS_BUNDLE_ID` — `app.lovable.367c6d40e2e64852a421c1fb20630537`
+- `APNS_BUNDLE_ID` — `com.opulencetalentcollective.app`
 - `APNS_AUTH_KEY` — full contents of the `.p8` file (paste including `-----BEGIN PRIVATE KEY-----`)
 
 **Android (FCM)**

@@ -23,7 +23,7 @@ What's still needed is the **native verification config**, which can only be gen
 Edit `public/.well-known/apple-app-site-association` and replace `TEAMID` with your real Team ID. The `appID` becomes:
 
 ```
-ABCDE12345.app.lovable.367c6d40e2e64852a421c1fb20630537
+ABCDE12345.com.opulencetalentcollective.app
 ```
 
 ### C. Confirm the file is served correctly
