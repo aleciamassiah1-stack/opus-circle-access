@@ -6,8 +6,9 @@ import { useSubscription } from "@/hooks/useSubscription";
 import { supabase } from "@/integrations/supabase/client";
 import { getStripeEnvironment } from "@/lib/stripe";
 import { toast } from "sonner";
-import { CreditCard, ExternalLink, Loader2 } from "lucide-react";
+import { CreditCard, ExternalLink, Loader2, Globe } from "lucide-react";
 import { format } from "date-fns";
+import { isIosNative, WEB_SUBSCRIPTION_URL } from "@/lib/platform";
 
 interface Props {
   plan: "candidate" | "employer";
@@ -80,9 +81,29 @@ const BillingPanel = ({ plan }: Props) => {
 
       <div className="flex flex-wrap gap-2">
         {isActive ? (
-          <Button variant="outline" size="sm" onClick={openPortal} disabled={opening}>
-            {opening ? <Loader2 size={14} className="animate-spin mr-2" /> : <ExternalLink size={14} className="mr-2" />}
-            Manage Billing
+          isIosNative() ? (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => window.open(WEB_SUBSCRIPTION_URL, "_blank", "noopener,noreferrer")}
+            >
+              <Globe size={14} className="mr-2" />
+              Manage on the web
+            </Button>
+          ) : (
+            <Button variant="outline" size="sm" onClick={openPortal} disabled={opening}>
+              {opening ? <Loader2 size={14} className="animate-spin mr-2" /> : <ExternalLink size={14} className="mr-2" />}
+              Manage Billing
+            </Button>
+          )
+        ) : isIosNative() ? (
+          <Button
+            variant="gold"
+            size="sm"
+            onClick={() => window.open(WEB_SUBSCRIPTION_URL, "_blank", "noopener,noreferrer")}
+          >
+            <Globe size={14} className="mr-2" />
+            Start membership on the web
           </Button>
         ) : (
           <Button variant="gold" size="sm" asChild>
