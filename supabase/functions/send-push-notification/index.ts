@@ -12,7 +12,7 @@
 // Required secrets (add via the Lovable secrets manager):
 //   APNS_KEY_ID            — 10-char Key ID from Apple Developer
 //   APNS_TEAM_ID           — 10-char Team ID from Apple Developer
-//   APNS_BUNDLE_ID         — e.g. app.lovable.367c6d40e2e64852a421c1fb20630537
+//   APNS_BUNDLE_ID         — e.g. com.opulencetalentcollective.app
 //   APNS_AUTH_KEY          — full contents of the .p8 file (PEM, with header/footer)
 //   APNS_USE_SANDBOX       — "true" to target sandbox APNs (TestFlight builds)
 //   FCM_SERVICE_ACCOUNT    — full JSON of the Firebase service-account key

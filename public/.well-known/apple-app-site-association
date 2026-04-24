@@ -5,7 +5,7 @@
       {
         "//": "Replace TEAMID with your Apple Developer Team ID (10-char string from developer.apple.com → Membership).",
         "//": "appID is in the format TEAMID.bundleId. Bundle ID matches capacitor.config.ts → appId.",
-        "appID": "TEAMID.app.lovable.367c6d40e2e64852a421c1fb20630537",
+        "appID": "937W3FJR9P.com.opulencetalentcollective.app",
         "paths": [
           "/talent/*",
           "/login",
