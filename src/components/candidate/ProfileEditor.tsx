@@ -11,6 +11,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { Upload, FileText, Loader2, X, Sparkles } from "lucide-react";
 import { z } from "zod";
+import { pickNativeImage } from "@/lib/native-image-picker";
 
 const profileSchema = z.object({
   first_name: z.string().trim().min(1, "Required").max(80),
@@ -283,7 +284,7 @@ const ProfileEditor = () => {
                   className="hidden"
                   onChange={handleAvatarUpload}
                 />
-                <Button variant="outline" size="sm" onClick={() => avatarRef.current?.click()} disabled={uploadingAvatar}>
+                <Button variant="outline" size="sm" onClick={handleAvatarClick} disabled={uploadingAvatar}>
                   {uploadingAvatar ? <Loader2 size={14} className="mr-2 animate-spin" /> : <Upload size={14} className="mr-2" />}
                   {profile.avatar_url ? "Change" : "Upload"}
                 </Button>
