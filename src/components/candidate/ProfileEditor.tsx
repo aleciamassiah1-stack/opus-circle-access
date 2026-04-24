@@ -11,6 +11,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { Upload, FileText, Loader2, X, Sparkles } from "lucide-react";
 import { z } from "zod";
+import { pickNativeImage } from "@/lib/native-image-picker";
 
 const profileSchema = z.object({
   first_name: z.string().trim().min(1, "Required").max(80),
@@ -176,15 +177,14 @@ const ProfileEditor = () => {
     }
   };
 
-  const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file || !user) return;
+  const uploadAvatarFile = async (file: File) => {
+    if (!user) return;
     if (file.size > 5 * 1024 * 1024) {
       toast({ title: "File too large", description: "Max 5MB", variant: "destructive" });
       return;
     }
     setUploadingAvatar(true);
-    const ext = file.name.split(".").pop();
+    const ext = (file.name.split(".").pop() || "jpg").toLowerCase();
     const path = `${user.id}/avatar.${ext}`;
     const { error: upErr } = await supabase.storage.from("avatars").upload(path, file, { upsert: true });
     if (upErr) {
@@ -198,6 +198,22 @@ const ProfileEditor = () => {
     setUploadingAvatar(false);
     toast({ title: "Photo updated" });
     window.location.reload();
+  };
+
+  const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) await uploadAvatarFile(file);
+  };
+
+  const handleAvatarClick = async () => {
+    // On iOS/Android, prefer the native camera/library picker for better UX.
+    const picked = await pickNativeImage({ maxDimension: 1200, quality: 85 });
+    if (picked) {
+      await uploadAvatarFile(picked.file);
+    } else {
+      // Web (or user is on native but cancelled the prompt below) — fall back to file input
+      avatarRef.current?.click();
+    }
   };
 
   const handleResumeUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -268,7 +284,7 @@ const ProfileEditor = () => {
                   className="hidden"
                   onChange={handleAvatarUpload}
                 />
-                <Button variant="outline" size="sm" onClick={() => avatarRef.current?.click()} disabled={uploadingAvatar}>
+                <Button variant="outline" size="sm" onClick={handleAvatarClick} disabled={uploadingAvatar}>
                   {uploadingAvatar ? <Loader2 size={14} className="mr-2 animate-spin" /> : <Upload size={14} className="mr-2" />}
                   {profile.avatar_url ? "Change" : "Upload"}
                 </Button>

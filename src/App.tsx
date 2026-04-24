@@ -24,6 +24,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import ScrollToTop from "./components/ScrollToTop";
 import { NativeNavigationBridge } from "./components/mobile/NativeNavigationBridge";
 import { PushNotificationRegistrar } from "./hooks/usePushNotifications";
+import { NativeKeyboardBridge } from "./hooks/useNativeKeyboard";
 import { PaymentTestModeBanner } from "./components/PaymentTestModeBanner";
 import NotFound from "./pages/NotFound";
 
@@ -39,6 +40,7 @@ const App = () => (
           <ScrollToTop />
           <NativeNavigationBridge />
           <PushNotificationRegistrar />
+          <NativeKeyboardBridge />
           <PaymentTestModeBanner />
           <Routes>
             <Route path="/" element={<Index />} />

@@ -9,6 +9,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { Upload, Loader2, Building2 } from "lucide-react";
+import { pickNativeImage } from "@/lib/native-image-picker";
 
 const EmployerProfileEditor = () => {
   const { user, profile } = useAuth();
@@ -62,15 +63,14 @@ const EmployerProfileEditor = () => {
     }
   };
 
-  const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file || !user) return;
+  const uploadLogoFile = async (file: File) => {
+    if (!user) return;
     if (file.size > 3 * 1024 * 1024) {
       toast({ title: "File too large", description: "Max 3MB", variant: "destructive" });
       return;
     }
     setUploading(true);
-    const ext = file.name.split(".").pop();
+    const ext = (file.name.split(".").pop() || "jpg").toLowerCase();
     const path = `${user.id}/logo.${ext}`;
     const { error: upErr } = await supabase.storage.from("company-logos").upload(path, file, { upsert: true });
     if (upErr) {
@@ -84,6 +84,20 @@ const EmployerProfileEditor = () => {
     setUploading(false);
     toast({ title: "Logo updated" });
     window.location.reload();
+  };
+
+  const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) await uploadLogoFile(file);
+  };
+
+  const handleLogoClick = async () => {
+    const picked = await pickNativeImage({ maxDimension: 800, quality: 90 });
+    if (picked) {
+      await uploadLogoFile(picked.file);
+    } else {
+      logoRef.current?.click();
+    }
   };
 
   if (!profile) return null;
@@ -123,7 +137,7 @@ const EmployerProfileEditor = () => {
             </div>
             <div>
               <input ref={logoRef} type="file" accept="image/*" className="hidden" onChange={handleLogoUpload} />
-              <Button variant="outline" size="sm" onClick={() => logoRef.current?.click()} disabled={uploading}>
+              <Button variant="outline" size="sm" onClick={handleLogoClick} disabled={uploading}>
                 {uploading ? <Loader2 size={14} className="mr-2 animate-spin" /> : <Upload size={14} className="mr-2" />}
                 {logoUrl ? "Change" : "Upload"}
               </Button>

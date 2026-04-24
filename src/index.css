@@ -98,6 +98,15 @@
   .pb-safe { padding-bottom: env(safe-area-inset-bottom); }
   .pl-safe { padding-left: env(safe-area-inset-left); }
   .pr-safe { padding-right: env(safe-area-inset-right); }
+
+  /* Native keyboard handling — set by useNativeKeyboard hook.
+     Use class `pb-kb` on sticky bottom containers (e.g. message composer)
+     to lift them above the keyboard when it appears. */
+  :root { --kb-h: 0px; }
+  .pb-kb { padding-bottom: calc(var(--kb-h, 0px) + env(safe-area-inset-bottom)); }
+  /* Hide bottom-stuck elements (e.g. tab bars) while keyboard is open
+     so they don't sit on top of the keyboard. */
+  body.kb-open .hide-on-kb { display: none !important; }
 }
 
 @layer utilities {
