@@ -207,6 +207,33 @@ Deno.serve(async (req) => {
       })
     }
 
+    // Fan out push notification in parallel — fire-and-forget. Failure here
+    // never blocks the email response: the in-app notification + email are
+    // already on their way.
+    try {
+      const pushUrl = `${supabaseUrl}/functions/v1/send-push-notification`
+      // Build a short push body. APNs / FCM both display ~178 chars cleanly.
+      const pushBody = detail
+        ? `${intro}${intro.endsWith('.') ? '' : '.'} ${detail}`.slice(0, 240)
+        : intro.slice(0, 240)
+      // Don't await — let the parent return immediately.
+      fetch(pushUrl, {
+        method: 'POST',
+        headers: {
+          'content-type': 'application/json',
+          authorization: `Bearer ${serviceKey}`,
+        },
+        body: JSON.stringify({
+          recipientUserId,
+          title: subject,
+          body: pushBody,
+          data: { path: ctaPath ?? copy.ctaPath, kind },
+        }),
+      }).catch((err) => console.warn('push fan-out failed', err))
+    } catch (err) {
+      console.warn('push fan-out threw', err)
+    }
+
     return new Response(JSON.stringify({ success: true }), {
       status: 200,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
