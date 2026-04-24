@@ -1,9 +1,11 @@
 import { Navigate, useSearchParams } from "react-router-dom";
 import PageLayout from "@/components/layout/PageLayout";
 import { StripeEmbeddedCheckout } from "@/components/StripeEmbeddedCheckout";
+import IosWebSubscriptionNotice from "@/components/IosWebSubscriptionNotice";
 import { useAuth } from "@/contexts/AuthContext";
 import { PRICE_IDS } from "@/lib/stripe";
 import { useSubscription } from "@/hooks/useSubscription";
+import { isIosNative } from "@/lib/platform";
 import { Loader2 } from "lucide-react";
 
 const Checkout = () => {
@@ -57,14 +59,21 @@ const Checkout = () => {
           </p>
         </div>
 
-        <div className="bg-card border border-border rounded-lg p-2 md:p-4 shadow-card">
-          <StripeEmbeddedCheckout
-            priceId={priceId}
-            userId={user.id}
-            customerEmail={user.email ?? undefined}
-            returnUrl={`${window.location.origin}/checkout/return?session_id={CHECKOUT_SESSION_ID}`}
+        {isIosNative() ? (
+          <IosWebSubscriptionNotice
+            title={`Complete your ${planLabel.toLowerCase()} on the web`}
+            body={`To finish setting up your ${planPrice}/month membership, open OTC in your browser and sign in with the same email. Your account, application, and approval status all carry over.`}
           />
-        </div>
+        ) : (
+          <div className="bg-card border border-border rounded-lg p-2 md:p-4 shadow-card">
+            <StripeEmbeddedCheckout
+              priceId={priceId}
+              userId={user.id}
+              customerEmail={user.email ?? undefined}
+              returnUrl={`${window.location.origin}/checkout/return?session_id={CHECKOUT_SESSION_ID}`}
+            />
+          </div>
+        )}
       </div>
     </PageLayout>
   );

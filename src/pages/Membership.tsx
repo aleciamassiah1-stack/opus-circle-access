@@ -1,13 +1,14 @@
 import PageLayout from "@/components/layout/PageLayout";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import { Check, Crown, Briefcase } from "lucide-react";
+import { Check, Crown, Briefcase, Globe } from "lucide-react";
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import { isIosNative, WEB_SUBSCRIPTION_URL } from "@/lib/platform";
 
 const faqs = [
   {
@@ -56,6 +57,9 @@ const employerFeatures = [
 ];
 
 const Membership = () => {
+  const iosNative = isIosNative();
+  const openWebSignup = () => window.open(WEB_SUBSCRIPTION_URL, "_blank", "noopener,noreferrer");
+
   return (
     <PageLayout>
       <section className="py-24 px-6">
@@ -67,6 +71,11 @@ const Membership = () => {
             Simple, transparent pricing. Talent is individually vetted before profiles go live —
             employers pay for assured access to that curated network. Cancel anytime.
           </p>
+          {iosNative && (
+            <p className="mt-6 text-xs font-body text-muted-foreground max-w-md mx-auto">
+              Memberships are managed on our website — tap any apply button to continue in your browser.
+            </p>
+          )}
         </div>
 
         <div className="container mx-auto max-w-4xl grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -93,9 +102,16 @@ const Membership = () => {
                 </li>
               ))}
             </ul>
-            <Button variant="gold" size="lg" asChild>
-              <Link to="/login?signup=candidate">Apply as Talent</Link>
-            </Button>
+            {iosNative ? (
+              <Button variant="gold" size="lg" onClick={openWebSignup}>
+                <Globe size={16} className="mr-2" />
+                Apply as Talent on the web
+              </Button>
+            ) : (
+              <Button variant="gold" size="lg" asChild>
+                <Link to="/login?signup=candidate">Apply as Talent</Link>
+              </Button>
+            )}
           </div>
 
           {/* Employer Plan */}
@@ -124,9 +140,16 @@ const Membership = () => {
                 </li>
               ))}
             </ul>
-            <Button variant="gold" size="lg" asChild>
-              <Link to="/login?signup=employer">Apply as Employer</Link>
-            </Button>
+            {iosNative ? (
+              <Button variant="gold" size="lg" onClick={openWebSignup}>
+                <Globe size={16} className="mr-2" />
+                Apply as Employer on the web
+              </Button>
+            ) : (
+              <Button variant="gold" size="lg" asChild>
+                <Link to="/login?signup=employer">Apply as Employer</Link>
+              </Button>
+            )}
           </div>
         </div>
       </section>
