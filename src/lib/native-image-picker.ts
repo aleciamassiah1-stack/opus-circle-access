@@ -8,7 +8,7 @@
  * On web, returns null — caller should fall back to a plain <input type="file">.
  */
 import { Camera, CameraResultType, CameraSource } from "@capacitor/camera";
-import { isNative } from "./platform";
+import { isNativePlatform } from "./platform";
 
 export type PickedImage = { file: File; dataUrl: string } | null;
 
@@ -22,7 +22,7 @@ export async function pickNativeImage(opts?: {
   /** JPEG quality 0-100. Default 85. */
   quality?: number;
 }): Promise<PickedImage> {
-  if (!isNative()) return null;
+  if (!isNativePlatform()) return null;
   try {
     const photo = await Camera.getPhoto({
       quality: opts?.quality ?? 85,
