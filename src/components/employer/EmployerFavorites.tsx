@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useRefreshToken } from "@/contexts/RefreshBus";
 import { Card } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -65,7 +66,8 @@ const EmployerFavorites = ({ onMessage }: Props) => {
     setLoading(false);
   };
 
-  useEffect(() => { load(); }, [user]);
+  const refreshToken = useRefreshToken();
+  useEffect(() => { load(); }, [user, refreshToken]);
 
   const remove = async (favId: string, profileId: string) => {
     if (!user) return;

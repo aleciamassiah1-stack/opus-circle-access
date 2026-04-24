@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useRefreshToken } from "@/contexts/RefreshBus";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -65,7 +66,8 @@ const EmployerInterviewRequests = () => {
     setLoading(false);
   };
 
-  useEffect(() => { load(); }, [user]);
+  const refreshToken = useRefreshToken();
+  useEffect(() => { load(); }, [user, refreshToken]);
 
   const withdraw = async (id: string) => {
     const { error } = await supabase

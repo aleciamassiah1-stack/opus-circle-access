@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useRefreshToken } from "@/contexts/RefreshBus";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -55,7 +56,8 @@ const ResumeAccessRequests = () => {
     setLoading(false);
   };
 
-  useEffect(() => { load(); }, [user]);
+  const refreshToken = useRefreshToken();
+  useEffect(() => { load(); }, [user, refreshToken]);
 
   if (loading) {
     return (

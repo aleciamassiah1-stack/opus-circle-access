@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useRefreshToken } from "@/contexts/RefreshBus";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -45,7 +46,8 @@ const ApprovalQueue = ({ onChange }: { onChange?: () => void }) => {
     setLoading(false);
   };
 
-  useEffect(() => { load(); }, []);
+  const refreshToken = useRefreshToken();
+  useEffect(() => { load(); }, [refreshToken]);
 
   const decide = async (userId: string, status: "approved" | "rejected") => {
     setBusy(userId);
