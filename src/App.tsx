@@ -26,6 +26,7 @@ import { NativeNavigationBridge } from "./components/mobile/NativeNavigationBrid
 import { PushNotificationRegistrar } from "./hooks/usePushNotifications";
 import { NativeKeyboardBridge } from "./hooks/useNativeKeyboard";
 import { PaymentTestModeBanner } from "./components/PaymentTestModeBanner";
+import InstallPWAPrompt from "./components/InstallPWAPrompt";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -42,6 +43,7 @@ const App = () => (
           <PushNotificationRegistrar />
           <NativeKeyboardBridge />
           <PaymentTestModeBanner />
+          <InstallPWAPrompt />
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/how-it-works" element={<HowItWorks />} />
