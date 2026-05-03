@@ -4,6 +4,7 @@ import PageLayout from "@/components/layout/PageLayout";
 import heroImage from "@/assets/hero-professionals.jpg";
 import { Shield, Users, Eye, ArrowRight, Star, Lock, Crown } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
+import InstallPWAButton from "@/components/InstallPWAButton";
 
 const Index = () => {
   const { user, loading, hasRole } = useAuth();
@@ -43,6 +44,7 @@ const Index = () => {
             <Button variant="hero-outline" size="lg" asChild>
               <Link to="/login">Employer Access</Link>
             </Button>
+            <InstallPWAButton variant="hero-outline" size="lg" />
           </div>
         </div>
 
