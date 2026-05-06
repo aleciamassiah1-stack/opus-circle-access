@@ -56,6 +56,10 @@ const InstallPWAPrompt = () => {
     if (isNativePlatform()) return;
     if (isStandalone()) return;
     if (typeof window === "undefined") return;
+    // Only show on mobile devices (iOS Safari / Android Chrome)
+    const ua = window.navigator.userAgent;
+    const isMobile = /iPad|iPhone|iPod|Android/.test(ua);
+    if (!isMobile) return;
     if (window.localStorage.getItem(STORAGE_KEY) === "1") return;
 
     setBrowser(detectBrowser());
