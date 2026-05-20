@@ -46,34 +46,51 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (_event, session) => {
+    let subscription: { unsubscribe: () => void } | undefined;
+
+    try {
+      const { data } = supabase.auth.onAuthStateChange(
+        async (_event, session) => {
+          setSession(session);
+          setUser(session?.user ?? null);
+          if (session?.user) {
+            setTimeout(() => {
+              fetchProfile(session.user.id);
+              fetchRoles(session.user.id);
+            }, 0);
+          } else {
+            setProfile(null);
+            setRoles([]);
+          }
+          setLoading(false);
+        }
+      );
+      subscription = data.subscription;
+    } catch (err) {
+      console.warn("[AuthProvider] auth listener setup failed", err);
+      setLoading(false);
+    }
+
+    supabase.auth.getSession()
+      .then(({ data: { session } }) => {
         setSession(session);
         setUser(session?.user ?? null);
         if (session?.user) {
-          setTimeout(() => {
-            fetchProfile(session.user.id);
-            fetchRoles(session.user.id);
-          }, 0);
-        } else {
-          setProfile(null);
-          setRoles([]);
+          fetchProfile(session.user.id);
+          fetchRoles(session.user.id);
         }
         setLoading(false);
-      }
-    );
+      })
+      .catch((err) => {
+        console.warn("[AuthProvider] session restore failed", err);
+        setSession(null);
+        setUser(null);
+        setProfile(null);
+        setRoles([]);
+        setLoading(false);
+      });
 
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      if (session?.user) {
-        fetchProfile(session.user.id);
-        fetchRoles(session.user.id);
-      }
-      setLoading(false);
-    });
-
-    return () => subscription.unsubscribe();
+    return () => subscription?.unsubscribe();
   }, []);
 
   const signUp = async (

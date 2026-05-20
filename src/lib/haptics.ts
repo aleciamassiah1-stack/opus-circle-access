@@ -1,5 +1,4 @@
-import { Haptics, ImpactStyle, NotificationType } from "@capacitor/haptics";
-import { Capacitor } from "@capacitor/core";
+import { isNativePlatform } from "@/lib/platform";
 
 /**
  * Haptics helper — wraps Capacitor Haptics so calls are safe on web.
@@ -16,45 +15,61 @@ import { Capacitor } from "@capacitor/core";
  *  - error()    → failed mutations / validation errors
  */
 
-const isNative = Capacitor.isNativePlatform();
+type HapticsModule = typeof import("@capacitor/haptics");
+
+let hapticsModulePromise: Promise<HapticsModule | null> | null = null;
+
+const loadHaptics = async () => {
+  if (!isNativePlatform()) return null;
+  hapticsModulePromise ??= import("@capacitor/haptics").catch((err) => {
+    console.warn("[haptics] plugin unavailable", err);
+    return null;
+  });
+  return hapticsModulePromise;
+};
 
 export const haptics = {
   tap: async () => {
-    if (!isNative) return;
     try {
-      await Haptics.impact({ style: ImpactStyle.Medium });
+      const mod = await loadHaptics();
+      if (!mod) return;
+      await mod.Haptics.impact({ style: mod.ImpactStyle.Medium });
     } catch {
       // Ignore — some devices may not support haptics.
     }
   },
   select: async () => {
-    if (!isNative) return;
     try {
-      await Haptics.impact({ style: ImpactStyle.Light });
+      const mod = await loadHaptics();
+      if (!mod) return;
+      await mod.Haptics.impact({ style: mod.ImpactStyle.Light });
     } catch {
       // Ignore.
     }
   },
   success: async () => {
-    if (!isNative) return;
     try {
-      await Haptics.notification({ type: NotificationType.Success });
+      const mod = await loadHaptics();
+      if (!mod) return;
+      await mod.Haptics.notification({ type: mod.NotificationType.Success });
     } catch {
       // Ignore.
     }
   },
   warning: async () => {
-    if (!isNative) return;
     try {
-      await Haptics.notification({ type: NotificationType.Warning });
+      const mod = await loadHaptics();
+      if (!mod) return;
+      await mod.Haptics.notification({ type: mod.NotificationType.Warning });
     } catch {
       // Ignore.
     }
   },
   error: async () => {
-    if (!isNative) return;
     try {
-      await Haptics.notification({ type: NotificationType.Error });
+      const mod = await loadHaptics();
+      if (!mod) return;
+      await mod.Haptics.notification({ type: mod.NotificationType.Error });
     } catch {
       // Ignore.
     }
