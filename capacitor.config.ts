@@ -7,6 +7,14 @@ const config: CapacitorConfig = {
   // App Store builds must always load the bundled files from `dist/`.
   // Do not add a `server.url` here; a stale live-reload URL causes a blank
   // WebView on Apple review devices when that remote preview is unavailable.
+  ...(process.env.CAP_SIMULATOR_LIVE === '1'
+    ? {
+        server: {
+          url: 'http://localhost:8080',
+          cleartext: true,
+        },
+      }
+    : {}),
   // The custom URL scheme that the app responds to (e.g. otc://talent/123).
   // Universal Links are configured in the native projects (see DEEP_LINKS_SETUP.md):
   //   - iOS: ios/App/App/App.entitlements + apple-app-site-association on the domain
