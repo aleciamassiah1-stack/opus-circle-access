@@ -1,7 +1,8 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { App, type URLOpenListenerEvent } from "@capacitor/app";
-import { Capacitor } from "@capacitor/core";
+import { isNativePlatform } from "@/lib/platform";
+
+type URLOpenListenerEvent = { url: string };
 
 /**
  * Bridges native Capacitor navigation events into React Router.
@@ -21,31 +22,37 @@ export function NativeNavigationBridge() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (!Capacitor.isNativePlatform()) return;
+    if (!isNativePlatform()) return;
 
     // Track listener handles so we can detach on unmount.
     const handles: Array<{ remove: () => Promise<void> }> = [];
+    let cancelled = false;
 
-    // ---------- Hardware back button (Android) ----------
-    App.addListener("backButton", ({ canGoBack }) => {
-      if (canGoBack && window.history.length > 1) {
-        // There's React Router history — go back one step.
-        navigate(-1);
-      } else {
-        // We're at the root of the app's history. Per the user's preference,
-        // exit immediately (standard Android behavior) instead of trapping
-        // them with a "press back twice" prompt.
-        App.exitApp();
-      }
-    }).then((h) => handles.push(h));
+    (async () => {
+      try {
+        const { App } = await import("@capacitor/app");
+        if (cancelled) return;
+
+        // ---------- Hardware back button (Android) ----------
+        App.addListener("backButton", ({ canGoBack }) => {
+          if (canGoBack && window.history.length > 1) {
+            // There's React Router history — go back one step.
+            navigate(-1);
+          } else {
+            // We're at the root of the app's history. Per the user's preference,
+            // exit immediately (standard Android behavior) instead of trapping
+            // them with a "press back twice" prompt.
+            App.exitApp();
+          }
+        }).then((h) => handles.push(h));
 
     // ---------- Deep link handler ----------
     // Fires for both Universal Links (https://opulencetalentcollective.com/...)
     // and custom-scheme URLs (otc://...). We normalize both to a path + search
     // string and feed it into React Router.
-    App.addListener("appUrlOpen", (event: URLOpenListenerEvent) => {
-      try {
-        const incoming = new URL(event.url);
+        App.addListener("appUrlOpen", (event: URLOpenListenerEvent) => {
+          try {
+            const incoming = new URL(event.url);
 
         // Recognized hosts/schemes for this app. Anything else is ignored so
         // we don't accidentally navigate on unrelated intents.
@@ -70,14 +77,19 @@ export function NativeNavigationBridge() {
         }
 
         const fullPath = `${path}${incoming.search}${incoming.hash}`;
-        navigate(fullPath);
+            navigate(fullPath);
+          } catch (err) {
+            // Malformed URL — log and ignore so the app stays stable.
+            console.warn("[NativeNavigationBridge] Could not parse deep link:", event.url, err);
+          }
+        }).then((h) => handles.push(h));
       } catch (err) {
-        // Malformed URL — log and ignore so the app stays stable.
-        console.warn("[NativeNavigationBridge] Could not parse deep link:", event.url, err);
+        console.warn("[NativeNavigationBridge] plugin unavailable", err);
       }
-    }).then((h) => handles.push(h));
+    })();
 
     return () => {
+      cancelled = true;
       // Detach all listeners on unmount to avoid duplicates during HMR.
       handles.forEach((h) => h.remove().catch(() => undefined));
     };
