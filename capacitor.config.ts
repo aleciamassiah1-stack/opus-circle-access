@@ -4,18 +4,9 @@ const config: CapacitorConfig = {
   appId: 'com.opulencetalentcollective.app',
   appName: 'Opulence Talent Collective',
   webDir: 'dist',
-  // ⚠️ DEV-ONLY live reload from the Lovable sandbox.
-  // For App Store / Play Store builds this MUST be removed (or commented out)
-  // so the app loads the bundled `dist/` assets instead of a remote URL.
-  // Toggle by setting CAP_LIVE_RELOAD=1 before running `npx cap sync` locally.
-  ...(process.env.CAP_LIVE_RELOAD === '1'
-    ? {
-        server: {
-          url: 'https://367c6d40-e2e6-4852-a421-c1fb20630537.lovableproject.com?forceHideBadge=true',
-          cleartext: true,
-        },
-      }
-    : {}),
+  // App Store builds must always load the bundled files from `dist/`.
+  // Do not add a `server.url` here; a stale live-reload URL causes a blank
+  // WebView on Apple review devices when that remote preview is unavailable.
   // The custom URL scheme that the app responds to (e.g. otc://talent/123).
   // Universal Links are configured in the native projects (see DEEP_LINKS_SETUP.md):
   //   - iOS: ios/App/App/App.entitlements + apple-app-site-association on the domain
